@@ -17,21 +17,19 @@ using namespace FMCS;
 extern "C" {
 
 
-void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTwo, 
+void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
     int *atomMismatchLowerBound, int *atomMismatchUpperBound, 
     int *bondMismatchLowerBound, int *bondMismatchUpperBound, 
     int *matchTypeInt, int* runningModeInt, 
     int *timeout, 
     const char** resultIdxOne, const char** resultIdxTwo,
-    //const char** resultSdfOne, const char** resultSdfTwo,
     const char** sdfOneSize, const char** sdfTwoSize, const char** mcsSize) {
-    if (*structureStringOne == NULL) {
-		//cout << "input structure one cannot be NULL...\n";
+	if (structureStringOne == NULL) {
+		cout << "input structure one cannot be NULL...\n";
 		return;
 	}
-
-	if (*structureStringTwo == NULL) {
-		//cout << "input structure two cannot be NULL...\n";
+	if (structureStringTwo == NULL) {
+		cout << "input structure two cannot be NULL...\n";
 		return;
 	}
 	
@@ -59,16 +57,16 @@ void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTw
         }
         
         MCSCompound compoundOne, compoundTwo;
-        
+
 #ifdef HAVE_LIBOPENBABEL
         compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
         compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-        compoundOne.read(string(*structureStringOne));
-        compoundTwo.read(string(*structureStringTwo));
+
+        compoundOne.read(string(structureStringOne));
+        compoundTwo.read(string(structureStringTwo));
             
 #endif           
-	
         MCS mcs(compoundOne, compoundTwo,
             userDefinedLowerBound, substructureNumLimit,
             *atomMismatchLowerBound, *atomMismatchUpperBound,
@@ -317,6 +315,7 @@ myReadFile.open(fileName);
 if (myReadFile.is_open()) {
 	while (myReadFile >> temp){
 		if(temp == "$$$$"){
+			actualSDF+=temp;
 			sdfSet.push_back(actualSDF);
 			actualSDF = "";
 		}	
@@ -328,10 +327,11 @@ if (myReadFile.is_open()) {
 myReadFile.close();
 cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
 
-fmcs_R_wrap((const char**)sdfSet[1].c_str(), (const char**)sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
+fmcs_R_wrap(sdfSet[1].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
 &bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
 &runningModeInt,&timeout,resultIdxOne,
 resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
+
 
 return 0;
 }

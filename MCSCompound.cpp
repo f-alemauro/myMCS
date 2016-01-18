@@ -133,6 +133,7 @@ namespace FMCS {
     }
 #ifdef HAVE_LIBOPENBABEL
     void MCSCompound::read(const string& sdfString, ReadType type) {
+
         switch (type) {
             case SMI:
                 parseSMI(sdfString);
@@ -153,7 +154,10 @@ namespace FMCS {
 #else
 
     void MCSCompound::read(const std::string& sdfString) {
-        parseSDF(sdfString);
+    	cout<<"ok"<<endl;
+    	cout<<sdfString<<endl;
+    	parseSDF(sdfString);
+
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
             atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);

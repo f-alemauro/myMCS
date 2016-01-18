@@ -3,3 +3,6 @@
 *.in
 *~
 mcswrap
+.cproject
+.settings
+.project
