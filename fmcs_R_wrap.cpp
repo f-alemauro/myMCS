@@ -311,19 +311,17 @@ const char** mcsSize = (const char**)argv[13];
 
 ifstream myReadFile;
 myReadFile.open(fileName);
+std::stringstream buffer;
+buffer << myReadFile.rdbuf();
+std::string contents(buffer.str());
 
-if (myReadFile.is_open()) {
-	while (myReadFile >> temp){
-		if(temp == "$$$$"){
-			actualSDF+=temp;
-			sdfSet.push_back(actualSDF);
-			actualSDF = "";
-		}	
-		else
-			actualSDF+=temp+" ";
-	}
-	 
+size_t last = 0;
+size_t next = 0;
+while ((next = contents.find("$$$$", last)) != string::npos) {
+	sdfSet.push_back(contents.substr(last, next-last+4));
+	last = next +4;
 }
+
 myReadFile.close();
 cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
 
