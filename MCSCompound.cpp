@@ -26,7 +26,7 @@ using namespace OpenBabel;
 using namespace std;
 
 namespace FMCS {
-    
+
     const char MCSCompound::Atom::elements[111][3] = { "Ru", "Re", "Rf", "Rg", "Ra", "Rb", "Rn", "Rh", "Be", "Ba", "Bh", "Bi", "Bk", "Br", "H", "P", "Os", "Ge", "Gd", "Ga", "Pr", "Pt", "Pu", "C", "Pb", "Pa", "Pd", "Cd", "Po", "Pm", "Hs", "Ho", "Hf", "Hg", "He", "Md", "Mg", "K", "Mn", "O", "Mt", "S", "W", "Zn", "Eu", "Zr", "Er", "Ni", "No", "Na", "Nb", "Nd", "Ne", "Np", "Fr", "Fe", "Fm", "B", "F", "Sr", "N", "Kr", "Si", "Sn", "Sm", "V", "Sc", "Sb", "Sg", "Se", "Co", "Cm", "Cl", "Ca", "Cf", "Ce", "Xe", "Tm", "Cs", "Cr", "Cu", "La", "Li", "Tl", "Lu", "Lr", "Th", "Ti", "Te", "Tb", "Tc", "Ta", "Yb", "Db", "Dy", "Ds", "At", "I", "U", "Y", "Ac", "Ag", "Ir", "Am", "Al", "As", "Ar", "Au", "Es", "In", "Mo" };
     
     map<string, int> MCSCompound::Atom::atomTypeMap;

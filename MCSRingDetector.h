@@ -187,7 +187,6 @@ namespace FMCS {
         int currVertexId() { return vertexId; }
         int currEdgeId() { return edgeId; }
     public:
-
         MCSRingDetector(MCSCompound& compound) : compound(compound), vertexId(-1), edgeId(-1) {
             convert();
         }

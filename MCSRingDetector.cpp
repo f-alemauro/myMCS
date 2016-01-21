@@ -16,6 +16,7 @@
 using namespace std;
 
 namespace FMCS {
+
     
     void MCSRingDetector::addEdge(const Edge& newEdge) {
         int edgeId = nextEdgeId();
@@ -172,11 +173,11 @@ namespace FMCS {
             remove(vertex);
             sortVertexQueue();
         }
-        int aromaticCount = 0;
+
+        /*int aromaticCount = 0;
 
         for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
-        	cout<<"NEW RING!**********"<<endl;
-            const vector<int>& ringEdges = ringIterator->edgePath;
+        	const vector<int>& ringEdges = ringIterator->edgePath;
             for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                 compound.setRingBond(*ringEdgeIter);
 
@@ -186,7 +187,7 @@ namespace FMCS {
                     compound.setAromaticBond(*ringEdgeIter);
                 }
             }
-        }
+        }*/
     }
     
     map<string, int> MCSRingDetector::Ring::electronMap;
