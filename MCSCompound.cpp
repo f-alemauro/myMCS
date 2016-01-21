@@ -167,15 +167,29 @@ namespace FMCS {
         MCSRingDetector ringDector(*this);
         ringDector.detect();
 
+
     }
     
 #endif
     //function for removing ring from compund
     void MCSCompound::removeRings(){
           	cout<<"Start removing rings..."<<endl;
+     /*     	ring
+          	 for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+          	        	cout<<"NEW RING!**********"<<endl;
+          	            const vector<int>& ringEdges = ringIterator->edgePath;
+          	            for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
 
+          	                compound.setRingBond(*ringEdgeIter);
+          	            }
+          	            if (ringIterator->isAromatic()) {
+          	                for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
+          	                    compound.setAromaticBond(*ringEdgeIter);
+          	                }
+          	            }
+          	        }
 
-
+*/
           	cout<<"End removing rings..."<<endl;
 
           }
@@ -439,7 +453,6 @@ namespace FMCS {
 
     	string countsLine;
     	getline(sdfStringStream, countsLine);
-
     	string atomCountString = countsLine.substr(0, 3);
     	string bondCountString = countsLine.substr(3, 3);
 

@@ -152,6 +152,7 @@ namespace FMCS {
         }
         
         inline const Atom& getAtom(size_t atomPos) const {
+
         	return atoms[atomPos];
         }
         

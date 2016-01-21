@@ -173,10 +173,13 @@ namespace FMCS {
             sortVertexQueue();
         }
         int aromaticCount = 0;
+
         for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+        	cout<<"NEW RING!**********"<<endl;
             const vector<int>& ringEdges = ringIterator->edgePath;
             for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                 compound.setRingBond(*ringEdgeIter);
+
             }
             if (ringIterator->isAromatic()) {
                 for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {

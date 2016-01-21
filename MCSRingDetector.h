@@ -192,7 +192,7 @@ namespace FMCS {
             convert();
         }
         void detect();
-        
+
     };
     
 }
