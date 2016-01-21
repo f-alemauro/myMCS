@@ -153,9 +153,8 @@ namespace FMCS {
     }
 #else
 
+
     void MCSCompound::read(const std::string& sdfString) {
-    	cout<<"ok"<<endl;
-    	cout<<sdfString<<endl;
     	parseSDF(sdfString);
 
         for (int i = 0; i < bondCount; ++i) {
@@ -171,6 +170,15 @@ namespace FMCS {
     }
     
 #endif
+    //function for removing ring from compund
+    void MCSCompound::removeRings(){
+          	cout<<"Start removing rings..."<<endl;
+
+
+
+          	cout<<"End removing rings..."<<endl;
+
+          }
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {
         
         stringstream content(this->SdfContentString);
@@ -477,5 +485,7 @@ namespace FMCS {
         
         return NULL;
     }
+
+
 	
 }

@@ -162,6 +162,7 @@ namespace FMCS {
         inline const MCSList<size_t>& operator[](size_t atom) const {
             return atoms[atom].neighborAtoms;
         }
+        void removeRings();
     };
 }
 #endif // _MCSCOMPOUND_H

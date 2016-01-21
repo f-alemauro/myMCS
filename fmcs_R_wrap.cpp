@@ -65,7 +65,8 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
 
         compoundOne.read(string(structureStringOne));
         compoundTwo.read(string(structureStringTwo));
-            
+        compoundOne.removeRings();
+
 #endif           
         MCS mcs(compoundOne, compoundTwo,
             userDefinedLowerBound, substructureNumLimit,
@@ -295,6 +296,13 @@ std::vector<string> sdfSet;
 string temp,actualSDF;
 int i = 0;
 
+if(argc!=14){
+	cout<<"Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
+			"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout resultIdxOne "
+			"resultIdxTwo sdfOneSize sdfTwoSize mcsSize"<<endl;
+	return -1;
+}
+
 const char* fileName = (const char*)argv[1];
 int atomMismatchLowerBound = atoi(argv[2]);
 int atomMismatchUpperBound = atoi(argv[3]);
@@ -311,6 +319,8 @@ const char** mcsSize = (const char**)argv[13];
 
 ifstream myReadFile;
 myReadFile.open(fileName);
+
+
 std::stringstream buffer;
 buffer << myReadFile.rdbuf();
 std::string contents(buffer.str());
