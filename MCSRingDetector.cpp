@@ -167,14 +167,15 @@ namespace FMCS {
     }
     
     void  MCSRingDetector::detect() {
-        while (!vertexQueue.empty()) {
+    	const MCSCompound::Bond* bonds = compound.getBonds();
+    	const MCSCompound::Atom* atoms = compound.getAtoms();
+    	while (!vertexQueue.empty()) {
             int vertex = vertexQueue.back();
             vertexQueue.pop_back();
             remove(vertex);
             sortVertexQueue();
         }
-
-        /*int aromaticCount = 0;
+        int aromaticCount = 0;
 
         for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
         	const vector<int>& ringEdges = ringIterator->edgePath;
@@ -187,7 +188,36 @@ namespace FMCS {
                     compound.setAromaticBond(*ringEdgeIter);
                 }
             }
-        }*/
+        }
+
+        //Removing rings
+    	for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+    			cout<<"*****NEW RING**********"<<endl;
+    			int size = 0;
+        		MCSList<MCSCompound::Bond*> bondListNonRing;
+        		std::string smile;
+        	  	const vector<int>& ringEdges = ringIterator->edgePath;
+        	  	for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
+        	  		size_t atom = bonds[*ringEdgeIter].secondAtom;
+
+        	  		size++;
+        	  		cout<<atom<<"- "<<atoms[atom].atomSymbol<<" ";
+        	  		MCSList<MCSCompound::Bond*> bondList = atoms[atom].neighborBonds;
+
+        	  		while (!bondList.empty()) {
+        	  				MCSCompound::Bond* b = bondList.back();
+        	  				if (!b->isInARing){
+        	  					cout<<"Verso: "<< b->secondAtom<<"- "<<atoms[b->secondAtom].atomSymbol<<" ";
+        	  					bondListNonRing.push_back(b);
+        	  					//cout<<"found"<<endl;
+        	  				}
+        	  				bondList.pop_back();
+        	  		}
+         	  	}
+        	  	cout<<"Dimensioni anelli: "<<size<<endl;
+        	  	cout<<"Numero legami esterni: "<<bondListNonRing.size()<<endl<<endl;
+        	  	//add new vertex R1 with links
+        	}
     }
     
     map<string, int> MCSRingDetector::Ring::electronMap;

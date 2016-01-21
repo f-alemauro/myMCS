@@ -62,10 +62,9 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
         compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
         compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-
         compoundOne.read(string(structureStringOne));
-        compoundTwo.read(string(structureStringTwo));
-        compoundOne.removeRings();
+        //compoundTwo.read(string(structureStringTwo));
+        //compoundOne.removeRings();
 
 #endif           
         MCS mcs(compoundOne, compoundTwo,
@@ -335,7 +334,7 @@ while ((next = contents.find("$$$$", last)) != string::npos) {
 myReadFile.close();
 cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
 
-fmcs_R_wrap(sdfSet[1].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
+fmcs_R_wrap(sdfSet[0].c_str(), sdfSet[0].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
 &bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
 &runningModeInt,&timeout,resultIdxOne,
 resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
