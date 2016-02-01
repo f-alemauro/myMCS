@@ -366,10 +366,8 @@ namespace FMCS {
     	getline(originalStringStream, compoundNameLine);
     	getline(originalStringStream, informationLine);
     	getline(originalStringStream, commentLine);
-
     	string oldCountsLine;
     	getline(originalStringStream, oldCountsLine);
-
     	string atomCountString = oldCountsLine.substr(0, 3);
     	string bondCountString = oldCountsLine.substr(3, 3);
     	int oldAtomCount = atoi(atomCountString.c_str());
@@ -426,7 +424,6 @@ namespace FMCS {
     	string newCountLine = newCountLineStringStream.str();
     	delete newAtomIndex;
     	newAtomIndex = NULL;
-
     	string newSDFString = compoundNameLine + "\n"
     			+ informationLine + "\n"
     			+ commentLine + "\n"
@@ -461,7 +458,7 @@ namespace FMCS {
 
     	atoms = new Atom[atomCount];
     	bonds = new Bond[bondCount];
-
+    	cout<<"Reading atoms..."<<endl;
     	for (size_t i = 0; i < atomCount; ++i) {
     		string atomBlockLine;
     		getline(sdfStringStream, atomBlockLine);
@@ -470,7 +467,7 @@ namespace FMCS {
             stringstream rawStringStream(atomSymbolRawString);
             string atomSymbol;
             rawStringStream >> atomSymbol;
-            
+            cout<<i<<" "<<originalIds[i]<<" "<<atomSymbol<<endl;
     		atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol);
     	}
 
