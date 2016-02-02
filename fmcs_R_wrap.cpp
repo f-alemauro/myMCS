@@ -56,18 +56,21 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
                 ;
         }
         
-        MCSCompound compoundOne, compoundTwo;
+        MCSCompound compoundOneWRing, compoundTwoWRing;
+        MCSCompound compoundOneNoRing, compoundTwoNoRing;
 
 #ifdef HAVE_LIBOPENBABEL
-        compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
-        compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
+        compoundOneWRing.read(string(*structureStringOne), MCSCompound::SDF);
+        compoundTwoWRing.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-        compoundOne.read(string(structureStringOne));
+        compoundOneWRing.read(string(structureStringOne));
         //compoundTwo.read(string(structureStringTwo));
         //compoundOne.removeRings();
 
-#endif           
-        MCS mcs(compoundOne, compoundTwo,
+#endif
+        //
+
+        MCS mcs(compoundOneWRing, compoundTwoWRing,
             userDefinedLowerBound, substructureNumLimit,
             *atomMismatchLowerBound, *atomMismatchUpperBound,
             *bondMismatchLowerBound, *bondMismatchUpperBound,

@@ -121,7 +121,8 @@ namespace FMCS {
                 originalIdArray2.push_back(tmpIdVector);
             }
         } else {
-            max();
+
+        	max();
         }
         
         clock_t end = clock();	
@@ -185,7 +186,9 @@ namespace FMCS {
     void MCS::max() {
         MCSList<size_t> atomListOne = compoundOne.getAtomList();
         MCSList<size_t> atomListTwo = compoundTwo.getAtomList();
+
         grow(atomListOne, atomListTwo);
+
     }
     
     bool MCS::compatible(size_t atomOne, size_t atomTwo,

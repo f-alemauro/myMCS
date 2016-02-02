@@ -43,12 +43,12 @@ namespace FMCS {
             Atom(size_t id, unsigned int type) 
                 : atomId(id), atomType(type) {}
 #else
-            Atom(size_t id, size_t originalId, int atomType, std::string atomSymbol) 
-                : atomId(id), originalId(originalId), atomType(atomType), atomSymbol(atomSymbol) {}
+            Atom(size_t id, size_t originalId, int atomType, std::string atomSymbol, bool isInARing)
+                : atomId(id), originalId(originalId), atomType(atomType), atomSymbol(atomSymbol), isInARing(isInARing) {}
 #endif
 
             size_t degree() const { return neighborAtoms.size(); }
-
+            bool isInARing;
             const Bond& getBond(int v2) const;
             static const char elements[111][3];
             static const char code[111];
@@ -96,6 +96,7 @@ namespace FMCS {
         
         Atom *atoms;
         Bond *bonds;
+        std::vector<Atom> newRingAtoms;
 #ifdef HAVE_LIBOPENBABEL
         void parseSMI(const std::string& sdfString);
 #endif
@@ -140,12 +141,17 @@ namespace FMCS {
             bonds[bondPos].isAromatic = true;
         }
         
+        void setRingAtom(size_t atomPos) {
+                    atoms[atomPos].isInARing = true;
+                }
+
         size_t getAtomCount() const { return atomCount; }
         size_t getBondCount() const { return bondCount; }
         
         inline size_t size() const {
             return atomCount;
         }
+        size_t addNewRingAtom(std::string name);
         
         std::string getCompoundName() const {
             return compoundName;
@@ -163,7 +169,6 @@ namespace FMCS {
         inline const MCSList<size_t>& operator[](size_t atom) const {
             return atoms[atom].neighborAtoms;
         }
-        void removeRings();
     };
 }
 #endif // _MCSCOMPOUND_H

@@ -178,7 +178,10 @@ void  MCSRingDetector::detect() {
 	int aromaticCount = 0;
 
 	for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+		std::string ringSMART = "";
+
 		const vector<int>& ringEdges = ringIterator->edgePath;
+		const vector<int>& ringAtoms = ringIterator->vertexPath;
 		for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
 			compound.setRingBond(*ringEdgeIter);
 
@@ -188,34 +191,54 @@ void  MCSRingDetector::detect() {
 				compound.setAromaticBond(*ringEdgeIter);
 			}
 		}
+		for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter)
+			ringSMART += atoms[*ringAtomIter].atomSymbol;
+
+		//for each ring create a new Ring Node called "Rx"
+		size_t id = compound.addNewRingAtom(ringSMART);
+
+		//for each node in a ring mark it as atom in a ring
+		for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter) {
+			compound.setRingAtom(*ringAtomIter);
+			MCSList<MCSCompound::Bond*> bondList = atoms[*ringAtomIter].neighborBonds;
+			//search for bond of an atom that are not in the ring (i.e: external bonds)
+			while (!bondList.empty()) {
+				MCSCompound::Bond* b = bondList.back();
+				//re-route external bond to account for new ring node.
+				if (!b->isInARing){
+					if (b->firstAtom == *ringAtomIter)
+						b->secondAtom = id;
+					else
+						b->firstAtom = id;
+				}
+				bondList.pop_back();
+			}
+		}
+
 	}
 
 	//Removing rings
 
-	for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+	/*for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
 		cout<<"*****NEW RING**********"<<endl;
 		MCSList<MCSCompound::Bond*> bondListNonRing;
-		const vector<int>& ringAtoms = ringIterator->vertexPath;
+
 
 		//entering a ring;
 		//the iterator iterates over all the atoms in a ring.
-		for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter) {
+
 
 			//for each atoms in the ring check all of the bonds it is connecte to...
-			MCSList<MCSCompound::Bond*> bondList = atoms[*ringAtomIter].neighborBonds;
+
 
 			//check each bond: if is not in a ring, then the bond is a link of
 			//the ring towards the molecule
-			while (!bondList.empty()) {
-				MCSCompound::Bond* b = bondList.back();
-				if (!b->isInARing){
-					bondListNonRing.push_back(b);
-				bondList.pop_back();
-			}
-		}
-	 	cout<<"Numero legami esterni: "<<bondListNonRing.size()<<endl<<endl;
-		}
 
+
+		}
+		cout<<"Numero legami esterni: "<<bondListNonRing.size()<<endl<<endl;
+
+	}*/
 }
 
 map<string, int> MCSRingDetector::Ring::electronMap;
