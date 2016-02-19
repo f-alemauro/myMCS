@@ -335,7 +335,7 @@ while ((next = contents.find("$$$$", last)) != string::npos) {
 myReadFile.close();
 cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
 
-fmcs_R_wrap(sdfSet[1].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
+fmcs_R_wrap(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
 &bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
 &runningModeInt,&timeout,resultIdxOne,
 resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
