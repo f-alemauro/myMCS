@@ -36,6 +36,7 @@ namespace FMCS {
 
             size_t atomId;
             size_t originalId;
+            std::vector<size_t> ringId;
 
             Atom() : atomType(0), atomId(-1), originalId(-1) {}
 
@@ -43,18 +44,22 @@ namespace FMCS {
             Atom(size_t id, unsigned int type) 
                 : atomId(id), atomType(type) {}
 #else
-            Atom(size_t id, size_t originalId, int atomType, std::string atomSymbol) 
-                : atomId(id), originalId(originalId), atomType(atomType), atomSymbol(atomSymbol) {}
+            Atom(size_t id, size_t originalId, int atomType, std::string atomSymbol, bool isInARing, std::vector<size_t> ringId)
+                : atomId(id), originalId(originalId), atomType(atomType), atomSymbol(atomSymbol), isInARing(isInARing), ringId (ringId) {}
+            //Atom(size_t id, size_t originalId, int atomType, std::string atomSymbol) 
+            //    : atomId(id), originalId(originalId), atomType(atomType), atomSymbol(atomSymbol) {}
 #endif
 
             size_t degree() const { return neighborAtoms.size(); }
-
+            bool isInARing;
             const Bond& getBond(int v2) const;
             static const char elements[111][3];
             static const char code[111];
             static std::map<std::string, int> atomTypeMap;
             static bool atomTypeMapInitialized;
             static bool atomTypeMapInit();
+            
+            
 
         };
         
@@ -96,6 +101,8 @@ namespace FMCS {
         
         Atom *atoms;
         Bond *bonds;
+        std::vector<Atom> newRingAtoms;
+        
 #ifdef HAVE_LIBOPENBABEL
         void parseSMI(const std::string& sdfString);
 #endif
@@ -140,12 +147,27 @@ namespace FMCS {
             bonds[bondPos].isAromatic = true;
         }
         
+        void setRingAtom(size_t atomPos) {
+            atoms[atomPos].isInARing = true;
+        }
+        
+        //saving for each atom its corresponding ID of the ring(s))
+        void setRingId(size_t atomPos, size_t Id) {            
+            atoms[atomPos].ringId.push_back(Id);            
+        }
+        
+        void setMaps(std::map<size_t,std::vector<size_t> > ringAtomsMap, std::map<size_t,std::vector<size_t> >ringEdgeMap){
+            this->ringAtomsMap = ringAtomsMap;
+            this->ringEdgeMap = ringEdgeMap;
+        }
+        
         size_t getAtomCount() const { return atomCount; }
         size_t getBondCount() const { return bondCount; }
-        
+        std::map<size_t,std::vector<size_t> > ringAtomsMap, ringEdgeMap;
         inline size_t size() const {
             return atomCount;
         }
+        size_t addNewRingAtom(std::string name);
         
         std::string getCompoundName() const {
             return compoundName;

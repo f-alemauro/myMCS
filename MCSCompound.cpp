@@ -22,6 +22,7 @@ using namespace OpenBabel;
 #include <sstream>
 #include <map>
 #include <string>
+#include <stdio.h>
 
 using namespace std;
 
@@ -156,6 +157,8 @@ namespace FMCS {
 
     void MCSCompound::read(const std::string& sdfString) {
     	parseSDF(sdfString);
+        size_t newAtomCount=0;
+        size_t newBondCount=0;
 
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
@@ -166,7 +169,23 @@ namespace FMCS {
         
         MCSRingDetector ringDector(*this);
         ringDector.detect();
-
+        //count all the atom not in a ring that has to be saved
+        for (int i = 0; i < atomCount; ++i)
+            if(!atoms[i].isInARing)
+                newAtomCount++;
+        
+        //count all the bond not in a ring that has to be saved
+        for (int i = 0; i < bondCount; ++i)
+            if (!bonds[i].isInARing)
+                newBondCount++;
+        
+        	//creating the new atom and bond lists with the new dimension
+        Atom *tempAtom = new Atom[newAtomCount+newRingAtoms.size()];
+        Bond *tempBond = new Bond[newBondCount];
+        //now fill in the two list, and then add also the new atom for rings
+        //then update neighborAtoms as above
+        //lastly copy these new list to the original one.
+    
 
     }
     
@@ -271,6 +290,10 @@ namespace FMCS {
             other = static_cast<size_t>(-1);
         }
         return other;
+    }
+    
+    size_t MCSCompound::addNewRingAtom(std::string name) {
+        newRingAtoms.push_back(Atom(atomCount+newRingAtoms.size()+1,0,newRingAtoms.size(),name,true, std::vector<size_t>()));
     }
     
     MCSList<size_t> MCSCompound::getAtomList() const {
@@ -389,8 +412,8 @@ namespace FMCS {
     			newAtomBlock += atomBlockLine;
     			newAtomBlock += "\n";
     			newAtomIndex[i] = newAtomCount+1;
-                ++newAtomCount;
-                originalIds.push_back(i+1);
+                        ++newAtomCount;
+                        originalIds.push_back(i+1);
     		} else {
     			newAtomIndex[i] = -1;
     		}
@@ -434,7 +457,7 @@ namespace FMCS {
     			+ newAtomBlock
     			+ newBondBlock
     			+ "M END\n"
-                + "$$$$";
+                        + "$$$$";
 
     	return newSDFString;
     }
@@ -461,17 +484,20 @@ namespace FMCS {
 
     	atoms = new Atom[atomCount];
     	bonds = new Bond[bondCount];
-
+        cout<<"Reading atoms..."<<endl;
+        
     	for (size_t i = 0; i < atomCount; ++i) {
-    		string atomBlockLine;
-    		getline(sdfStringStream, atomBlockLine);
+            string atomBlockLine;
+            getline(sdfStringStream, atomBlockLine);
             
             string atomSymbolRawString = atomBlockLine.substr(31, 3);
             stringstream rawStringStream(atomSymbolRawString);
             string atomSymbol;
             rawStringStream >> atomSymbol;
-            
-    		atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol);
+            //cout<<i<<" "<<originalIds[i]<<" "<<atomSymbol<<endl;
+            //atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol);
+            std::vector<size_t> id;
+            atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol, false, id);
     	}
 
     	for (size_t i = 0; i < bondCount; ++i) {

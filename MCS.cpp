@@ -19,7 +19,7 @@ using namespace OpenBabel;
 #include <sstream>
 #include <iostream>
 #include <fstream>
-
+#include <algorithm>
 #include <R.h>
 
 //#ifndef WINDOWS
@@ -106,7 +106,8 @@ namespace FMCS {
                 //originalIdArray2.push_back(idxTwo);
                 
                 const MCSCompound::Atom* atomsOne = compoundOne.getAtoms();
-                size_t atomCountOne = compoundOne.getAtomCount();
+                size_t atomCountOne = compoundOne.getAtomCount();                
+                
                 for (int i = 0; i < atomCountOne; ++i) {
                     tmpIdVector.push_back(atomsOne[i].originalId);
                 }
@@ -129,6 +130,7 @@ namespace FMCS {
         timeUsed = (double)(end - start) / CLOCKS_PER_SEC * 1000.0;
         
         if(runningMode == DETAIL) {
+            cout<<"MCS.cpp - claculate() - runningMode: detail"<<endl;
             int resultCount = 0;
             for (std::list<MCSMap>::const_iterator iMap = bestList.begin(); iMap != bestList.end(); ++iMap) {
                 ++resultCount;
@@ -139,8 +141,7 @@ namespace FMCS {
                 		compoundOne.subgraph(iMap->getKeyList(), size(), string("fmcs_") + resultCountString));
                 stringstream resultStringStreamTwo(
                 		compoundTwo.subgraph(iMap->getValueList(), size(), string("fmcs_") + resultCountString));
-                
-                
+                       
                 const size_t* idArrayOnePtr = iMap->getKeyList();
                 const size_t* idArrayTwoPtr = iMap->getValueList();
                 int length = size();
@@ -149,9 +150,24 @@ namespace FMCS {
                 for(int i = 0; i < length; ++i) {
                     idxOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
                     idxTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
-                }
+                           }
                 
-                originalIdArray1.push_back(idxOne);
+                for(int i = 0; i < length; ++i) {
+                    if (compoundOne.atoms[idArrayOnePtr[i]].isInARing){
+                        for (vector<size_t>::const_iterator ringIdIter = compoundOne.atoms[idArrayOnePtr[i]].ringId.begin(); ringIdIter != compoundOne.atoms[idArrayOnePtr[i]].ringId.end(); ++ringIdIter){
+                            map<size_t,vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
+                            for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
+                                if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
+                                    cout<<"NON C'E'! Aggiungo: "<<compoundOne.atoms[*atomsInRing].originalId<<endl;
+                                    idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
+                                }
+                            }
+                            
+                        }
+                           
+                    }
+                }
+                originalIdArray1.push_back(idxOne);                
                 originalIdArray2.push_back(idxTwo);
 
 #ifdef HAVE_LIBOPENBABEL
@@ -326,6 +342,8 @@ namespace FMCS {
                 }
                 bestList.clear();
                 bestList.push_back(currentMapping);
+                //
+                
             }
         }
     }
@@ -449,12 +467,13 @@ namespace FMCS {
                                 currentMapping.push_back(topCandidateAtom, atomListTwoPtr[i]);
                                 
                                 atomListTwo.erase(atomListTwoPtr[i]);
-                                //cout<<"added couple to currentMapping"<<endl;
-                                grow(atomListOneCopy, atomListTwo);
+                                                                
+                                grow(atomListOneCopy, atomListTwo);                               
+                                
                                 
                                 atomListTwo.push_back(atomListTwoPtr[i]);
-                                currentMapping.pop_back();
-                                //cout<<"removed couple to currentMapping"<<endl;
+                                currentMapping.pop_back();                                
+                                
                             }
                             if (introducedNewComponent) {
                                 --currSubstructureNum;

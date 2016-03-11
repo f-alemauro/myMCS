@@ -12,6 +12,7 @@
 
 #include "MCSRingDetector.h"
 #include "MCSCompound.h"
+#include "MCSMap.h"
 
 using namespace std;
 
@@ -166,6 +167,8 @@ namespace FMCS {
     }
     
     void  MCSRingDetector::detect() {
+        const MCSCompound::Bond* bonds = compound.getBonds();
+        const MCSCompound::Atom* atoms = compound.getAtoms();
         while (!vertexQueue.empty()) {
             int vertex = vertexQueue.back();
             vertexQueue.pop_back();
@@ -173,20 +176,63 @@ namespace FMCS {
             sortVertexQueue();
         }
         int aromaticCount = 0;
-
+ 
+        std::map<size_t,vector<size_t> > ringAtomsMap, ringEdgeMap;
         for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
-        	cout<<"NEW RING!**********"<<endl;
+            //the index of each ring is saved in the ringID
+            size_t ringID = ringIterator - rings.begin();
+            std::string ringSMART = "";
+          
+            cout<<"NEW RING!********** ";
+            
+            cout << (ringIterator-rings.begin()) << endl;
             const vector<int>& ringEdges = ringIterator->edgePath;
+            const vector<int>& ringAtoms = ringIterator->vertexPath;
+            
+         
+            vector<size_t> tempBondList;
             for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                 compound.setRingBond(*ringEdgeIter);
-
+                tempBondList.push_back(*ringEdgeIter);
             }
+            ringEdgeMap[ringID]= tempBondList;
+            
             if (ringIterator->isAromatic()) {
                 for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                     compound.setAromaticBond(*ringEdgeIter);
                 }
             }
+            for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter)
+                ringSMART += atoms[*ringAtomIter].atomSymbol;
+            //for each ring create a new Ring Node called "Rx"
+            size_t id = compound.addNewRingAtom(ringSMART);
+            //for each node in a ring mark it as atom in a ring
+            vector<size_t> tempAtomList;
+            for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter) {
+                tempAtomList.push_back(*ringAtomIter);
+                //cout<<*ringAtomIter<<"; ";
+                //calling setRingId function to assign the ring index to the corresponding atom
+                compound.setRingId(*ringAtomIter, ringID);
+                
+                
+                compound.setRingAtom(*ringAtomIter);
+                MCSList<MCSCompound::Bond*> bondList = atoms[*ringAtomIter].neighborBonds;
+                //search for bond of an atom that are not in the ring (i.e: external bonds)
+                while (!bondList.empty()) {
+                    MCSCompound::Bond* b = bondList.back();
+                    //re-route external bond to account for new ring node.
+                    if (!b->isInARing){
+                        if (b->firstAtom == *ringAtomIter)
+                            b->secondAtom = id;
+                        else
+                            b->firstAtom = id;
+                    }
+                    bondList.pop_back();
+                }
+            }
+            ringAtomsMap[ringID]= tempAtomList;
         }
+        compound.setMaps(ringAtomsMap, ringEdgeMap);
     }
     
     map<string, int> MCSRingDetector::Ring::electronMap;

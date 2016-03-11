@@ -1,4 +1,4 @@
-#include "config.h"
+#include "../config.h"
 
 #include <cstdlib>
 #include <stdexcept>
@@ -24,7 +24,10 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
     int *timeout, 
     const char** resultIdxOne, const char** resultIdxTwo,
     const char** sdfOneSize, const char** sdfTwoSize, const char** mcsSize) {
-	if (structureStringOne == NULL) {
+	
+        cout<<"fmcs_R_wrap class begining!"<<endl;
+    
+        if (structureStringOne == NULL) {
 		cout << "input structure one cannot be NULL...\n";
 		return;
 	}
@@ -34,7 +37,7 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
 	}
 	
 	int substructureNumLimit = 1;
-    int userDefinedLowerBound = 0;
+        int userDefinedLowerBound = 0;
 	/*
     try {
     */
@@ -62,10 +65,14 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
         compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
         compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-
+        cout<<string(structureStringOne)<<endl;
         compoundOne.read(string(structureStringOne));
+        cout<<"QUI new"<<endl;
+        
+        cout<<string(structureStringTwo)<<endl;
         compoundTwo.read(string(structureStringTwo));
-        compoundOne.removeRings();
+        cout<<"QUI new"<<endl;
+        //compoundOne.removeRings();
 
 #endif           
         MCS mcs(compoundOne, compoundTwo,
@@ -136,37 +143,57 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
             list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
             
             //cout << index1.size() << " solution(s) found..." << endl;
-            /*
+            
+                        
             if (index1.size() > 0) {
                 for (int i = 0; i < index1.begin()->size(); ++i) {
                     cout << (*index1.begin())[i] << ", ";
                 }
                 cout << endl;
-            }*/
+            }
             
-            //cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
+                        
+            if (index2.size() > 0) {
+                for (int i = 0; i < index2.begin()->size(); ++i) {
+                    cout << (*index2.begin())[i] << ", ";
+                }
+                cout << endl;
+            }
+            
+            cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
+            
             
             stringstream indexOneStringStream, indexTwoStringStream;
             for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
             	for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-            		indexOneStringStream << *j << " ";
-            	}
+            		indexOneStringStream << *j << " ";                        
+            	}                
             	indexOneStringStream << "\n";
             }
             
+            
             for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
             	for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-            		indexTwoStringStream << *j << " ";
-            	}
+            		indexTwoStringStream << *j << " ";                        
+            	}                
             	indexTwoStringStream << "\n";
             }
+            
             
             static string indexOneString, indexTwoString;
             indexOneString = indexOneStringStream.str();
             indexTwoString = indexTwoStringStream.str();
             
+            cout << "indexOneString: " << endl;
+            cout << indexOneString <<endl ;
+            
+            cout << "indexTwoString: " << endl;
+            cout << indexTwoString <<endl ;
+            
             *resultIdxOne = indexOneString.c_str();
+            
             *resultIdxTwo = indexTwoString.c_str();
+            
             /*
             string sdfs1, sdfs2;
             for (list<string>::const_iterator i = sdfList1.begin(); i != sdfList1.end(); ++i) {
@@ -291,56 +318,68 @@ void fmcsBatch_R_wrap(const char** query, const char** dataSet, const char** out
                 
         double timeUsed = (double)totalTimeUsed / CLOCKS_PER_SEC;     
 }*/
-int main(int argc, char *argv[]){
-std::vector<string> sdfSet; 
-string temp,actualSDF;
-int i = 0;
-
-if(argc!=14){
-	cout<<"Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
-			"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout resultIdxOne "
-			"resultIdxTwo sdfOneSize sdfTwoSize mcsSize"<<endl;
-	return -1;
-}
-
-const char* fileName = (const char*)argv[1];
-int atomMismatchLowerBound = atoi(argv[2]);
-int atomMismatchUpperBound = atoi(argv[3]);
-int bondMismatchLowerBound = atoi(argv[4]);
-int bondMismatchUpperBound= atoi(argv[5]);
-int matchTypeInt= atoi(argv[6]);
-int runningModeInt= atoi(argv[7]);
-int timeout= atoi(argv[8]);
-const char** resultIdxOne = (const char**)argv[9];
-const char** resultIdxTwo = (const char**)argv[10];
-const char** sdfOneSize = (const char**)argv[11];
-const char** sdfTwoSize = (const char**)argv[12];
-const char** mcsSize = (const char**)argv[13];
-
-ifstream myReadFile;
-myReadFile.open(fileName);
-
-
-std::stringstream buffer;
-buffer << myReadFile.rdbuf();
-std::string contents(buffer.str());
-
-size_t last = 0;
-size_t next = 0;
-while ((next = contents.find("$$$$", last)) != string::npos) {
-	sdfSet.push_back(contents.substr(last, next-last+4));
-	last = next +4;
-}
-
-myReadFile.close();
-cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
-
-fmcs_R_wrap(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
-&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
-&runningModeInt,&timeout,resultIdxOne,
-resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
-
-
-return 0;
-}
+//int main(int argc, char *argv[]){
+//std::vector<string> sdfSet; 
+//string temp,actualSDF;
+//int i = 0;
+//
+//if(argc!=14){
+//	cout<<"Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
+//			"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout resultIdxOne "
+//			"resultIdxTwo sdfOneSize sdfTwoSize mcsSize"<<endl;
+//	return -1;
+//}
+//
+//const char* fileName = (const char*)argv[1];
+//int atomMismatchLowerBound = atoi(argv[2]);
+//int atomMismatchUpperBound = atoi(argv[3]);
+//int bondMismatchLowerBound = atoi(argv[4]);
+//int bondMismatchUpperBound= atoi(argv[5]);
+//int matchTypeInt= atoi(argv[6]);
+//int runningModeInt= atoi(argv[7]);
+//int timeout= atoi(argv[8]);
+//const char** resultIdxOne = (const char**)argv[9];
+//const char** resultIdxTwo = (const char**)argv[10];
+//const char** sdfOneSize = (const char**)argv[11];
+//const char** sdfTwoSize = (const char**)argv[12];
+//const char** mcsSize = (const char**)argv[13];
+//
+//ifstream myReadFile;
+//myReadFile.open(fileName);
+//
+//
+//std::stringstream buffer;
+//buffer << myReadFile.rdbuf();
+//std::string contents(buffer.str());
+//
+//size_t last = 0;
+//size_t next = 0;
+//while ((next = contents.find("$$$$", last)) != string::npos) {
+//	sdfSet.push_back(contents.substr(last, next-last+4));
+//	last = next +4;
+//}
+//
+//myReadFile.close();
+//cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
+//
+//fmcs_R_wrap(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
+//&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
+//&runningModeInt,&timeout,resultIdxOne,
+//resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
+//
+//stringstream strValue;
+//strValue << *mcsSize;
+//
+//unsigned int mcssize;
+//strValue >> mcssize;
+//
+//
+////for(i=0; i< mcssize ;i++)
+////{
+////    cout<<"resultIdxTwo: "<< *resultIdxTwo [i] <<" "<<endl;
+////
+////}
+//
+//return 0;
+//}
 } // extern "C"
