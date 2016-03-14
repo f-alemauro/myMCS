@@ -16,31 +16,24 @@ using namespace FMCS;
 
 extern "C" {
 
-
-void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
+void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTwo,
     int *atomMismatchLowerBound, int *atomMismatchUpperBound, 
     int *bondMismatchLowerBound, int *bondMismatchUpperBound, 
     int *matchTypeInt, int* runningModeInt, 
     int *timeout, 
     const char** resultIdxOne, const char** resultIdxTwo,
     const char** sdfOneSize, const char** sdfTwoSize, const char** mcsSize) {
-	
-        cout<<"fmcs_R_wrap class begining!"<<endl;
-    
-        if (structureStringOne == NULL) {
+        if (*structureStringOne == NULL) {
 		cout << "input structure one cannot be NULL...\n";
 		return;
 	}
-	if (structureStringTwo == NULL) {
+	if (*structureStringTwo == NULL) {
 		cout << "input structure two cannot be NULL...\n";
 		return;
 	}
 	
 	int substructureNumLimit = 1;
         int userDefinedLowerBound = 0;
-	/*
-    try {
-    */
     	MCS::MatchType matchType;
         switch(*matchTypeInt) {
             case 0: matchType = MCS::DEFAULT; break;
@@ -49,8 +42,6 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
             default: 
                 ;
         }
-
-
         MCS::RunningMode runningMode;
         switch(*runningModeInt) {
             case 0: runningMode = MCS::FAST; break;
@@ -58,21 +49,15 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
             default:
                 ;
         }
-        
         MCSCompound compoundOne, compoundTwo;
 
 #ifdef HAVE_LIBOPENBABEL
         compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
         compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-        cout<<string(structureStringOne)<<endl;
-        compoundOne.read(string(structureStringOne));
-        cout<<"QUI new"<<endl;
+        compoundOne.read(string(*structureStringOne));
         
-        cout<<string(structureStringTwo)<<endl;
-        compoundTwo.read(string(structureStringTwo));
-        cout<<"QUI new"<<endl;
-        //compoundOne.removeRings();
+        compoundTwo.read(string(*structureStringTwo));
 
 #endif           
         MCS mcs(compoundOne, compoundTwo,
@@ -237,6 +222,227 @@ void fmcs_R_wrap(const char* structureStringOne, const char* structureStringTwo,
 		cerr << e.what() << endl;
 	}*/
 }
+
+void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureStringTwo,
+    int *atomMismatchLowerBound, int *atomMismatchUpperBound,
+    int *bondMismatchLowerBound, int *bondMismatchUpperBound,
+    int *matchTypeInt, int* runningModeInt,
+    int *timeout,
+    const char** resultIdxOne, const char** resultIdxTwo,
+    const char** sdfOneSize, const char** sdfTwoSize, const char** mcsSize) {
+
+        cout<<"fmcs_R_wrap class begining!"<<endl;
+
+        if (structureStringOne == NULL) {
+		cout << "input structure one cannot be NULL...\n";
+		return;
+	}
+	if (structureStringTwo == NULL) {
+		cout << "input structure two cannot be NULL...\n";
+		return;
+	}
+
+	int substructureNumLimit = 1;
+        int userDefinedLowerBound = 0;
+	/*
+    try {
+    */
+    	MCS::MatchType matchType;
+        switch(*matchTypeInt) {
+            case 0: matchType = MCS::DEFAULT; break;
+            case 1: matchType = MCS::AROMATICITY_SENSETIVE; break;
+            case 2: matchType = MCS::RING_SENSETIVE; break;
+            default:
+                ;
+        }
+
+
+        MCS::RunningMode runningMode;
+        switch(*runningModeInt) {
+            case 0: runningMode = MCS::FAST; break;
+            case 1: runningMode = MCS::DETAIL; break;
+            default:
+                ;
+        }
+
+        MCSCompound compoundOne, compoundTwo;
+
+#ifdef HAVE_LIBOPENBABEL
+        compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
+        compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
+#else
+       // cout<<string(structureStringOne)<<endl;
+        compoundOne.read(string(structureStringOne));
+        cout<<"QUI new"<<endl;
+
+        //cout<<string(structureStringTwo)<<endl;
+        compoundTwo.read(string(structureStringTwo));
+        cout<<"QUI new"<<endl;
+        //compoundOne.removeRings();
+
+#endif
+        MCS mcs(compoundOne, compoundTwo,
+            userDefinedLowerBound, substructureNumLimit,
+            *atomMismatchLowerBound, *atomMismatchUpperBound,
+            *bondMismatchLowerBound, *bondMismatchUpperBound,
+            matchType, runningMode, *timeout);
+       /*
+        cout << "Matching mode: ";
+        if (matchType == MCS::DEFAULT) {
+            cout << "Static\n";
+        } else if (matchType == MCS::AROMATICITY_SENSETIVE) {
+            cout << "Strict aromatic\n";
+        } else if (matchType == MCS::RING_SENSETIVE) {
+            cout << "Strict ring\n";
+        } else {
+            throw InvalidMatchTypeException();
+        }
+
+
+		cout << "Atom Mismatches Lower Bound: " << *atomMismatchLowerBound << "\n";
+		cout << "Atom Mismatches Upper Bound: " << *atomMismatchUpperBound << "\n";
+		cout << "Bond Mismatches Lower Bound: " << *bondMismatchLowerBound << "\n";
+		cout << "Bond Mismatches Upper Bound: " << *bondMismatchUpperBound << "\n";
+
+		cout << "\n";*/
+/*
+		if (*timeout == 0) {
+			cout << "Timeout: " << "turned off \n\n";
+		} else {
+			cout << "Timeout: " << *timeout << " seconds...\n\n";
+        }
+*/
+
+/*
+#ifdef HAVE_LIBOPENBABEL
+        cout << "Srtructure 1: " << mcs.getCompoundOne().getSmiString();
+        cout << "Size: " << mcs.getCompoundOne().size() << "\n\n";
+        cout << "Srtructure 2: " << mcs.getCompoundTwo().getSmiString();
+        cout << "Size: " << mcs.getCompoundTwo().size() << "\n\n";
+
+#else
+        cout << "Size of Structure 1: " << mcs.getCompoundOne().size() << "\n";
+        cout << "Size of Structure 2: " << mcs.getCompoundTwo().size() << "\n";
+        cout << endl;
+#endif*/
+
+        mcs.calculate();
+/*
+        cout << "FMCS size: " << mcs.size() << endl;
+        cout << mcs.getTime() << " microseconds used..." << endl << endl;
+
+        cout << "Tanimoto score: "
+            << (double)mcs.size() / (mcs.getCompoundOne().size() + mcs.getCompoundTwo().size() - mcs.size())
+            << endl << endl;
+        */
+        static int cmpOneSize, cmpTwoSize, mSize;
+    	cmpOneSize = mcs.getCompoundOne().size();
+    	cmpTwoSize = mcs.getCompoundTwo().size();
+    	mSize = mcs.size();
+
+        if (runningMode == MCS::DETAIL) {
+
+            //list<string> sdfList1 = mcs.getFirstSdfResultStringList();
+            //list<string> sdfList2 = mcs.getSecondSdfResultStringList();
+
+            list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
+            list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
+
+            //cout << index1.size() << " solution(s) found..." << endl;
+
+
+            if (index1.size() > 0) {
+                for (int i = 0; i < index1.begin()->size(); ++i) {
+                    cout << (*index1.begin())[i] << ", ";
+                }
+                cout << endl;
+            }
+
+
+            if (index2.size() > 0) {
+                for (int i = 0; i < index2.begin()->size(); ++i) {
+                    cout << (*index2.begin())[i] << ", ";
+                }
+                cout << endl;
+            }
+
+            cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
+
+
+            stringstream indexOneStringStream, indexTwoStringStream;
+            for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
+            	for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+            		indexOneStringStream << *j << " ";
+            	}
+            	indexOneStringStream << "\n";
+            }
+
+
+            for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
+            	for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+            		indexTwoStringStream << *j << " ";
+            	}
+            	indexTwoStringStream << "\n";
+            }
+
+
+            static string indexOneString, indexTwoString;
+            indexOneString = indexOneStringStream.str();
+            indexTwoString = indexTwoStringStream.str();
+
+            cout << "indexOneString: " << endl;
+            cout << indexOneString <<endl ;
+
+            cout << "indexTwoString: " << endl;
+            cout << indexTwoString <<endl ;
+
+            *resultIdxOne = indexOneString.c_str();
+
+            *resultIdxTwo = indexTwoString.c_str();
+
+            /*
+            string sdfs1, sdfs2;
+            for (list<string>::const_iterator i = sdfList1.begin(); i != sdfList1.end(); ++i) {
+                    sdfs1 += *i;
+                    sdfs1 += "\n";
+            }
+
+            for (list<string>::const_iterator i = sdfList2.begin(); i != sdfList2.end(); ++i) {
+                    sdfs2 += *i;
+                    sdfs2 += "\n";
+            }
+
+            *resultSdfOne = sdfs1.c_str();
+            *resultSdfTwo = sdfs2.c_str();
+
+            ofstream out("out.txt");
+            out << *resultSdfOne << endl;*/
+        }
+
+        stringstream sizeStringStream;
+
+        sizeStringStream << cmpOneSize;
+        static string cmpOneSizeString;
+        cmpOneSizeString= sizeStringStream.str();
+
+        sizeStringStream.str("");
+    	sizeStringStream << cmpTwoSize;
+        static string cmpTwoSizeString;
+        cmpTwoSizeString = sizeStringStream.str();
+
+        sizeStringStream.str("");
+        sizeStringStream << mSize;
+        static string mSizeString;
+        mSizeString = sizeStringStream.str();
+
+        *sdfOneSize = cmpOneSizeString.c_str();
+        *sdfTwoSize = cmpTwoSizeString.c_str();
+        *mcsSize = mSizeString.c_str();
+/*
+	} catch (exception& e) {
+		cerr << e.what() << endl;
+	}*/
+}
 /*
 void fmcsBatch_R_wrap(const char** query, const char** dataSet, const char** output, 
         int *al, int *au, int *bl, int *bu, int *matchMode, int* timeout) {
@@ -318,68 +524,68 @@ void fmcsBatch_R_wrap(const char** query, const char** dataSet, const char** out
                 
         double timeUsed = (double)totalTimeUsed / CLOCKS_PER_SEC;     
 }*/
-//int main(int argc, char *argv[]){
-//std::vector<string> sdfSet; 
-//string temp,actualSDF;
-//int i = 0;
+int main(int argc, char *argv[]){
+std::vector<string> sdfSet;
+string temp,actualSDF;
+int i = 0;
+
+if(argc!=14){
+	cout<<"Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
+			"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout resultIdxOne "
+			"resultIdxTwo sdfOneSize sdfTwoSize mcsSize"<<endl;
+	return -1;
+}
+
+const char* fileName = (const char*)argv[1];
+int atomMismatchLowerBound = atoi(argv[2]);
+int atomMismatchUpperBound = atoi(argv[3]);
+int bondMismatchLowerBound = atoi(argv[4]);
+int bondMismatchUpperBound= atoi(argv[5]);
+int matchTypeInt= atoi(argv[6]);
+int runningModeInt= atoi(argv[7]);
+int timeout= atoi(argv[8]);
+const char** resultIdxOne = (const char**)argv[9];
+const char** resultIdxTwo = (const char**)argv[10];
+const char** sdfOneSize = (const char**)argv[11];
+const char** sdfTwoSize = (const char**)argv[12];
+const char** mcsSize = (const char**)argv[13];
+
+ifstream myReadFile;
+myReadFile.open(fileName);
+
+
+std::stringstream buffer;
+buffer << myReadFile.rdbuf();
+std::string contents(buffer.str());
+
+size_t last = 0;
+size_t next = 0;
+while ((next = contents.find("$$$$", last)) != string::npos) {
+	sdfSet.push_back(contents.substr(last, next-last+4));
+	last = next +4;
+}
+
+myReadFile.close();
+cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
+
+fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
+&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
+&runningModeInt,&timeout,resultIdxOne,
+resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
+
+stringstream strValue;
+strValue << *mcsSize;
+
+unsigned int mcssize;
+strValue >> mcssize;
+
+
+//for(i=0; i< mcssize ;i++)
+//{
+//    cout<<"resultIdxTwo: "<< *resultIdxTwo [i] <<" "<<endl;
 //
-//if(argc!=14){
-//	cout<<"Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
-//			"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout resultIdxOne "
-//			"resultIdxTwo sdfOneSize sdfTwoSize mcsSize"<<endl;
-//	return -1;
 //}
-//
-//const char* fileName = (const char*)argv[1];
-//int atomMismatchLowerBound = atoi(argv[2]);
-//int atomMismatchUpperBound = atoi(argv[3]);
-//int bondMismatchLowerBound = atoi(argv[4]);
-//int bondMismatchUpperBound= atoi(argv[5]);
-//int matchTypeInt= atoi(argv[6]);
-//int runningModeInt= atoi(argv[7]);
-//int timeout= atoi(argv[8]);
-//const char** resultIdxOne = (const char**)argv[9];
-//const char** resultIdxTwo = (const char**)argv[10];
-//const char** sdfOneSize = (const char**)argv[11];
-//const char** sdfTwoSize = (const char**)argv[12];
-//const char** mcsSize = (const char**)argv[13];
-//
-//ifstream myReadFile;
-//myReadFile.open(fileName);
-//
-//
-//std::stringstream buffer;
-//buffer << myReadFile.rdbuf();
-//std::string contents(buffer.str());
-//
-//size_t last = 0;
-//size_t next = 0;
-//while ((next = contents.find("$$$$", last)) != string::npos) {
-//	sdfSet.push_back(contents.substr(last, next-last+4));
-//	last = next +4;
-//}
-//
-//myReadFile.close();
-//cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
-//
-//fmcs_R_wrap(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
-//&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
-//&runningModeInt,&timeout,resultIdxOne,
-//resultIdxTwo,sdfOneSize, sdfTwoSize, mcsSize);
-//
-//stringstream strValue;
-//strValue << *mcsSize;
-//
-//unsigned int mcssize;
-//strValue >> mcssize;
-//
-//
-////for(i=0; i< mcssize ;i++)
-////{
-////    cout<<"resultIdxTwo: "<< *resultIdxTwo [i] <<" "<<endl;
-////
-////}
-//
-//return 0;
-//}
+
+return 0;
+}
 } // extern "C"

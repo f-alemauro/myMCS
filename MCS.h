@@ -1,7 +1,7 @@
 #ifndef _MCS_H
 #define _MCS_H
 
-#include "config.h"
+#include "../config.h"
 
 #include <ctime>
 #include <iostream>

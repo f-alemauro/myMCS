@@ -3,7 +3,7 @@
 #ifndef _MCSRINGDETECTOR_H
 #define _MCSRINGDETECTOR_H
 
-#include "config.h"
+#include "../config.h"
 
 #ifndef HAVE_LIBOPENBABEL
 

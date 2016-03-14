@@ -2,7 +2,7 @@
 #ifndef _MCSCOMPOUND_H
 #define _MCSCOMPOUND_H
 
-#include "config.h"
+#include "../config.h"
 
 #include <iostream>
 #include <string>

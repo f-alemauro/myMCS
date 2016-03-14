@@ -1,7 +1,7 @@
 #ifndef _MCSMAP_H
 #define _MCSMAP_H
 
-#include "config.h"
+#include "../config.h"
 
 #include <iostream>
 

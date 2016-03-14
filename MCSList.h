@@ -1,8 +1,7 @@
 #ifndef _MCSLIST_H
 #define _MCSLIST_H
 
-#include "config.h"
-
+#include "../config.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
