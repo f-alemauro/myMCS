@@ -21,22 +21,10 @@ using namespace OpenBabel;
 #include <fstream>
 #include <algorithm>
 #include <R.h>
-
-//#ifndef WINDOWS
-//#include <signal.h>
-//#endif
-
 using namespace std;
-
 namespace FMCS {
 
 bool timeoutStop = false;
-/*
-    void process_alarm(int sig) {
-        cout << "ATTENTION: time out... calculation may be incomplete.. terminate now.\n";
-        cout << endl;
-        timeoutStop = true;
-    }*/
 
 MCS::MCS(const MCSCompound& compoundOne, const MCSCompound& compoundTwo,
 		size_t userDefinedLowerBound, size_t substructureNumLimit,
@@ -79,11 +67,6 @@ MCS::MCS(const MCSCompound& compoundOne, const MCSCompound& compoundTwo,
 void MCS::calculate() {
 
 	clearResult();
-	/*
-#ifndef WINDOWS
-        signal(SIGALRM, process_alarm);
-        alarm(_timeout);
-#endif*/
 	clock_t start = clock();
 	startTime=start;
 #ifdef HAVE_LIBOPENBABEL
@@ -127,8 +110,7 @@ void MCS::calculate() {
 		timeUsed = (double)(end - start) / CLOCKS_PER_SEC * 1000.0;
 
 		if(runningMode == DETAIL) {
-			//cout<<"MCS.cpp - calculate() - runningMode: detail"<<endl;
-			int resultCount = 0;
+		int resultCount = 0;
 			for (std::list<MCSMap>::const_iterator iMap = bestList.begin(); iMap != bestList.end(); ++iMap) {
 				++resultCount;
 				stringstream resultCountStringStream;
@@ -148,33 +130,34 @@ void MCS::calculate() {
 					idxOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
 					idxTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
 				}
-
-				for(int i = 0; i < length; ++i) {
-					if (compoundOne.atoms[idArrayOnePtr[i]].isInARing){
-						for (vector<size_t>::const_iterator ringIdIter = compoundOne.atoms[idArrayOnePtr[i]].ringId.begin(); ringIdIter != compoundOne.atoms[idArrayOnePtr[i]].ringId.end(); ++ringIdIter){
-							map<size_t,vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
-							for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
-								if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
-									idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
+				if(matchType == RING_SENSETIVE){
+					for(int i = 0; i < length; ++i) {
+						if (compoundOne.atoms[idArrayOnePtr[i]].isInARing){
+							for (vector<size_t>::const_iterator ringIdIter = compoundOne.atoms[idArrayOnePtr[i]].ringId.begin(); ringIdIter != compoundOne.atoms[idArrayOnePtr[i]].ringId.end(); ++ringIdIter){
+								map<size_t,vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
+									if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
+										idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
+									}
 								}
+
+							}
+
+						}
+						if (compoundTwo.atoms[idArrayTwoPtr[i]].isInARing){
+							for (vector<size_t>::const_iterator ringIdIter = compoundTwo.atoms[idArrayTwoPtr[i]].ringId.begin(); ringIdIter != compoundTwo.atoms[idArrayTwoPtr[i]].ringId.end(); ++ringIdIter){
+								map<size_t,vector<size_t> >::const_iterator ciao = compoundTwo.ringAtomsMap.find(*ringIdIter);
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
+									if(std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end()){
+										idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
+									}
+								}
+
 							}
 
 						}
 
 					}
-					if (compoundTwo.atoms[idArrayTwoPtr[i]].isInARing){
-						for (vector<size_t>::const_iterator ringIdIter = compoundTwo.atoms[idArrayTwoPtr[i]].ringId.begin(); ringIdIter != compoundTwo.atoms[idArrayTwoPtr[i]].ringId.end(); ++ringIdIter){
-							map<size_t,vector<size_t> >::const_iterator ciao = compoundTwo.ringAtomsMap.find(*ringIdIter);
-							for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
-								if(std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end()){
-									idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
-								}
-							}
-
-						}
-
-					}
-
 				}
 				originalIdArray1.push_back(idxOne);
 				originalIdArray2.push_back(idxTwo);
@@ -324,15 +307,11 @@ void MCS::calculate() {
 
 	void MCS::boundary() {
 		double diff = (double)(clock() - startTime) / CLOCKS_PER_SEC * 1000 ;
-		//printf("%f  at boundary. timeout: %d\n",diff,_timeout);
 		if(!timeoutStop && _timeout != 0 && diff >= _timeout){
-			//warning("FMCS did not complete, timeout of %dms exceeded\n",_timeout);
 			timeoutStop = true;
 		}
-
 		if (runningMode == FAST) {
 			if (currentMapping.size() > bestSize) {
-
 				if (atomMismatchCurr < atomMismatchLowerBound || bondMismatchCurr < bondMismatchLowerBound) {
 					return;
 				}
@@ -351,8 +330,6 @@ void MCS::calculate() {
 				}
 				bestList.clear();
 				bestList.push_back(currentMapping);
-				//
-
 			}
 		}
 	}
@@ -364,140 +341,140 @@ void MCS::calculate() {
 			return;
 		}
 #endif
-MCSList<size_t> atomListOneCopy = atomListOne;
-MCSList<size_t> atomListTwoCopy = atomListTwo;
-MCSList<size_t> atomListOneDegrees;
-MCSList<size_t> atomListTwoDegrees;
+		MCSList<size_t> atomListOneCopy = atomListOne;
+		MCSList<size_t> atomListTwoCopy = atomListTwo;
+		MCSList<size_t> atomListOneDegrees;
+		MCSList<size_t> atomListTwoDegrees;
 
-size_t atomListOneSize = atomListOne.size();
-const size_t* atomListOnePtr = atomListOne.get();
-for (size_t i = 0; i < atomListOneSize; ++i) {
-	if (!currentMapping.containsKey(atomListOnePtr[i])) {
-		int degree = 0;
-		const MCSList<size_t>& neighborAtomList = compoundOne.atoms[atomListOnePtr[i]].neighborAtoms;
-		size_t neighborAtomListSize = neighborAtomList.size();
-		const size_t* neighborAtomPtr = neighborAtomList.get();
-		for (size_t j = 0; j < neighborAtomListSize; ++j) {
-			if (currentMapping.containsKey(neighborAtomPtr[j])) {
-				++degree;
-			}
-		}
-		atomListOneDegrees.push_back(degree);
-	}
-}
-
-size_t atomListTwoSize = atomListTwo.size();
-const size_t* atomListTwoPtr = atomListTwo.get();
-for (size_t i = 0; i < atomListTwoSize; ++i) {
-	if (!currentMapping.containsValue(atomListTwoPtr[i])) {
-		int degree = 0;
-		const MCSList<size_t>& neighborAtomList = compoundTwo.atoms[atomListTwoPtr[i]].neighborAtoms;
-		size_t neighborAtomListSize = neighborAtomList.size();
-		const size_t* neighborAtomPtr = neighborAtomList.get();
-		for (size_t j = 0; j < neighborAtomListSize; ++j) {
-			if (currentMapping.containsValue(neighborAtomPtr[j])) {
-				++degree;
-			}
-		}
-		atomListTwoDegrees.push_back(degree);
-	}
-}
-
-size_t currentBound = currentMapping.size();
-size_t atomListOneDegreesSize = atomListOneDegrees.size();
-const size_t* atomListOneDegreesPtr = atomListOneDegrees.get();
-for (size_t i = 0; i < atomListOneDegreesSize; ++i) {
-	if (atomListTwoDegrees.contains(atomListOneDegreesPtr[i])) {
-		++currentBound;
-		atomListTwoDegrees.erase(atomListOneDegreesPtr[i]);
-	}
-}
-
-if (runningMode == FAST) {
-	if(currentBound < userDefinedLowerBound || currentBound <= bestSize) {
-		return;
-	}
-} else {
-
-	if(currentBound < userDefinedLowerBound || currentBound < size()) {
-		return;
-	}
-}
-
-
-while(true) {
-
-	if (atomListOneCopy.empty() || atomListTwoCopy.empty()) { // atomListTwoCopy
-		//cout<<"Empty atomListCopy"<<endl;
-	boundary();
-	return;
-	}
-
-	size_t topCandidateAtom = top(atomListOneCopy);
-	size_t atomListTwoSize = atomListTwoCopy.size(); // atomListTwoCopy
-	const size_t* atomListTwoPtr = atomListTwoCopy.get(); // atomListTwoCopy
-	for (size_t i = 0; i < atomListTwoSize; ++i) {
-
-		bool atomMismatched = false;
-		bool atomMismatchAllowed = true;
-		int atom1 = compoundOne.getAtom(topCandidateAtom).atomType;
-		int atom2 = compoundTwo.getAtom(atomListTwoPtr[i]).atomType;
-		if (atom1 != atom2) {
-
-			if (rules.count(atom1) > 0) {
-				if (!rules[atom1][atom2]) {
-					atomMismatchAllowed = false;
+		size_t atomListOneSize = atomListOne.size();
+		const size_t* atomListOnePtr = atomListOne.get();
+		for (size_t i = 0; i < atomListOneSize; ++i) {
+			if (!currentMapping.containsKey(atomListOnePtr[i])) {
+				int degree = 0;
+				const MCSList<size_t>& neighborAtomList = compoundOne.atoms[atomListOnePtr[i]].neighborAtoms;
+				size_t neighborAtomListSize = neighborAtomList.size();
+				const size_t* neighborAtomPtr = neighborAtomList.get();
+				for (size_t j = 0; j < neighborAtomListSize; ++j) {
+					if (currentMapping.containsKey(neighborAtomPtr[j])) {
+						++degree;
+					}
 				}
-			} else if (rules.count(atom2) > 0) {
-				if (!rules[atom2][atom1]) {
-					atomMismatchAllowed = false;
-				}
+				atomListOneDegrees.push_back(degree);
 			}
-			++atomMismatchCurr;
-			atomMismatched = true;
 		}
 
-		if (!(atomMismatchCurr > atomMismatchUpperBound) && atomMismatchAllowed) {
+		size_t atomListTwoSize = atomListTwo.size();
+		const size_t* atomListTwoPtr = atomListTwo.get();
+		for (size_t i = 0; i < atomListTwoSize; ++i) {
+			if (!currentMapping.containsValue(atomListTwoPtr[i])) {
+				int degree = 0;
+				const MCSList<size_t>& neighborAtomList = compoundTwo.atoms[atomListTwoPtr[i]].neighborAtoms;
+				size_t neighborAtomListSize = neighborAtomList.size();
+				const size_t* neighborAtomPtr = neighborAtomList.get();
+				for (size_t j = 0; j < neighborAtomListSize; ++j) {
+					if (currentMapping.containsValue(neighborAtomPtr[j])) {
+						++degree;
+					}
+				}
+				atomListTwoDegrees.push_back(degree);
+			}
+		}
 
-			size_t bondMisCount = 0;
-			bool introducedNewComponent = false;
-			if (compatible(topCandidateAtom, atomListTwoPtr[i], bondMisCount, introducedNewComponent)) {
+		size_t currentBound = currentMapping.size();
+		size_t atomListOneDegreesSize = atomListOneDegrees.size();
+		const size_t* atomListOneDegreesPtr = atomListOneDegrees.get();
+		for (size_t i = 0; i < atomListOneDegreesSize; ++i) {
+			if (atomListTwoDegrees.contains(atomListOneDegreesPtr[i])) {
+				++currentBound;
+				atomListTwoDegrees.erase(atomListOneDegreesPtr[i]);
+			}
+		}
 
-				if (!(bondMismatchCurr + bondMisCount > bondMismatchUpperBound)) {
+		if (runningMode == FAST) {
+			if(currentBound < userDefinedLowerBound || currentBound <= bestSize) {
+				return;
+			}
+		} else {
 
-					bondMismatchCurr = bondMismatchCurr + bondMisCount;
+			if(currentBound < userDefinedLowerBound || currentBound < size()) {
+				return;
+			}
+		}
 
-					if (introducedNewComponent) {
-						++currSubstructureNum;
+
+		while(true) {
+
+			if (atomListOneCopy.empty() || atomListTwoCopy.empty()) { // atomListTwoCopy
+				//cout<<"Empty atomListCopy"<<endl;
+				boundary();
+				return;
+			}
+
+			size_t topCandidateAtom = top(atomListOneCopy);
+			size_t atomListTwoSize = atomListTwoCopy.size(); // atomListTwoCopy
+			const size_t* atomListTwoPtr = atomListTwoCopy.get(); // atomListTwoCopy
+			for (size_t i = 0; i < atomListTwoSize; ++i) {
+
+				bool atomMismatched = false;
+				bool atomMismatchAllowed = true;
+				int atom1 = compoundOne.getAtom(topCandidateAtom).atomType;
+				int atom2 = compoundTwo.getAtom(atomListTwoPtr[i]).atomType;
+				if (atom1 != atom2) {
+
+					if (rules.count(atom1) > 0) {
+						if (!rules[atom1][atom2]) {
+							atomMismatchAllowed = false;
+						}
+					} else if (rules.count(atom2) > 0) {
+						if (!rules[atom2][atom1]) {
+							atomMismatchAllowed = false;
+						}
+					}
+					++atomMismatchCurr;
+					atomMismatched = true;
+				}
+
+				if (!(atomMismatchCurr > atomMismatchUpperBound) && atomMismatchAllowed) {
+
+					size_t bondMisCount = 0;
+					bool introducedNewComponent = false;
+					if (compatible(topCandidateAtom, atomListTwoPtr[i], bondMisCount, introducedNewComponent)) {
+
+						if (!(bondMismatchCurr + bondMisCount > bondMismatchUpperBound)) {
+
+							bondMismatchCurr = bondMismatchCurr + bondMisCount;
+
+							if (introducedNewComponent) {
+								++currSubstructureNum;
+							}
+
+							if (!(currSubstructureNum > substructureNumLimit)) {
+
+								currentMapping.push_back(topCandidateAtom, atomListTwoPtr[i]);
+
+								atomListTwo.erase(atomListTwoPtr[i]);
+
+								grow(atomListOneCopy, atomListTwo);
+
+
+								atomListTwo.push_back(atomListTwoPtr[i]);
+								currentMapping.pop_back();
+
+							}
+							if (introducedNewComponent) {
+								--currSubstructureNum;
+							}
+
+							bondMismatchCurr = bondMismatchCurr - bondMisCount;
+						}
 					}
 
-					if (!(currSubstructureNum > substructureNumLimit)) {
-
-						currentMapping.push_back(topCandidateAtom, atomListTwoPtr[i]);
-
-						atomListTwo.erase(atomListTwoPtr[i]);
-
-						grow(atomListOneCopy, atomListTwo);
-
-
-						atomListTwo.push_back(atomListTwoPtr[i]);
-						currentMapping.pop_back();
-
-					}
-					if (introducedNewComponent) {
-						--currSubstructureNum;
-					}
-
-					bondMismatchCurr = bondMismatchCurr - bondMisCount;
+				}
+				if (atomMismatched) {
+					--atomMismatchCurr;
 				}
 			}
-
 		}
-		if (atomMismatched) {
-			--atomMismatchCurr;
-		}
-	}
-}
 	}
 
 	void MCS::clearResult() {

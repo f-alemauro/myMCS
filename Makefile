@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -I/usr/share/R/include
-SOURCES=fmcs_R_wrap.cpp util.cpp MCSCompound.cpp MCSMap.cpp MCS.cpp MCSRingDetector.cpp
+SOURCES=src/fmcs_R_wrap.cpp src/util.cpp src/MCSCompound.cpp src/MCSMap.cpp src/MCS.cpp src/MCSRingDetector.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=mcswrap
 
@@ -13,4 +13,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS)  $< -o $@
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	$(RM) src/*.o src/*~ $(MAIN)

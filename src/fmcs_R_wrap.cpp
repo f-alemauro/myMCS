@@ -97,26 +97,14 @@ if (runningMode == MCS::DETAIL) {
 	static string indexOneString, indexTwoString;
 	indexOneString = indexOneStringStream.str();
 	indexTwoString = indexTwoStringStream.str();
-
-	cout << "indexOneString: " << endl;
-	cout << indexOneString <<endl ;
-
-	cout << "indexTwoString: " << endl;
-	cout << indexTwoString <<endl ;
-
 	*resultIdxOne = indexOneString.c_str();
-
 	*resultIdxTwo = indexTwoString.c_str();
-
-
 }
 
 stringstream sizeStringStream;
-
 sizeStringStream << cmpOneSize;
 static string cmpOneSizeString;
 cmpOneSizeString= sizeStringStream.str();
-
 sizeStringStream.str("");
 sizeStringStream << cmpTwoSize;
 static string cmpTwoSizeString;
@@ -316,4 +304,4 @@ int main(int argc, char *argv[]){
 
 	return 0;
 }
-} // extern "C"
+}  // extern "C"
