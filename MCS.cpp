@@ -102,9 +102,6 @@ void MCS::calculate() {
 
 				vector<size_t> tmpIdVector;
 
-				// originalIdArray1.push_back(idxOne);
-				//originalIdArray2.push_back(idxTwo);
-
 				const MCSCompound::Atom* atomsOne = compoundOne.getAtoms();
 				size_t atomCountOne = compoundOne.getAtomCount();
 
@@ -130,7 +127,7 @@ void MCS::calculate() {
 		timeUsed = (double)(end - start) / CLOCKS_PER_SEC * 1000.0;
 
 		if(runningMode == DETAIL) {
-			cout<<"MCS.cpp - claculate() - runningMode: detail"<<endl;
+			//cout<<"MCS.cpp - calculate() - runningMode: detail"<<endl;
 			int resultCount = 0;
 			for (std::list<MCSMap>::const_iterator iMap = bestList.begin(); iMap != bestList.end(); ++iMap) {
 				++resultCount;
@@ -158,7 +155,6 @@ void MCS::calculate() {
 							map<size_t,vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
 							for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
 								if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
-									cout<<"NON C'E'! Aggiungo: "<<compoundOne.atoms[*atomsInRing].originalId<<endl;
 									idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
 								}
 							}
@@ -171,7 +167,6 @@ void MCS::calculate() {
 							map<size_t,vector<size_t> >::const_iterator ciao = compoundTwo.ringAtomsMap.find(*ringIdIter);
 							for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
 								if(std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end()){
-									cout<<"NON C'E'! Aggiungo: "<<compoundTwo.atoms[*atomsInRing].originalId<<endl;
 									idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
 								}
 							}

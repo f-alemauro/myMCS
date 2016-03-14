@@ -182,10 +182,7 @@ namespace FMCS {
             //the index of each ring is saved in the ringID
             size_t ringID = ringIterator - rings.begin();
             std::string ringSMART = "";
-          
-            cout<<"NEW RING!********** ";
             
-            cout << (ringIterator-rings.begin()) << endl;
             const vector<int>& ringEdges = ringIterator->edgePath;
             const vector<int>& ringAtoms = ringIterator->vertexPath;
             
@@ -204,17 +201,11 @@ namespace FMCS {
             }
             for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter)
                 ringSMART += atoms[*ringAtomIter].atomSymbol;
-            //for each ring create a new Ring Node called "Rx"
             size_t id = compound.addNewRingAtom(ringSMART);
-            //for each node in a ring mark it as atom in a ring
             vector<size_t> tempAtomList;
             for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter) {
                 tempAtomList.push_back(*ringAtomIter);
-                //cout<<*ringAtomIter<<"; ";
-                //calling setRingId function to assign the ring index to the corresponding atom
                 compound.setRingId(*ringAtomIter, ringID);
-                
-                
                 compound.setRingAtom(*ringAtomIter);
                 MCSList<MCSCompound::Bond*> bondList = atoms[*ringAtomIter].neighborBonds;
                 //search for bond of an atom that are not in the ring (i.e: external bonds)
