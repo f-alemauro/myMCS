@@ -161,12 +161,12 @@ void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureString
 
 	MCSCompound compoundOne, compoundTwo;
 
+
 #ifdef HAVE_LIBOPENBABEL
 compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
 compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
 compoundOne.read(string(structureStringOne));
-
 compoundTwo.read(string(structureStringTwo));
 
 #endif
@@ -277,8 +277,8 @@ int main(int argc, char *argv[]){
 	size_t last = 0;
 	size_t next = 0;
 	while ((next = contents.find("$$$$", last)) != string::npos) {
-		sdfSet.push_back(contents.substr(last, next-last+4));
-		last = next +4;
+		sdfSet.push_back(contents.substr(last, next-last+5));
+		last = next +6;
 	}
 
 	myReadFile.close();

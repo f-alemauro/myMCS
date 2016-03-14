@@ -473,8 +473,7 @@ namespace FMCS {
     	getline(sdfStringStream, compoundNameLine);
     	getline(sdfStringStream, informationLine);
     	getline(sdfStringStream, commentLine);
-
-    	string countsLine;
+    	    	string countsLine;
     	getline(sdfStringStream, countsLine);
     	string atomCountString = countsLine.substr(0, 3);
     	string bondCountString = countsLine.substr(3, 3);
