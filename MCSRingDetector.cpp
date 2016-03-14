@@ -196,7 +196,6 @@ void  MCSRingDetector::detect() {
 
 		//for each ring create a new Ring Node called "Rx"
 		size_t id = compound.addNewRingAtom(ringSMART);
-
 		//for each node in a ring mark it as atom in a ring
 		for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter) {
 			compound.setRingAtom(*ringAtomIter);

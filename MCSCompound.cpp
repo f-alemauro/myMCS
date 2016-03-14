@@ -171,24 +171,81 @@ void MCSCompound::read(const std::string& sdfString) {
 
 	MCSRingDetector ringDector(*this);
 	ringDector.detect();
-
+/*
 	//count all the atom not in a ring that has to be saved
-	for (int i = 0; i < atomCount; ++i)
-		if(!atoms[i].isInARing)
+	for (int i = 0; i < atomCount; ++i){
+		cout<<atoms[i].atomId;
+		if(!atoms[i].isInARing){
 			newAtomCount++;
+		}
+		else
+			cout<<" RING";
+		cout<<endl;
+	}
 	//count all the bond not in a ring that has to be saved
-	for (int i = 0; i < bondCount; ++i)
-		if (!bonds[i].isInARing)
+	for (int i = 0; i < bondCount; ++i){
+		cout<<bonds[i].bondId;
+		if (!bonds[i].isInARing){
 			newBondCount++;
-
+		}
+		else
+			cout<<" RING";
+		cout<<endl;
+	}
+	cout<<"New atom count: "<<newAtomCount<<endl;
 	//creating the new atom and bond lists with the new dimension
 	Atom *tempAtom = new Atom[newAtomCount+newRingAtoms.size()];
 	Bond *tempBond = new Bond[newBondCount];
+	int z = 0;
+	for (int i = 0; i < atomCount; ++i){
+		if(!atoms[i].isInARing){
+			tempAtom[z] = atoms[i];
+			z++;
+		}
+	}
+	for (int i = 0; i< newRingAtoms.size();i++){
+		tempAtom[z] = newRingAtoms[i];
+		z++;
+	}
+	//cout<<"temp atom: "<<endl;
+	//for(int i= 0;i<z;i++)
+//		cout<<tempAtom[i].atomId<<endl;
 
-	//now fill in the two list, and then add also the new atom for rings
-	//then update neighborAtoms as above
-	//lastly copy these new list to the original one.
+	z = 0;
+	for (int i = 0; i < bondCount; ++i){
+		if (!bonds[i].isInARing){
+			tempBond[z] = bonds[i];
+			z++;
+		}
+	}
+	//cout<<"temp bond: "<<endl;
+//		for(int i= 0;i<z;i++)
+			//cout<<tempBond[i].bondId<<endl;
 
+
+	//ovrewriting with new data
+	atoms = tempAtom;
+	bonds = tempBond;
+	atomCount = newAtomCount;
+	bondCount = newBondCount;
+	cout<<"Old lists overwritten!"<<endl;
+
+	//resetting list of neighbors
+	for (int i = 0; i < atomCount; ++i) {
+		atoms[i].neighborAtoms.clear();
+		atoms[i].neighborBonds.clear();
+	}
+	cout<<"Resetting done!"<<endl;
+
+	//updating neighbor list: error!
+	for (int i = 0; i < bondCount; ++i) {
+		//atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
+		//atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
+		//atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
+		//atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
+
+	}
+*/
 }
 
 #endif
@@ -274,7 +331,9 @@ size_t MCSCompound::getNeighborID(size_t e, size_t me) const {
 }
 
 size_t MCSCompound::addNewRingAtom(std::string name) {
-	newRingAtoms.push_back(Atom(atomCount+newRingAtoms.size()+1,0,newRingAtoms.size(),name,true));
+	size_t id = atomCount+newRingAtoms.size()+1;
+	newRingAtoms.push_back(Atom(id,0,newRingAtoms.size(),name,true));
+	return id;
 }
 
 MCSList<size_t> MCSCompound::getAtomList() const {
@@ -471,7 +530,6 @@ void MCSCompound::parseSDF(const string& sdf) {
 		stringstream rawStringStream(atomSymbolRawString);
 		string atomSymbol;
 		rawStringStream >> atomSymbol;
-		cout<<i<<" "<<originalIds[i]<<" "<<atomSymbol<<endl;
 		atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol, false);
 	}
 
@@ -485,9 +543,6 @@ void MCSCompound::parseSDF(const string& sdf) {
 		bonds[i] = Bond(i, firstAtom, secondAtom, bondType, false, false);
 	}
 }
-
-
-
 
 #endif
 
