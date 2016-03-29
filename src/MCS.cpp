@@ -133,26 +133,30 @@ void MCS::calculate() {
 				if(matchType == RING_SENSETIVE){
 					for(int i = 0; i < length; ++i) {
 						if (compoundOne.atoms[idArrayOnePtr[i]].isInARing){
+							//TROVARE ANELLI SINGOLI (== ANELLI SENZA ANELLI + PICCOLI AL LORO INTERNO
 							for (vector<size_t>::const_iterator ringIdIter = compoundOne.atoms[idArrayOnePtr[i]].ringId.begin(); ringIdIter != compoundOne.atoms[idArrayOnePtr[i]].ringId.end(); ++ringIdIter){
 								map<size_t,vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
-								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
-									if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
+								int counter = 0;
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing)
+									if(std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end())
+										counter++;
+
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing)
+									if(counter > 2 && std::find(idxOne.begin(),idxOne.end(),compoundOne.atoms[*atomsInRing].originalId) == idxOne.end())
 										idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
-									}
-								}
-
 							}
-
 						}
 						if (compoundTwo.atoms[idArrayTwoPtr[i]].isInARing){
 							for (vector<size_t>::const_iterator ringIdIter = compoundTwo.atoms[idArrayTwoPtr[i]].ringId.begin(); ringIdIter != compoundTwo.atoms[idArrayTwoPtr[i]].ringId.end(); ++ringIdIter){
 								map<size_t,vector<size_t> >::const_iterator ciao = compoundTwo.ringAtomsMap.find(*ringIdIter);
-								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing){
-									if(std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end()){
-										idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
-									}
-								}
+								int counter = 0;
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing)
+									if(std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end())
+										counter ++;
 
+								for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing!= ciao->second.end(); ++atomsInRing)
+									if(counter > 2 && std::find(idxTwo.begin(),idxTwo.end(),compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end())
+										idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
 							}
 
 						}

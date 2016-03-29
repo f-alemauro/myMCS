@@ -111,13 +111,16 @@ namespace FMCS {
                 const Edge& one = edgeMap[vertexMap[vertex].connectedEdges[i]];
                 const Edge& another = edgeMap[vertexMap[vertex].connectedEdges[j]];
                 if (!canCat(one, another)) {
+                	cout<<"cannot cat"<<endl;
                     continue;
                 }
                 
                 Edge newEdge = catEdge(one, another);
                 if (newEdge.front() == newEdge.back()) {
+                	cout<<"newRing created"<<endl;
                     rings.push_back(Ring(newEdge, &compound));
                 } else {
+                	cout<<"No ring closed"<<endl;
                     addEdge(newEdge);
                 }
             }
@@ -169,8 +172,10 @@ namespace FMCS {
     void  MCSRingDetector::detect() {
         const MCSCompound::Bond* bonds = compound.getBonds();
         const MCSCompound::Atom* atoms = compound.getAtoms();
+        cout<<"Detecting rings"<<endl;
         while (!vertexQueue.empty()) {
             int vertex = vertexQueue.back();
+            cout<<"Vertex: "<<vertex<<endl;
             vertexQueue.pop_back();
             remove(vertex);
             sortVertexQueue();
