@@ -97,6 +97,11 @@ if (runningMode == MCS::DETAIL) {
 	static string indexOneString, indexTwoString;
 	indexOneString = indexOneStringStream.str();
 	indexTwoString = indexTwoStringStream.str();
+        cout << "indexOneString: " << endl;
+            cout << indexOneString <<endl ;
+            
+            cout << "indexTwoString: " << endl;
+            cout << indexTwoString <<endl ;
 	*resultIdxOne = indexOneString.c_str();
 	*resultIdxTwo = indexTwoString.c_str();
 }
@@ -188,6 +193,7 @@ if (runningMode == MCS::DETAIL) {
 	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
 	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
+        cout << "mcs size:" << mcs.size();
 	stringstream indexOneStringStream, indexTwoStringStream;
 	for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
 		for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
