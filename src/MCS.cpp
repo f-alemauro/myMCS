@@ -131,45 +131,30 @@ void MCS::calculate() {
 					idxTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
 				}
 				if (matchType == RING_SENSETIVE) {
-
-					cout<<"Closing rings..."<<endl;
-					for (int i = 0; i < length; ++i) {
-						if (compoundOne.atoms[idArrayOnePtr[i]].isInARing) {
-							for (vector<size_t>::const_iterator ringIdIter = compoundOne.atoms[idArrayOnePtr[i]].ringId.begin(); ringIdIter != compoundOne.atoms[idArrayOnePtr[i]].ringId.end(); ++ringIdIter) {
-								map<size_t, vector<size_t> >::const_iterator ciao = compoundOne.ringAtomsMap.find(*ringIdIter);
-								if(ciao->second.size()<7){
-									int counter = 0;
-									for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing != ciao->second.end(); ++atomsInRing)
-										if (std::find(idxOne.begin(), idxOne.end(), compoundOne.atoms[*atomsInRing].originalId) != idxOne.end())
-											counter++;
-									if (counter >2)
-										for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing != ciao->second.end(); ++atomsInRing)
-											if (std::find(idxOne.begin(), idxOne.end(), compoundOne.atoms[*atomsInRing].originalId) == idxOne.end()){
-												cout<<"C1, Closing..."<<endl;
-												idxOne.push_back(compoundOne.atoms[*atomsInRing].originalId);
-											}
-								}
-							}
-						}
-						if (compoundTwo.atoms[idArrayTwoPtr[i]].isInARing) {
-							for (vector<size_t>::const_iterator ringIdIter = compoundTwo.atoms[idArrayTwoPtr[i]].ringId.begin(); ringIdIter != compoundTwo.atoms[idArrayTwoPtr[i]].ringId.end(); ++ringIdIter) {
-								map<size_t, vector<size_t> >::const_iterator ciao = compoundTwo.ringAtomsMap.find(*ringIdIter);
-								if(ciao->second.size()<7){
-									int counter = 0;
-									for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing != ciao->second.end(); ++atomsInRing)
-										if (std::find(idxTwo.begin(), idxTwo.end(), compoundTwo.atoms[*atomsInRing].originalId) != idxTwo.end())
-											counter++;
-									if (counter > 2)
-										for (vector<size_t>::const_iterator atomsInRing = ciao->second.begin(); atomsInRing != ciao->second.end(); ++atomsInRing)
-											if (std::find(idxTwo.begin(), idxTwo.end(), compoundTwo.atoms[*atomsInRing].originalId) == idxTwo.end()){
-												cout<<"C2, Closing..."<<endl;
-												idxTwo.push_back(compoundTwo.atoms[*atomsInRing].originalId);
-											}
-								}
-							}
+				   //serching for idxOne
+					for(map<size_t, vector<size_t> >::const_iterator mappa = compoundOne.ringAtomsMap.begin(); mappa!= compoundOne.ringAtomsMap.end(); mappa++){
+						if (mappa->second.size()<7){
+							int counter = 0;
+							for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end()&& counter<3 ;atoms++)
+								if (std::find(idxOne.begin(), idxOne.end(), compoundOne.atoms[*atoms].originalId) != idxOne.end())
+									counter ++;
+							if (counter>2)
+								for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++)
+									idxOne.push_back(compoundOne.atoms[*atoms].originalId);
 						}
 					}
-					cout<<"rings closed!"<<endl;
+					//serching for idxTwo
+					for(map<size_t, vector<size_t> >::const_iterator mappa = compoundTwo.ringAtomsMap.begin(); mappa!= compoundTwo.ringAtomsMap.end(); mappa++){
+						if (mappa->second.size()<7){
+							int counter = 0;
+							for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end() && counter<3;atoms++)
+								if (std::find(idxTwo.begin(), idxTwo.end(), compoundTwo.atoms[*atoms].originalId) != idxTwo.end())
+									counter ++;
+							if (counter>2)
+								for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++)
+									idxTwo.push_back(compoundTwo.atoms[*atoms].originalId);
+						}
+					}
 				}
 				originalIdArray1.push_back(idxOne);
 				originalIdArray2.push_back(idxTwo);
