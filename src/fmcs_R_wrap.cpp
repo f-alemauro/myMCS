@@ -55,6 +55,7 @@ void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTw
 compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
 compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
+
 compoundOne.read(string(*structureStringOne));
 
 compoundTwo.read(string(*structureStringTwo));
@@ -77,7 +78,7 @@ if (runningMode == MCS::DETAIL) {
 
 	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-
+        
 	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
 	stringstream indexOneStringStream, indexTwoStringStream;
 	for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
@@ -192,6 +193,10 @@ mSize = mcs.size();
 if (runningMode == MCS::DETAIL) {
 	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
+        
+        compoundOne.createDissimilarSDFs(index1.front());
+        cout<<"_______________________NEXT______________________"<<endl;
+        compoundTwo.createDissimilarSDFs(index2.front());
 	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
         cout << "mcs size:" << mcs.size();
 	stringstream indexOneStringStream, indexTwoStringStream;

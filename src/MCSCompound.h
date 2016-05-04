@@ -14,14 +14,22 @@
 
 #include "MCSList.h"
 #include "util.h"
+#include <list>
 
 namespace FMCS {
     
     class MCSCompound {
+ 
         friend class MCS;
         friend class MCSRingDetector;
         
         struct Bond;
+    struct molBlocks{
+        std::string infoBlock;
+        std::string atomBlock;
+        std::string bondBlock;
+        std::string chgISO;
+    };
 
         struct Atom {
 
@@ -106,11 +114,14 @@ namespace FMCS {
 #ifdef HAVE_LIBOPENBABEL
         void parseSMI(const std::string& sdfString);
 #endif
-        void parseSDF(const std::string& sdfString);
+        MCSCompound::molBlocks parseSDF(const std::string& sdfString);
         
         std::string compoundName;
         
+        MCSCompound::molBlocks molB;
+        
     public:
+        
 #ifdef HAVE_LIBOPENBABEL
         enum ReadType { SMI, SDF };
 #endif
@@ -132,7 +143,7 @@ namespace FMCS {
         
         std::string subgraph(const size_t* index, size_t indexLength, const std::string& newCompoundName) const;
 #ifndef HAVE_LIBOPENBABEL
-        std::string deleteHydrogens(const std::string& sdf, std::vector<size_t>& originalIds);
+        std::string deleteHydrogens(const std::string& sdf, std::vector<size_t>& originalIds, molBlocks& molB);
 #endif
         const Bond* getBond(size_t firstAtom, size_t secondAtom) const;
 
@@ -186,6 +197,8 @@ namespace FMCS {
             return atoms[atom].neighborAtoms;
         }
         void removeRings();
+        void createDissimilarSDFs(std::vector<size_t> mcs);
+        void ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result,std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, std::vector<size_t> mcs);
     };
 }
 #endif // _MCSCOMPOUND_H

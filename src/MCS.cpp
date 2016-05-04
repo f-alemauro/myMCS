@@ -140,6 +140,7 @@ void MCS::calculate() {
 									counter ++;
 							if (counter>2)
 								for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++)
+                                                                    if (std::find(idxOne.begin(), idxOne.end(), compoundOne.atoms[*atoms].originalId) == idxOne.end())
 									idxOne.push_back(compoundOne.atoms[*atoms].originalId);
 						}
 					}
@@ -152,6 +153,7 @@ void MCS::calculate() {
 									counter ++;
 							if (counter>2)
 								for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++)
+                                                                    if (std::find(idxTwo.begin(), idxTwo.end(), compoundTwo.atoms[*atoms].originalId) == idxTwo.end())
 									idxTwo.push_back(compoundTwo.atoms[*atoms].originalId);
 						}
 					}
