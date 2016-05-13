@@ -194,9 +194,17 @@ if (runningMode == MCS::DETAIL) {
 	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
         
-        compoundOne.createDissimilarSDFs(index1.front());
-        cout<<"_______________________NEXT______________________"<<endl;
-        compoundTwo.createDissimilarSDFs(index2.front());
+        string sdfOut = compoundOne.createDissimilarSDFs(index1.front());
+           ofstream myfile;
+        myfile.open ("out1.sdf");
+        myfile << sdfOut;
+        myfile.close();
+        
+        sdfOut = compoundTwo.createDissimilarSDFs(index2.front());
+          // ofstream myfile;
+        myfile.open ("out2.sdf");
+        myfile << sdfOut;
+        myfile.close();
 	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
         cout << "mcs size:" << mcs.size();
 	stringstream indexOneStringStream, indexTwoStringStream;

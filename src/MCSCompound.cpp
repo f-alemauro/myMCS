@@ -25,6 +25,7 @@ using namespace OpenBabel;
 #include <stdio.h>
 #include <list>
 #include <algorithm>
+#include <iterator>
 
 
 
@@ -562,16 +563,16 @@ namespace FMCS {
         return NULL;
     }
 
-    void MCSCompound::createDissimilarSDFs(vector<size_t> mcs) {
+    string MCSCompound::createDissimilarSDFs(vector<size_t> mcs) {
         //for(int i=0;i<mcs.size();i++)
         //    cout<<mcs[i]<<" ";
         //cout<<endl;
         std::string bonds = molB.bondBlock;
         list<std::vector<size_t> > bondsList;
         std::vector<size_t> atomNumbers;
-        std::istringstream f(bonds);
+        std::istringstream fB(bonds);
         std::string line;
-        while (std::getline(f, line)) {
+        while (std::getline(fB, line)) {
             atomNumbers.clear();
             std::stringstream stream(line);
             size_t n;
@@ -581,9 +582,11 @@ namespace FMCS {
             }
             bondsList.push_back(atomNumbers);
         }
-
+       
         list<std::vector<size_t> > result;
+        
         std::vector<size_t> resultAtomList;
+        string sdfResult;
         for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
             if (*(i->begin()) == 0) {
                 result.clear();
@@ -593,19 +596,97 @@ namespace FMCS {
                 atom2 = *(i->begin() + 2);
                 if ((std::find(mcs.begin(), mcs.end(), atom1) == mcs.end()) || (std::find(mcs.begin(), mcs.end(), atom2) == mcs.end())) {
                     //*(i->begin()) = 1;
+                    
                     ricerca(atom1, result, resultAtomList, bondsList, mcs);
+                    
+                    
+                    for (list<vector<size_t> >::iterator j = result.begin(); j != result.end(); ++j)
+                        (*j).erase((*j).begin());
+                    string atomString, bondString;
+                    std::sort(resultAtomList.begin(), resultAtomList.end());
+                    std::istringstream fB(molB.atomBlock);
+                    std::string line;
+                    int atomLinesCounter = 1;
+                    int kOld =1;
+                    for (vector<size_t>::iterator k = resultAtomList.begin(); k != resultAtomList.end(); ++k) {
+                        for (int lineCounter = kOld;;lineCounter++){
+                            std::getline(fB, line);
+                            if (lineCounter == *k){
+                                atomString+=line+"\n";
+                                
+                                    for (list<vector<size_t> >::iterator resultI = result.begin(); resultI != result.end(); ++resultI) {
+                                        //vector<size_t> temp = *resultI;
+                                        if ((*resultI)[0] == *k){
+                                            cout<<"Change: "<<*k<<"-->"<<atomLinesCounter<<endl;
+                                            (*resultI)[0] = atomLinesCounter;
+                                        }
+                                        if ((*resultI)[1] == *k){
+                                            cout<<"Change: "<<*k<<"-->"<<atomLinesCounter<<endl;
+                                            (*resultI)[1] = atomLinesCounter;
+                                        }
+                                    }
+                                kOld = *k+1;
+                                atomLinesCounter++;
+                                break;
+                            }
+                        }
+                    }
+                    std::ostringstream oss;
+                    for (list<vector<size_t> >::iterator j = result.begin(); j != result.end(); ++j){
+                        if ((*(*j).begin()<10) && (*((*j).begin()+1) < 10)) {
+                            oss<<"  ";
+                            std::copy((*j).begin(), (*j).end()-1, std::ostream_iterator<int>(oss, "  "));
+                            oss <<(*j).back()<<"\n";                            
+                        }    else if ((*(*j).begin()< 10) && (*((*j).begin()+1) >= 10)){
+                            oss<<"  "<<*(*j).begin()<<" "<<*((*j).begin()+1)<<"  ";
+                            std::copy((*j).begin()+2, (*j).end()-1, std::ostream_iterator<int>(oss, "  "));
+                            oss <<(*j).back()<<"\n"; 
+                        }
+                         else if ((*(*j).begin()>= 10) && (*((*j).begin()+1) < 10)){
+                            oss<<" "<<*(*j).begin()<<"  "<<*((*j).begin()+1)<<"  ";
+                            std::copy((*j).begin()+2, (*j).end()-1, std::ostream_iterator<int>(oss, "  "));
+                            oss <<(*j).back()<<"\n"; 
+                        }else{
+                             oss<<" "<<*(*j).begin()<<" "<<*((*j).begin()+1)<<"  ";
+                            std::copy((*j).begin()+2, (*j).end()-1, std::ostream_iterator<int>(oss, "  "));
+                            oss <<(*j).back()<<"\n";
+                        }
+                    }
+                    bondString = oss.str();
+                  
                     cout << "**************************RESULT******************" << endl;
                     for (list<vector<size_t> >::iterator j = result.begin(); j != result.end(); ++j) {
                         vector<size_t> temp = *j;
-                        temp.erase(temp.begin());
+                   
                         for (int k = 0; k < temp.size(); k++)
                             cout << temp[k] << " ";
                         cout << endl;
                     }
+                    cout<<"FINAL: "<<endl<<atomString<<endl;
+                    
+                    string infoLine;
+                    stringstream infoLiness;
+                    infoLiness  << " "<<resultAtomList.size()<<" "<<result.size()<<"  0  0  0  0            999 V2000"<<endl;
+                    infoLine = infoLiness.str();
+                    
+                    
+                    sdfResult += molB.infoBlock+"\n";
+                    sdfResult += infoLine;
+                    sdfResult += atomString;
+                    sdfResult += bondString;
+                    sdfResult += "M  END\n$$$$\n";
+                    
+                    
+                    
+                    
+                    
+                    
                 } else
                     *(i->begin()) = 1;
             }
         }
+     
+        return sdfResult;
     }
 
     void MCSCompound::ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result, std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, vector<size_t> mcs) {

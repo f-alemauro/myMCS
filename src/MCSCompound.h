@@ -197,7 +197,7 @@ namespace FMCS {
             return atoms[atom].neighborAtoms;
         }
         void removeRings();
-        void createDissimilarSDFs(std::vector<size_t> mcs);
+        std::string createDissimilarSDFs(std::vector<size_t> mcs);
         void ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result,std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, std::vector<size_t> mcs);
     };
 }
