@@ -14,3 +14,22 @@ string getUpper(const string& s) {
     return upper;
 }
 
+list<std::vector<size_t> > strings2int (string block, bool addBit){
+	list<std::vector<size_t> > outList;
+	std::vector<size_t> tmpVector;
+	std::istringstream fB(block);
+	std::string tmpLine;
+	size_t number;
+	while (std::getline(fB, tmpLine)) {
+		tmpVector.clear();
+		if (addBit)
+			tmpVector.push_back(0);
+		std::stringstream stream(tmpLine);
+		while (stream >> number) {
+			tmpVector.push_back(number);
+		}
+		outList.push_back(tmpVector);
+	}
+	return outList;
+}
+

@@ -52,78 +52,78 @@ void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTw
 	MCSCompound compoundOne, compoundTwo;
 
 #ifdef HAVE_LIBOPENBABEL
-compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
-compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
+	compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
+	compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
 
-compoundOne.read(string(*structureStringOne));
+	compoundOne.read(string(*structureStringOne));
 
-compoundTwo.read(string(*structureStringTwo));
+	compoundTwo.read(string(*structureStringTwo));
 
 #endif           
-MCS mcs(compoundOne, compoundTwo,
-		userDefinedLowerBound, substructureNumLimit,
-		*atomMismatchLowerBound, *atomMismatchUpperBound,
-		*bondMismatchLowerBound, *bondMismatchUpperBound,
-		matchType, runningMode, *timeout);
+	MCS mcs(compoundOne, compoundTwo,
+			userDefinedLowerBound, substructureNumLimit,
+			*atomMismatchLowerBound, *atomMismatchUpperBound,
+			*bondMismatchLowerBound, *bondMismatchUpperBound,
+			matchType, runningMode, *timeout);
 
-mcs.calculate();
+	mcs.calculate();
 
-static int cmpOneSize, cmpTwoSize, mSize;
-cmpOneSize = mcs.getCompoundOne().size();
-cmpTwoSize = mcs.getCompoundTwo().size();
-mSize = mcs.size();
+	static int cmpOneSize, cmpTwoSize, mSize;
+	cmpOneSize = mcs.getCompoundOne().size();
+	cmpTwoSize = mcs.getCompoundTwo().size();
+	mSize = mcs.size();
 
-if (runningMode == MCS::DETAIL) {
+	if (runningMode == MCS::DETAIL) {
 
-	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
-	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-        
-	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
-	stringstream indexOneStringStream, indexTwoStringStream;
-	for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
-		for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-			indexOneStringStream << *j << " ";
+		list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
+		list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
+
+		cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
+		stringstream indexOneStringStream, indexTwoStringStream;
+		for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
+			for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+				indexOneStringStream << *j << " ";
+			}
+			indexOneStringStream << "\n";
 		}
-		indexOneStringStream << "\n";
+
+		for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
+			for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+				indexTwoStringStream << *j << " ";
+			}
+			indexTwoStringStream << "\n";
+		}
+
+		static string indexOneString, indexTwoString;
+		indexOneString = indexOneStringStream.str();
+		indexTwoString = indexTwoStringStream.str();
+		cout << "indexOneString: " << endl;
+		cout << indexOneString <<endl ;
+
+		cout << "indexTwoString: " << endl;
+		cout << indexTwoString <<endl ;
+		*resultIdxOne = indexOneString.c_str();
+		*resultIdxTwo = indexTwoString.c_str();
 	}
 
-	for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
-		for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-			indexTwoStringStream << *j << " ";
-		}
-		indexTwoStringStream << "\n";
-	}
+	stringstream sizeStringStream;
+	sizeStringStream << cmpOneSize;
+	static string cmpOneSizeString;
+	cmpOneSizeString= sizeStringStream.str();
+	sizeStringStream.str("");
+	sizeStringStream << cmpTwoSize;
+	static string cmpTwoSizeString;
+	cmpTwoSizeString = sizeStringStream.str();
 
-	static string indexOneString, indexTwoString;
-	indexOneString = indexOneStringStream.str();
-	indexTwoString = indexTwoStringStream.str();
-        cout << "indexOneString: " << endl;
-            cout << indexOneString <<endl ;
-            
-            cout << "indexTwoString: " << endl;
-            cout << indexTwoString <<endl ;
-	*resultIdxOne = indexOneString.c_str();
-	*resultIdxTwo = indexTwoString.c_str();
-}
+	sizeStringStream.str("");
+	sizeStringStream << mSize;
+	static string mSizeString;
+	mSizeString = sizeStringStream.str();
 
-stringstream sizeStringStream;
-sizeStringStream << cmpOneSize;
-static string cmpOneSizeString;
-cmpOneSizeString= sizeStringStream.str();
-sizeStringStream.str("");
-sizeStringStream << cmpTwoSize;
-static string cmpTwoSizeString;
-cmpTwoSizeString = sizeStringStream.str();
-
-sizeStringStream.str("");
-sizeStringStream << mSize;
-static string mSizeString;
-mSizeString = sizeStringStream.str();
-
-*sdfOneSize = cmpOneSizeString.c_str();
-*sdfTwoSize = cmpTwoSizeString.c_str();
-*mcsSize = mSizeString.c_str();
+	*sdfOneSize = cmpOneSizeString.c_str();
+	*sdfTwoSize = cmpTwoSizeString.c_str();
+	*mcsSize = mSizeString.c_str();
 
 }
 
@@ -169,93 +169,90 @@ void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureString
 
 
 #ifdef HAVE_LIBOPENBABEL
-compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
-compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
+	compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
+	compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
-compoundOne.read(string(structureStringOne));
-compoundTwo.read(string(structureStringTwo));
+	compoundOne.read(string(structureStringOne));
+	compoundTwo.read(string(structureStringTwo));
 
 #endif
-MCS mcs(compoundOne, compoundTwo,
-		userDefinedLowerBound, substructureNumLimit,
-		*atomMismatchLowerBound, *atomMismatchUpperBound,
-		*bondMismatchLowerBound, *bondMismatchUpperBound,
-		matchType, runningMode, *timeout);
+	MCS mcs(compoundOne, compoundTwo,
+			userDefinedLowerBound, substructureNumLimit,
+			*atomMismatchLowerBound, *atomMismatchUpperBound,
+			*bondMismatchLowerBound, *bondMismatchUpperBound,
+			matchType, runningMode, *timeout);
 
 
-mcs.calculate();
+	mcs.calculate();
 
-static int cmpOneSize, cmpTwoSize, mSize;
-cmpOneSize = mcs.getCompoundOne().size();
-cmpTwoSize = mcs.getCompoundTwo().size();
-mSize = mcs.size();
+	static int cmpOneSize, cmpTwoSize, mSize;
+	cmpOneSize = mcs.getCompoundOne().size();
+	cmpTwoSize = mcs.getCompoundTwo().size();
+	mSize = mcs.size();
 
-if (runningMode == MCS::DETAIL) {
-	list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
-	list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-        
-        string sdfOut = compoundOne.createDissimilarSDFs(index1.front());
-           ofstream myfile;
-        myfile.open ("out1.sdf");
-        myfile << sdfOut;
-        myfile.close();
-        
-        sdfOut = compoundTwo.createDissimilarSDFs(index2.front());
-          // ofstream myfile;
-        myfile.open ("out2.sdf");
-        myfile << sdfOut;
-        myfile.close();
-	cout << mcs.getFirstSdfResultStringList().size() << " solution(s) found..." << endl;
-        cout << "mcs size:" << mcs.size();
-	stringstream indexOneStringStream, indexTwoStringStream;
-	for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
-		for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-			indexOneStringStream << *j << " ";
+	if (runningMode == MCS::DETAIL) {
+		list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
+		list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
+
+		string sdfOut = compoundOne.createDissimilarSDFs(index1.front());
+		ofstream myfile;
+		myfile.open ("out1.sdf");
+		myfile << sdfOut;
+		myfile.close();
+
+		sdfOut = compoundTwo.createDissimilarSDFs(index2.front());
+		myfile.open ("out2.sdf");
+		myfile << sdfOut;
+		myfile.close();
+
+
+		stringstream indexOneStringStream, indexTwoStringStream;
+		for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
+			for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+				indexOneStringStream << *j << " ";
+			}
+			indexOneStringStream << "\n";
 		}
-		indexOneStringStream << "\n";
-	}
-	for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
-		for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
-			indexTwoStringStream << *j << " ";
+		for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
+			for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+				indexTwoStringStream << *j << " ";
+			}
+			indexTwoStringStream << "\n";
 		}
-		indexTwoStringStream << "\n";
+		static string indexOneString, indexTwoString;
+		indexOneString = indexOneStringStream.str();
+		indexTwoString = indexTwoStringStream.str();
+
+		cout << "indexOneString: " << endl;
+		cout << indexOneString <<endl ;
+
+		cout << "indexTwoString: " << endl;
+		cout << indexTwoString <<endl ;
+
+		*resultIdxOne = indexOneString.c_str();
+
+		*resultIdxTwo = indexTwoString.c_str();
 	}
-	static string indexOneString, indexTwoString;
-	indexOneString = indexOneStringStream.str();
-	indexTwoString = indexTwoStringStream.str();
 
-	cout << "indexOneString: " << endl;
-	cout << indexOneString <<endl ;
+	stringstream sizeStringStream;
 
-	cout << "indexTwoString: " << endl;
-	cout << indexTwoString <<endl ;
+	sizeStringStream << cmpOneSize;
+	static string cmpOneSizeString;
+	cmpOneSizeString= sizeStringStream.str();
 
-	*resultIdxOne = indexOneString.c_str();
+	sizeStringStream.str("");
+	sizeStringStream << cmpTwoSize;
+	static string cmpTwoSizeString;
+	cmpTwoSizeString = sizeStringStream.str();
 
-	*resultIdxTwo = indexTwoString.c_str();
+	sizeStringStream.str("");
+	sizeStringStream << mSize;
+	static string mSizeString;
+	mSizeString = sizeStringStream.str();
 
-
-}
-
-stringstream sizeStringStream;
-
-sizeStringStream << cmpOneSize;
-static string cmpOneSizeString;
-cmpOneSizeString= sizeStringStream.str();
-
-sizeStringStream.str("");
-sizeStringStream << cmpTwoSize;
-static string cmpTwoSizeString;
-cmpTwoSizeString = sizeStringStream.str();
-
-sizeStringStream.str("");
-sizeStringStream << mSize;
-static string mSizeString;
-mSizeString = sizeStringStream.str();
-
-*sdfOneSize = cmpOneSizeString.c_str();
-*sdfTwoSize = cmpTwoSizeString.c_str();
-*mcsSize = mSizeString.c_str();
+	*sdfOneSize = cmpOneSizeString.c_str();
+	*sdfTwoSize = cmpTwoSizeString.c_str();
+	*mcsSize = mSizeString.c_str();
 
 }
 

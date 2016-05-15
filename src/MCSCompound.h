@@ -115,7 +115,10 @@ namespace FMCS {
         void parseSMI(const std::string& sdfString);
 #endif
         MCSCompound::molBlocks parseSDF(const std::string& sdfString);
+        std::list<std::vector<size_t> > updateBondList(std::vector<size_t> listOfAtoms,std::list<std::vector<size_t> > listOfSubgraph);
         
+        std::string generateBondString(std::list<std::vector<size_t> > listOfSubgraph);
+        std::string generateAtomString(std::vector<size_t> listOfAtoms);
         std::string compoundName;
         
         MCSCompound::molBlocks molB;
@@ -198,6 +201,7 @@ namespace FMCS {
         }
         void removeRings();
         std::string createDissimilarSDFs(std::vector<size_t> mcs);
+        std::string createMCSSDFs(std::vector<size_t> mcs);
         void ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result,std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, std::vector<size_t> mcs);
     };
 }
