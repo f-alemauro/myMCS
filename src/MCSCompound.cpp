@@ -521,44 +521,49 @@ const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAto
 	return NULL;
 }
 
-string MCSCompound::createMCSSDFs(vector<size_t> mcs) {
+string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
+	list<std::vector<size_t> > bondsList = strings2int(molB.bondBlock, true);
+		list<std::vector<size_t> > subgraph;
+		std::vector<size_t> listOfAtoms;
+		string finalSDF;
+		for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
+			if (*(i->begin()) == 0) {
+				subgraph.clear();
+				listOfAtoms.clear();
+				size_t atom1, atom2;
+				atom1 = *(i->begin() + 1);
+				atom2 = *(i->begin() + 2);
+				if (((std::find(mcs.begin(), mcs.end(), atom1) != mcs.end()) && (std::find(mcs.begin(), mcs.end(), atom2) != mcs.end()))==isMCS) {
+					ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs, isMCS);
 
+					subgraph = updateBondList(listOfAtoms,subgraph);
+
+					string bondString = generateBondString(subgraph);
+					string atomString = generateAtomString(listOfAtoms);
+					stringstream infoLiness;
+					infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
+
+					finalSDF += molB.infoBlock+"\n";
+					finalSDF += infoLiness.str();;
+					finalSDF += atomString;
+					finalSDF += bondString;
+					finalSDF += "M  END\n$$$$\n";
+
+				} else
+					*(i->begin()) = 1;
+			}
+		}
+		return finalSDF;
+
+}
+
+string MCSCompound::createMCSSDFs(vector<size_t> mcs) {
+	return MCS2SDF(mcs,true);
 
 }
 
 string MCSCompound::createDissimilarSDFs(vector<size_t> mcs) {
-	list<std::vector<size_t> > bondsList = strings2int(molB.bondBlock, true);
-	list<std::vector<size_t> > subgraph;
-	std::vector<size_t> listOfAtoms;
-	string finalSDF;
-	for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
-		if (*(i->begin()) == 0) {
-			subgraph.clear();
-			listOfAtoms.clear();
-			size_t atom1, atom2;
-			atom1 = *(i->begin() + 1);
-			atom2 = *(i->begin() + 2);
-			if ((std::find(mcs.begin(), mcs.end(), atom1) == mcs.end()) || (std::find(mcs.begin(), mcs.end(), atom2) == mcs.end())) {
-				ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs);
-
-				subgraph = updateBondList(listOfAtoms,subgraph);
-
-				string bondString = generateBondString(subgraph);
-				string atomString = generateAtomString(listOfAtoms);
-				stringstream infoLiness;
-				infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
-
-				finalSDF += molB.infoBlock+"\n";
-				finalSDF += infoLiness.str();;
-				finalSDF += atomString;
-				finalSDF += bondString;
-				finalSDF += "M  END\n$$$$\n";
-
-			} else
-				*(i->begin()) = 1;
-		}
-	}
-	return finalSDF;
+	return MCS2SDF(mcs,false);
 }
 
 
@@ -623,7 +628,7 @@ string MCSCompound::generateAtomString(std::vector<size_t> listOfAtoms){
 	return atomString;
 }
 
-void MCSCompound::ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result, std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, vector<size_t> mcs) {
+void MCSCompound::ricerca(size_t atomTarget, std::list<std::vector<size_t> >& result, std::vector<size_t>& resultAtomList, std::list<std::vector<size_t> >& bondsList, vector<size_t> mcs, bool isMCS) {
 	if (std::find(resultAtomList.begin(), resultAtomList.end(), atomTarget) == resultAtomList.end()){
 		resultAtomList.push_back(atomTarget);
 	}
@@ -634,18 +639,18 @@ void MCSCompound::ricerca(size_t atomTarget, std::list<std::vector<size_t> >& re
 			atom1 = *(i->begin() + 1);
 			atom2 = *(i->begin() + 2);
 			size_t bondMate;
-			if ((std::find(mcs.begin(), mcs.end(), atom1) == mcs.end()) || (std::find(mcs.begin(), mcs.end(), atom2) == mcs.end())) {//atom1 c'è in mcs
+			if (((std::find(mcs.begin(), mcs.end(), atom1) != mcs.end()) && (std::find(mcs.begin(), mcs.end(), atom2) != mcs.end()))==isMCS){
 				if (atom1 == atomTarget) {
 					bondMate = atom2;
 					*(i->begin()) = 1;
 					result.push_back(*i);
-					ricerca(bondMate, result, resultAtomList,bondsList, mcs);
+					ricerca(bondMate, result, resultAtomList,bondsList, mcs, isMCS);
 					i++;
 				} else if (atom2 == atomTarget) {
 					bondMate = atom1;
 					*(i->begin()) = 1;
 					result.push_back(*i);
-					ricerca(bondMate, result,resultAtomList, bondsList, mcs);
+					ricerca(bondMate, result,resultAtomList, bondsList, mcs, isMCS);
 					i++;
 				} else
 					i++;

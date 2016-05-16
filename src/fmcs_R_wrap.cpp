@@ -205,6 +205,14 @@ void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureString
 		myfile << sdfOut;
 		myfile.close();
 
+		sdfOut = compoundOne.createMCSSDFs(index1.front());
+		myfile.open ("outMCS1.sdf");
+		myfile << sdfOut;
+		myfile.close();
+		sdfOut = compoundTwo.createMCSSDFs(index2.front());
+		myfile.open ("outMCS2.sdf");
+		myfile << sdfOut;
+		myfile.close();
 
 		stringstream indexOneStringStream, indexTwoStringStream;
 		for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
