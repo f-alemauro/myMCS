@@ -541,8 +541,11 @@ string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
 					string bondString = generateBondString(subgraph);
 					string atomString = generateAtomString(listOfAtoms);
 					stringstream infoLiness;
+                                        string CHGstring = evaluateCHGs(listOfAtoms);
+                                        
+                                        cout<<CHGstring<<endl;
 					infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
-
+                                        
 					finalSDF += molB.infoBlock+"\n";
 					finalSDF += infoLiness.str();;
 					finalSDF += atomString;
@@ -588,6 +591,42 @@ list<vector<size_t> > MCSCompound::updateBondList(std::vector<size_t> listOfAtom
 	return listOfSubgraph;
 }
 
+string MCSCompound::evaluateCHGs(std::vector<size_t> mcs){
+    std::stringstream chgLine_tmp;
+    if (!molB.chgISO.empty()){
+        cout<<"chgISO block is: "<<molB.chgISO.c_str()<<endl;
+        std::istringstream charges (molB.chgISO);
+        std::string line;    
+        
+        while (std::getline(charges, line)) {
+            std::size_t atomNumber = atoi(line.substr(8,1).c_str());
+            cout<<"the atomNumber in the chg or iso line is: "<< atomNumber<<endl; 
+		
+    std::istringstream iss(line.substr(12,line.length()));
+    std::string token;
+    int atom_found = 0;
+    while (std::getline(iss, token, ' '))
+    {
+        if (token == ""){
+            if (atom_found == 1){
+                chgLine_tmp << " ";
+            }
+        } else if (token != ""){
+            if (atom_found == 1){
+                chgLine_tmp << token;
+                atom_found = 0;
+            }
+            else if ((std::find(mcs.begin(), mcs.end(), atoi(token.c_str())) != mcs.end())){
+                atom_found = 1;
+                chgLine_tmp << token << " ";
+            }
+        }    
+    }
+           
+    }
+    }
+    return chgLine_tmp.str();
+}
 string MCSCompound::generateBondString(list<std::vector<size_t> > listOfSubgraph){
 	std::ostringstream bondStringSS;
 	for (list<vector<size_t> >::iterator j = listOfSubgraph.begin(); j != listOfSubgraph.end(); ++j){

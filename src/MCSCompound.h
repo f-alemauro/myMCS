@@ -204,6 +204,7 @@ namespace FMCS {
         void removeRings();
         std::string createDissimilarSDFs(std::vector<size_t> mcs);
         std::string createMCSSDFs(std::vector<size_t> mcs);
+        std::string evaluateCHGs(std::vector<size_t> mcs);
 
     };
 }
