@@ -10,5 +10,6 @@
 std::string getUpper(const std::string& s);
 
 
-std::list<std::vector<size_t> > strings2int(std::string block, bool addBit);
+std::list<std::vector<int> > strings2int(std::string block, bool addBit);
+std::list<std::vector<size_t> > strings2size_t(std::string block, bool addBit);
 #endif // _UTIL_H

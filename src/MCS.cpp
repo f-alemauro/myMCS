@@ -20,7 +20,7 @@ using namespace OpenBabel;
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <R.h>
+
 using namespace std;
 namespace FMCS {
 

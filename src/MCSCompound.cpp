@@ -522,41 +522,47 @@ const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAto
 }
 
 string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
-	list<std::vector<size_t> > bondsList = strings2int(molB.bondBlock, true);
-		list<std::vector<size_t> > subgraph;
-		std::vector<size_t> listOfAtoms;
-		string finalSDF;
-		for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
-			if (*(i->begin()) == 0) {
-				subgraph.clear();
-				listOfAtoms.clear();
-				size_t atom1, atom2;
-				atom1 = *(i->begin() + 1);
-				atom2 = *(i->begin() + 2);
-				if (((std::find(mcs.begin(), mcs.end(), atom1) != mcs.end()) && (std::find(mcs.begin(), mcs.end(), atom2) != mcs.end()))==isMCS) {
-					ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs, isMCS);
+	list<std::vector<size_t> > bondsList = strings2size_t(molB.bondBlock, true);
+	list<std::vector<size_t> > subgraph;
+	list<std::vector<int> > propertyList;
+	std::vector<size_t> listOfAtoms;
+	string finalSDF;
+	for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
+		if (*(i->begin()) == 0) {
+			subgraph.clear();
+			listOfAtoms.clear();
+			size_t atom1, atom2;
+			atom1 = *(i->begin() + 1);
+			atom2 = *(i->begin() + 2);
+			if (((std::find(mcs.begin(), mcs.end(), atom1) != mcs.end()) && (std::find(mcs.begin(), mcs.end(), atom2) != mcs.end()))==isMCS) {
+				ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs, isMCS);
 
-					subgraph = updateBondList(listOfAtoms,subgraph);
+				subgraph = updateBondList(listOfAtoms, subgraph);
+				string propertyString = "";
 
-					string bondString = generateBondString(subgraph);
-					string atomString = generateAtomString(listOfAtoms);
-					stringstream infoLiness;
-                                        string CHGstring = evaluateCHGs(listOfAtoms);
-                                        
-                                        cout<<CHGstring<<endl;
-					infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
-                                        
-					finalSDF += molB.infoBlock+"\n";
-					finalSDF += infoLiness.str();;
-					finalSDF += atomString;
-					finalSDF += bondString;
-					finalSDF += "M  END\n$$$$\n";
+				if (!molB.chgISO.empty()){
+					propertyList = evaluateCHGs(listOfAtoms);
+					propertyString = generatePropertyString(propertyList);
+				}
 
-				} else
-					*(i->begin()) = 1;
-			}
+				string bondString = generateBondString(subgraph);
+				string atomString = generateAtomString(listOfAtoms);
+
+				stringstream infoLiness;
+				infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
+
+				finalSDF += molB.infoBlock+"\n";
+				finalSDF += infoLiness.str();;
+				finalSDF += atomString;
+				finalSDF += bondString;
+				finalSDF += propertyString;
+				finalSDF += "M  END\n$$$$\n";
+
+			} else
+				*(i->begin()) = 1;
 		}
-		return finalSDF;
+	}
+	return finalSDF;
 
 }
 
@@ -586,47 +592,68 @@ list<vector<size_t> > MCSCompound::updateBondList(std::vector<size_t> listOfAtom
 			}
 		}
 		atomLinesCounter++;
-
 	}
 	return listOfSubgraph;
 }
 
-string MCSCompound::evaluateCHGs(std::vector<size_t> mcs){
-    std::stringstream chgLine_tmp;
-    if (!molB.chgISO.empty()){
-        cout<<"chgISO block is: "<<molB.chgISO.c_str()<<endl;
-        std::istringstream charges (molB.chgISO);
-        std::string line;    
-        
-        while (std::getline(charges, line)) {
-            std::size_t atomNumber = atoi(line.substr(8,1).c_str());
-            cout<<"the atomNumber in the chg or iso line is: "<< atomNumber<<endl; 
-		
-    std::istringstream iss(line.substr(12,line.length()));
-    std::string token;
-    int atom_found = 0;
-    while (std::getline(iss, token, ' '))
-    {
-        if (token == ""){
-            if (atom_found == 1){
-                chgLine_tmp << " ";
-            }
-        } else if (token != ""){
-            if (atom_found == 1){
-                chgLine_tmp << token;
-                atom_found = 0;
-            }
-            else if ((std::find(mcs.begin(), mcs.end(), atoi(token.c_str())) != mcs.end())){
-                atom_found = 1;
-                chgLine_tmp << token << " ";
-            }
-        }    
-    }
-           
-    }
-    }
-    return chgLine_tmp.str();
+list<std::vector<int> > MCSCompound::evaluateCHGs(std::vector<size_t> mcs){
+	list<std::vector<int> > newPropList;
+	vector<int> tmpPropRow;
+
+	std::string outListNumber;
+	std::istringstream fB(molB.chgISO);
+	std::string tmpLine;
+	while (std::getline(fB, tmpLine)) {
+		std::stringstream streamNum(tmpLine.substr(8));
+		outListNumber+= streamNum.str();
+		outListNumber+="\n";
+	}
+
+	list<std::vector<int> > listOfProp = strings2int(outListNumber, false);
+	std::sort(mcs.begin(), mcs.end());
+	int atomLinesCounter = 1;
+	for (list<vector<int> >::iterator resultI = listOfProp.begin(); resultI != listOfProp.end(); ++resultI) {
+		tmpPropRow.clear();
+		atomLinesCounter = 1;
+		for (vector<size_t>::iterator k = mcs.begin(); k != mcs.end(); ++k) {
+			for (int z = 0;z<(*resultI)[0];z++){
+				cout<<z<<" - Riga: "<<(*resultI)[z*2+1]<<" - "<<(*resultI)[z*2+2]<<endl;
+				if ((*resultI)[z*2+1] == *k){
+					cout<<"P_Change: "<<*k<<"-->"<<atomLinesCounter<<endl;
+					tmpPropRow.push_back(atomLinesCounter);
+					tmpPropRow.push_back((*resultI)[z*2+2]);
+				}
+			}
+			atomLinesCounter++;
+		}
+		newPropList.push_back(tmpPropRow);
+
+	}
+	return newPropList;
 }
+
+string MCSCompound::generatePropertyString(list<std::vector<int> > propList){
+	std::ostringstream propStringSS;
+	std::string tmpLine;
+	std::istringstream fB(molB.chgISO);
+	std::istringstream fB(molB.chgISO);for (list<vector<int> >::iterator j = propList.begin(); j != propList.end(); ++j){
+		std::getline(fB, tmpLine);
+		if (((*j).size()/2)<10)
+			propStringSS<<tmpLine.substr(0,6)<<"  "<< (*j).size()/2;
+		else
+			propStringSS<<tmpLine.substr(0,6)<<" "<< (*j).size()/2;
+
+		for (int k = 0;k< (*j).size();k++){
+			if (((*j)[k] < 0)||((*j)[k] > 9))
+				propStringSS<<"  "<<(*j)[k];
+			else
+				propStringSS<<"   "<<(*j)[k];
+		}
+		propStringSS<<"\n";
+	}
+	return propStringSS.str();
+}
+
 string MCSCompound::generateBondString(list<std::vector<size_t> > listOfSubgraph){
 	std::ostringstream bondStringSS;
 	for (list<vector<size_t> >::iterator j = listOfSubgraph.begin(); j != listOfSubgraph.end(); ++j){
