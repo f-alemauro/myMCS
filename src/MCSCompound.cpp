@@ -636,7 +636,8 @@ string MCSCompound::generatePropertyString(list<std::vector<int> > propList){
 	std::ostringstream propStringSS;
 	std::string tmpLine;
 	std::istringstream fB(molB.chgISO);
-	std::istringstream fB(molB.chgISO);for (list<vector<int> >::iterator j = propList.begin(); j != propList.end(); ++j){
+	for (list<vector<int> >::iterator j = propList.begin(); j != propList.end(); ++j){
+            if (((*j).size())!= 0){
 		std::getline(fB, tmpLine);
 		if (((*j).size()/2)<10)
 			propStringSS<<tmpLine.substr(0,6)<<"  "<< (*j).size()/2;
@@ -650,7 +651,8 @@ string MCSCompound::generatePropertyString(list<std::vector<int> > propList){
 				propStringSS<<"   "<<(*j)[k];
 		}
 		propStringSS<<"\n";
-	}
+            }
+        }
 	return propStringSS.str();
 }
 

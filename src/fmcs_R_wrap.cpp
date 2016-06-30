@@ -307,7 +307,8 @@ int main(int argc, char *argv[]){
 
 	myReadFile.close();
 	cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
-
+        
+        
 	fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
 			&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,
 			&runningModeInt,&timeout,resultIdxOne,
