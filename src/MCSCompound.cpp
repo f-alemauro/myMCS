@@ -5,6 +5,7 @@
 #include "MCSRingDetector.h"
 #include "util.h"
 
+
 #ifdef HAVE_LIBOPENBABEL
 
 #include <openbabel/mol.h>
@@ -26,6 +27,9 @@ using namespace OpenBabel;
 #include <list>
 #include <algorithm>
 #include <iterator>
+#include <algorithm>
+#include <utility>
+#include <vector>
 
 
 
@@ -447,10 +451,13 @@ string MCSCompound::deleteHydrogens(const string& sdf, vector<size_t>& originalI
 			+ "M END\n"
 			+ "$$$$";
 
-	string infoString = compoundNameLine + "\n"
+	//string infoString = compoundNameLine + "\n"
+	//		+ informationLine + "\n"
+	//		+ commentLine;
+	string infoString = "\n"
 			+ informationLine + "\n"
 			+ commentLine;
-	molB.infoBlock = infoString;
+        molB.infoBlock = infoString;
 	molB.atomBlock = newAtomBlock;
 	molB.bondBlock = newBondBlock;
 	molB.chgISO = chgISOlines;
@@ -521,12 +528,18 @@ const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAto
 	return NULL;
 }
 
-string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
-	list<std::vector<size_t> > bondsList = strings2size_t(molB.bondBlock, true);
+string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){   
+    
+        list<std::vector<size_t> > bondsList = strings2size_t(molB.bondBlock, true);
 	list<std::vector<size_t> > subgraph;
 	list<std::vector<int> > propertyList;
-	std::vector<size_t> listOfAtoms;
-	string finalSDF;
+	std::vector<size_t> listOfAtoms;        
+	string finalSDF;       
+
+        
+        
+        
+        
 	for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
 		if (*(i->begin()) == 0) {
 			subgraph.clear();
@@ -534,10 +547,72 @@ string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
 			size_t atom1, atom2;
 			atom1 = *(i->begin() + 1);
 			atom2 = *(i->begin() + 2);
+                        int found = 0;
+                        
 			if (((std::find(mcs.begin(), mcs.end(), atom1) != mcs.end()) && (std::find(mcs.begin(), mcs.end(), atom2) != mcs.end()))==isMCS) {
-				ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs, isMCS);
-
-				subgraph = updateBondList(listOfAtoms, subgraph);
+                            ricerca(atom1, subgraph, listOfAtoms, bondsList, mcs, isMCS);
+/*
+ Verify if there are two atoms in common between MCS and a dissimilarity SDF created. 
+ */
+                             
+                            size_t atomA, atomB; 
+                            size_t atom_one, atom_two;
+                            std::vector<size_t> atoms_pos;
+                            std:: vector<size_t> atom_ids;
+                            std::vector<size_t>::iterator atom_pos_in_mcs;
+                            
+                            if (!isMCS){
+                                
+                                //creating an atom list id list from the bond block of the subgraph   
+                                for (list<vector<size_t> >::iterator j = subgraph.begin(); j != subgraph.end(); ++j) {
+                                    atomA = *(j->begin() + 1);
+                                    atomB = *(j->begin() + 2);
+                                    
+                                    atom_ids.push_back(atomA);
+                                    atom_ids.push_back(atomB);
+                                }
+                                
+                                
+                                //eliminating the duplicates from the atoms list to be searched in the mcs list
+                                sort( atom_ids.begin(), atom_ids.end() );
+                                atom_ids.erase( unique( atom_ids.begin(), atom_ids.end() ), atom_ids.end() );
+                                
+                                
+                                //std::cout<<" MCS: ";
+                                //for (std::vector<size_t>::iterator it = mcs.begin(); it != mcs.end(); ++it)
+                                    //std::cout << " " << *it;
+                                //cout<<"\n";
+                                
+                                //std::cout<<" No duplicates: ";
+                                for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it){
+                                    //std::cout << " " << *it;
+                                    atom_pos_in_mcs = find (mcs.begin(), mcs.end(), *it);
+                                    
+                                    //std::cout<<"\n";
+                                    if (atom_pos_in_mcs != mcs.end()){
+                                        found++;
+                                        //std::cout<<"atom in common:" <<*(atom_pos_in_mcs)<< endl;
+                                        atoms_pos.push_back(*(atom_pos_in_mcs));
+                                    }
+                                        
+                                }
+                                //std::cout<<"\n";    
+                                //std::cout << "found: "<< found <<" atoms"<<"\n";
+                                if(found==2)
+                                    for (list<vector<size_t> >::iterator k = bondsList.begin(); k != bondsList.end(); ++k) {
+                                        atom_one = *(k->begin() + 1);
+                                        atom_two = *(k->begin() + 2);
+                                        if (((atom_one == atoms_pos.front()) || (atom_one == atoms_pos.back())) && ((atom_two == atoms_pos.front()) || (atom_two == atoms_pos.back()))){
+                                            
+                                            subgraph.push_back(*k);
+                                        }
+                                    }
+                                found = 0;
+                                
+                            }
+                                    
+                                
+                                subgraph = updateBondList(listOfAtoms, subgraph);
 				string propertyString = "";
 
 				if (!molB.chgISO.empty()){
@@ -548,7 +623,7 @@ string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
 				string bondString = generateBondString(subgraph);
 				string atomString = generateAtomString(listOfAtoms);
 
-				stringstream infoLiness;
+				stringstream infoLiness;                                
 				infoLiness  << " "<<listOfAtoms.size()<<" "<<subgraph.size()<<"  0  0  0  0            999 V2000"<<endl;
 
 				finalSDF += molB.infoBlock+"\n";
@@ -566,13 +641,13 @@ string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS){
 
 }
 
-string MCSCompound::createMCSSDFs(vector<size_t> mcs) {
-	return MCS2SDF(mcs,true);
+string MCSCompound::createMCSSDFs(vector<size_t> mcs) {      
+        return MCS2SDF(mcs,true);
 
 }
 
 string MCSCompound::createDissimilarSDFs(vector<size_t> mcs) {
-	return MCS2SDF(mcs,false);
+    return MCS2SDF(mcs,false);
 }
 
 
