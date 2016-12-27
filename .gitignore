@@ -1,9 +1,0 @@
-*.o
-*.sdf
-*.in
-*~
-mcswrap
-.cproject
-.settings
-.project
-nbproject
