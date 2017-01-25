@@ -248,18 +248,26 @@ void MCS::calculate() {
 				}
 			}
 		} else {
-			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
+                    for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
 				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
-				const MCSCompound::Bond bondOne = compoundOne.getAtom(atomOne).getBond(targetNeighborMappingPtr[i]);
-				const MCSCompound::Bond bondTwo = compoundTwo.getAtom(atomTwo).getBond(n);
-				if (bondOne.isInARing != bondTwo.isInARing) {
+				const MCSCompound::Bond bondOne = compoundOne.atoms[atomOne].getBond(targetNeighborMappingPtr[i]);
+				const MCSCompound::Bond bondTwo = compoundTwo.atoms[atomTwo].getBond(n);
+				if (bondOne.bondType != bondTwo.bondType) {
 					++bondMisCount;
-				} else {
-					if (bondOne.bondType != bondTwo.bondType) {
-						++bondMisCount;
-					}
 				}
 			}
+//			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
+//				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
+//				const MCSCompound::Bond bondOne = compoundOne.getAtom(atomOne).getBond(targetNeighborMappingPtr[i]);
+//				const MCSCompound::Bond bondTwo = compoundTwo.getAtom(atomTwo).getBond(n);
+//				if (bondOne.isInARing != bondTwo.isInARing) {
+//					++bondMisCount;
+//				} else {
+//					if (bondOne.bondType != bondTwo.bondType) {
+//						++bondMisCount;
+//					}
+//				}
+//			}
 		}
 
 		return true;

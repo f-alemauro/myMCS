@@ -1,3 +1,6 @@
 build/
 *.o
 *.sdf
+files_diss
+sdfs
+nbproject

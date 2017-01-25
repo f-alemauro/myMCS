@@ -32,6 +32,13 @@ list<std::vector<int> > strings2int (string block, bool addBit){
 	}
 	return outList;
 }
+
+
+int factorial(int n)
+{
+  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
 list<std::vector<size_t> > strings2size_t (string block, bool addBit){
 	list<std::vector<size_t> > outList;
 	std::vector<size_t> tmpVector;
