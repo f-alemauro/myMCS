@@ -1,4 +1,3 @@
-
 #ifndef _MCSCOMPOUND_H
 #define _MCSCOMPOUND_H
 

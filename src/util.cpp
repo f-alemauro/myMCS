@@ -1,6 +1,4 @@
-
 #include "../include/util.h"
-
 #include <cctype>
 #include <string>
 
@@ -13,6 +11,13 @@ string getUpper(const string& s) {
 	}
 	return upper;
 }
+
+template < typename T > std::string to_string( const T& n )
+   {
+       std::ostringstream stm ;
+       stm << n ;
+       return stm.str() ;
+   }
 
 list<std::vector<int> > strings2int (string block, bool addBit){
 	list<std::vector<int> > outList;

@@ -29,9 +29,9 @@ namespace FMCS {
             MatchType mtype, RunningMode runningMode, int timeout);
         
         ~MCS() {}
-        double getTime() {
-            return timeUsed;
-        }
+        //double getTime() {
+        //    return timeUsed;
+        //}
         
         void calculate();
         
@@ -114,17 +114,18 @@ namespace FMCS {
         
         void clearResult();
         
-        bool isTimeout() const {
-            return _isTimeout;
-        }
+        //bool isTimeout() const {
+            //return _isTimeout;
+        //}
         
     private:
-        
+        //bool timeoutStop;
+
         bool haveBeenSwapped;
         
-        int _timeout;
+        //int _timeout;
         
-        bool _isTimeout;
+        //bool _isTimeout;
         
         RunningMode runningMode;
         
@@ -133,8 +134,8 @@ namespace FMCS {
         size_t bestSize;
         
         
-        double timeUsed;
-		  clock_t startTime;
+        //double timeUsed;
+//		  clock_t startTime;
 
         std::list<MCSMap> bestList;
 
@@ -182,6 +183,7 @@ namespace FMCS {
         size_t top(MCSList<size_t>& v1_list);
         void boundary();
         void grow(MCSList<size_t>& v1_list, MCSList<size_t>& v2_list);
+        void readRuleFiles(std::string fileName);
     };
     
 }
