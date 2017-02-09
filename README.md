@@ -15,7 +15,14 @@ myMCS: a tool for finding the maximum common subgraph between two molecules and 
 3. open Ecplise CDT and import the project --> File, Import, General, Existing project into workspace and select the root directory of the project. If desired, check "Copy project into workspace"
 4. Buid project from Ecplise; both tool and shared library will be generated.
 
-64 bit How to compile in Linux for using with Visual Studio
+64 bit How to compile in Linux for using with Visual Studio (xy version, yyyy year)
+
+1. create a "build" directory --> mkdir build
+1. goto to build directory --> cd build
+2. execture cmake to generate the makefile --> cmake -G "Visual Studio xx yyyy Win64" ../src
+3. open the solution with Visual Studio
+4. Buid the project; you can build automatically both the two subproject (fmcsWrap for the executable and myMCS for the .dll), or build only the one you need.
+
 
 TBD.
 

@@ -264,7 +264,8 @@ namespace FMCS {
 
     size_t MCSCompound::addNewRingAtom(std::string name) {
         newRingAtoms.push_back(Atom(atomCount + newRingAtoms.size() + 1, 0, newRingAtoms.size(), name, true, std::vector<size_t>()));
-    }
+		return 0;
+	}
 
     MCSList<size_t> MCSCompound::getAtomList() const {
         MCSList<size_t> l;
