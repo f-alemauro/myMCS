@@ -515,6 +515,7 @@ namespace FMCS {
         for (size_t i = 0; i < bondCount; ++i) {
             string bondBlockLine;
             getline(sdfStringStream, bondBlockLine);
+			cout << "BondLine: " << bondBlockLine << endl;
             int firstAtom = -1, secondAtom = -1, bondType = -1;
             firstAtom = atoi(bondBlockLine.substr(0, 3).c_str()) - 1;
             secondAtom = atoi(bondBlockLine.substr(3, 3).c_str()) - 1;
