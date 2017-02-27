@@ -522,6 +522,7 @@ namespace FMCS {
             bondType = atoi(bondBlockLine.substr(6, 3).c_str());
             bonds[i] = Bond(i, firstAtom, secondAtom, bondType, false, false);
         }
+		cout << "End of parsing" << endl;
         return molB;
     }
 
