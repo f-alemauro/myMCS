@@ -168,14 +168,14 @@ namespace FMCS {
         molB = parseSDF(sdfString);
         size_t newAtomCount = 0;
         size_t newBondCount = 0;
-
+		cout << "loop bond" << endl;
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
             atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
             atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
-
+		cout << "loop bond over" << endl;
         MCSRingDetector ringDector(*this);
         ringDector.detect();
     }
