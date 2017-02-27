@@ -248,7 +248,6 @@ void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureString
 	compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
 	compoundOne.read(string(structureStringOne));
-	cout << structureStringTwo << endl;
 	compoundTwo.read(string(structureStringTwo));
 
 #endif
@@ -379,11 +378,6 @@ int main(int argc, char *argv[]){
 		sdfSet.push_back(contents.substr(last, next-last+5));
 		last = next +5;
 	}
-	cout << "______________" << endl;
-	cout << sdfSet[0].c_str() << endl;
-	cout << "______________" << endl;
-	cout << sdfSet[1].c_str() << endl;
-
 	myReadFile.close();
 	fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound,&atomMismatchUpperBound,
 			&bondMismatchLowerBound,&bondMismatchUpperBound,&matchTypeInt,

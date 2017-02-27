@@ -168,7 +168,6 @@ namespace FMCS {
         molB = parseSDF(sdfString);
         size_t newAtomCount = 0;
         size_t newBondCount = 0;
-		cout << bondCount << endl;
 
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
@@ -479,11 +478,18 @@ namespace FMCS {
         string commentLine;
         getline(sdfStringStream, compoundNameLine);
         getline(sdfStringStream, informationLine);
-		if (informationLine.empty())
+		if (informationLine.empty()){
+			cout << "EMPTY LINE FOUND" << endl;
 			getline(sdfStringStream, informationLine);
-        getline(sdfStringStream, commentLine);
+		}
+		else
+			cout << "NO EMPTY LINE FOUND" << endl;
+		cout << "Info line: " << informationLine << endl;
+		getline(sdfStringStream, commentLine);
+		cout << "Comment line: " << commentLine << endl;
 		string countsLine;
         getline(sdfStringStream, countsLine);
+		cout << "Count line: " << countsLine << endl;
 		string atomCountString = countsLine.substr(0, 3);
         string bondCountString = countsLine.substr(3, 3);
 
