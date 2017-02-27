@@ -498,12 +498,12 @@ namespace FMCS {
 		
         atoms = new Atom[atomCount];
         bonds = new Bond[bondCount];
-        cout << "Reading atoms..." << endl;
+        cout << "Reading atoms: " << atomCount<< endl;
 
         for (size_t i = 0; i < atomCount; ++i) {
             string atomBlockLine;
             getline(sdfStringStream, atomBlockLine);
-
+			cout << "AtomLine: " << atomBlockLine << endl;
             string atomSymbolRawString = atomBlockLine.substr(31, 3);
             stringstream rawStringStream(atomSymbolRawString);
             string atomSymbol;
