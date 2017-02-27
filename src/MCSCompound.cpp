@@ -693,6 +693,7 @@ namespace FMCS {
             }
             atomLinesCounter++;
         }
+		cout << "end of change" << endl;
         return listOfSubgraph;
     }
 
