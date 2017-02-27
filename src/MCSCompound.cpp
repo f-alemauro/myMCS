@@ -479,6 +479,8 @@ namespace FMCS {
         string commentLine;
         getline(sdfStringStream, compoundNameLine);
         getline(sdfStringStream, informationLine);
+		if (informationLine.empty())
+			getline(sdfStringStream, informationLine);
         getline(sdfStringStream, commentLine);
 		string countsLine;
         getline(sdfStringStream, countsLine);
