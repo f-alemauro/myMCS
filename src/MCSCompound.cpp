@@ -511,7 +511,7 @@ namespace FMCS {
             std::vector<size_t> id;
             atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol, false, id);
         }
-
+		cout << "Reading bonds: " << bondCount << endl;
         for (size_t i = 0; i < bondCount; ++i) {
             string bondBlockLine;
             getline(sdfStringStream, bondBlockLine);
