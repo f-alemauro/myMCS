@@ -362,9 +362,15 @@ namespace FMCS {
         string informationLine;
         string commentLine;
         getline(originalStringStream, compoundNameLine);
-        getline(originalStringStream, informationLine);
-        getline(originalStringStream, commentLine);
+		getline(originalStringStream, informationLine);
+		if (informationLine.empty()){
+			cout << "EMPTY LINE FOUND" << endl;
+			getline(originalStringStream, informationLine);
+		}
+		else
+			cout << "NO EMPTY LINE FOUND" << endl;
 
+		getline(originalStringStream, commentLine);
         string oldCountsLine;
         getline(originalStringStream, oldCountsLine);
 

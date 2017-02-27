@@ -248,6 +248,7 @@ void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureString
 	compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
 #else
 	compoundOne.read(string(structureStringOne));
+
 	compoundTwo.read(string(structureStringTwo));
 
 #endif
