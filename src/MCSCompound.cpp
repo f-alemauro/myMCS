@@ -168,14 +168,12 @@ namespace FMCS {
         molB = parseSDF(sdfString);
         size_t newAtomCount = 0;
         size_t newBondCount = 0;
-		cout << "loop bond" << endl;
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
             atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
             atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
-		cout << "loop bond over" << endl;
         MCSRingDetector ringDector(*this);
         ringDector.detect();
     }
@@ -362,18 +360,22 @@ namespace FMCS {
         string informationLine;
         string commentLine;
         getline(originalStringStream, compoundNameLine);
+	cout << "NAME:" << compoundNameLine<<endl;
+	getline(originalStringStream, informationLine);
+	cout<<"INFO LEN:"<<informationLine.length()<<endl;
+	if (informationLine.length() <2 ){
+		cout << "EMPTY LINE FOUND" << endl;
 		getline(originalStringStream, informationLine);
-		if (informationLine.empty()){
-			cout << "EMPTY LINE FOUND" << endl;
-			getline(originalStringStream, informationLine);
-		}
-		else
-			cout << "NO EMPTY LINE FOUND" << endl;
+	}
+	else
+		cout << "NO EMPTY LINE FOUND" << endl;
+	cout << "INFO:" << informationLine<<endl;
+	getline(originalStringStream, commentLine);
+	cout << "CMT:" <<  commentLine<<endl;
 
-		getline(originalStringStream, commentLine);
         string oldCountsLine;
         getline(originalStringStream, oldCountsLine);
-
+	cout << "COUNT:" <<  oldCountsLine<<endl;
         string atomCountString = oldCountsLine.substr(0, 3);
         string bondCountString = oldCountsLine.substr(3, 3);
         int oldAtomCount = atoi(atomCountString.c_str());
@@ -476,27 +478,18 @@ namespace FMCS {
         stringstream sdfStringStream;
         vector<size_t> originalIds;
         molBlocks molB;
-        SdfContentString = deleteHydrogens(sdf, originalIds, molB);
 
+        SdfContentString = deleteHydrogens(sdf, originalIds, molB);
         sdfStringStream << SdfContentString;
         string compoundNameLine;
         string informationLine;
         string commentLine;
         getline(sdfStringStream, compoundNameLine);
         getline(sdfStringStream, informationLine);
-		if (informationLine.empty()){
-			cout << "EMPTY LINE FOUND" << endl;
-			getline(sdfStringStream, informationLine);
-		}
-		else
-			cout << "NO EMPTY LINE FOUND" << endl;
-		cout << "Info line: " << informationLine << endl;
-		getline(sdfStringStream, commentLine);
-		cout << "Comment line: " << commentLine << endl;
-		string countsLine;
+	getline(sdfStringStream, commentLine);
+	string countsLine;
         getline(sdfStringStream, countsLine);
-		cout << "Count line: " << countsLine << endl;
-		string atomCountString = countsLine.substr(0, 3);
+	string atomCountString = countsLine.substr(0, 3);
         string bondCountString = countsLine.substr(3, 3);
 
         atomCount = atoi(atomCountString.c_str());
