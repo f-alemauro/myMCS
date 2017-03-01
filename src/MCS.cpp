@@ -58,7 +58,6 @@ MCS::MCS(const MCSCompound& compoundOne, const MCSCompound& compoundTwo,
   haveBeenSwapped(compoundOne.size() > compoundTwo.size() ? true : false) {
 
 	readRuleFiles("rules");
-	//timeoutStop = false;
 }
 
 /**
@@ -98,24 +97,17 @@ void MCS::calculate() {
 	//if the two compound are different calculate the MCS
 	} else
 		massimo();
-        resultCount = 0;
-            stringstream resultCountStringStream;
-            resultCountStringStream << resultCount;
-            string resultCountString = resultCountStringStream.str();
-            stringstream resultStringStreamOne(
-			compoundOne.subgraph(bestList.begin()->getKeyList(), size(), string("fmcs_") + resultCountString));
-            stringstream resultStringStreamTwo(
-			compoundTwo.subgraph(bestList.begin()->getValueList(), size(), string("fmcs_") + resultCountString));
-                const size_t* idArrayOnePtr = bestList.begin()->getKeyList();
-                const size_t* idArrayTwoPtr = bestList.begin()->getValueList();
-                cout<<"Saving original MCS!"<<endl;
-                vector<size_t> originalMCSOne, originalMCSTwo;
-			for (int i = 0; i < size(); ++i) {
-				originalMCSOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
-                                originalMCSTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
-			}
-                 originalIdArray1.push_back(originalMCSOne);
-                 originalIdArray2.push_back(originalMCSTwo);
+    resultCount = 0;
+    const size_t* idArrayOnePtr = bestList.begin()->getKeyList();
+    const size_t* idArrayTwoPtr = bestList.begin()->getValueList();
+    cout<<"Saving original MCS!"<<endl;
+    vector<size_t> originalMCSOne, originalMCSTwo;
+	for (int i = 0; i < size(); ++i) {
+		originalMCSOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
+        originalMCSTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
+	}
+    originalIdArray1.push_back(originalMCSOne);
+    originalIdArray2.push_back(originalMCSTwo);
         
 	if (runningMode == DETAIL) {
 		resultCount = 0;
@@ -236,7 +228,7 @@ void MCS::calculate() {
 				}
 			}
 		} else {
-                    for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
+			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
 				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
 				const MCSCompound::Bond bondOne = compoundOne.atoms[atomOne].getBond(targetNeighborMappingPtr[i]);
 				const MCSCompound::Bond bondTwo = compoundTwo.atoms[atomTwo].getBond(n);

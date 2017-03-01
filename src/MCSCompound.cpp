@@ -427,11 +427,6 @@ namespace FMCS {
         list<std::vector<int> > propertyList;
         std::vector<size_t> listOfAtoms;
         string finalSDF;
-
-
-
-
-
         for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
             if (*(i->begin()) == 0) {
                 subgraph.clear();

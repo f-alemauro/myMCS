@@ -18,7 +18,7 @@ extern "C" {
 	 * It returns void.
 	 */
 	#ifdef _WIN32
-		__declspec(dllexport) void splitSDF(const char* fileName, const char** stringOne, const char** stringTwo){
+	__declspec(dllexport) void splitSDF(const char* fileName, const char** stringOne, const char** stringTwo){
 	#elif __linux__
 		void splitSDF(const char* fileName, const char** stringOne, const char** stringTwo){
 	#endif
@@ -36,8 +36,12 @@ extern "C" {
 			}
 			myReadFile.close(); //close the SDF file
 			LOG(logINFO)<< "Extracted "<< sdfSet.size()<<" molecules from the input SDF file. Considering the first two.";
-			*stringOne =sdfSet[0].c_str();
-			*stringTwo =sdfSet[1].c_str();
+			//*stringOne = (const char*)malloc(sdfSet[0].size() * sizeof(char));
+			//strcpy(*stringOne, sdfSet[0].size().c_str());
+			//strcpy(*stringTwo, sdfSet[1].size().c_str());
+			cout << &stringOne << endl;
+			*stringOne = sdfSet[0].c_str();
+			cout << *stringOne << endl;
 		}
 
 		/**
@@ -146,19 +150,19 @@ extern "C" {
 			if (runningMode == MCS::DETAIL) {
 				list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 				list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-                                
-                                ofstream myfile;
-                                string sdfOut = compoundOne.createMCSSDFs(index1.front());
+				ofstream myfile;
+                string sdfOut = compoundOne.createMCSSDFs(index1.front());
 				myfile.open("originalMCS1.sdf");
 				myfile << sdfOut;
 				myfile.close();
-                                sdfOut = compoundOne.createMCSSDFs(index2.front());
+				sdfOut = compoundTwo.createMCSSDFs(index2.front());
 				myfile.open("originalMCS2.sdf");
 				myfile << sdfOut;
 				myfile.close();
                                 
-                                //ofstream myfile;
-				sdfOut = compoundOne.createDissimilarSDFs(index1.front());
+				index1.pop_front();
+				index2.pop_front();
+                sdfOut = compoundOne.createDissimilarSDFs(index1.front());
 				myfile.open("out1.sdf");
 				myfile << sdfOut;
 				myfile.close();
@@ -226,10 +230,29 @@ extern "C" {
 			int runningModeInt = atoi(argv[7]);
 			int timeout = atoi(argv[8]);
                         
-            		const char* firstSDF;
-			const char* secondSDF;
-			splitSDF(fileName, &firstSDF, &secondSDF);
-  			fmcs_R_wrap_mod(string(firstSDF).c_str(), string(secondSDF).c_str(), &atomMismatchLowerBound, &atomMismatchUpperBound,
+			//Not working in windows: why???
+            //const char* firstSDF;
+			//const char* secondSDF;
+			//splitSDF(fileName, &firstSDF, &secondSDF);
+			//fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound, &atomMismatchUpperBound,
+			//&bondMismatchLowerBound, &bondMismatchUpperBound, &matchTypeInt,
+			//	&runningModeInt, &timeout);
+
+			std::vector<string> sdfSet;
+			ifstream myReadFile;
+			myReadFile.open(fileName); //open the SDF file
+			std::stringstream buffer;
+			buffer << myReadFile.rdbuf();
+			std::string contents(buffer.str());
+			size_t last = 0, next = 0;
+			//this loop search for the "$$$$" simbols to split each molecule in the SDF file
+			while ((next = contents.find("$$$$", last)) != string::npos) { //repeat until end of file
+				sdfSet.push_back(contents.substr(last, next - last + 5)); //take the substring from (last) position (next-last+5) long. +5 is for the final "$$$$"
+				last = next + 5; //update the (last) position to skip the "%%%%"
+			}
+			myReadFile.close(); //close the SDF file
+			LOG(logINFO) << "Extracted " << sdfSet.size() << " molecules from the input SDF file. Considering the first two.";
+			fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound, &atomMismatchUpperBound,
 					&bondMismatchLowerBound, &bondMismatchUpperBound, &matchTypeInt,
 					&runningModeInt, &timeout);
 			return 0;

@@ -29,9 +29,6 @@ namespace FMCS {
             MatchType mtype, RunningMode runningMode, int timeout);
         
         ~MCS() {}
-        //double getTime() {
-        //    return timeUsed;
-        //}
         
         void calculate();
         
@@ -61,24 +58,6 @@ namespace FMCS {
                 return compoundTwo;
             }
         }
-
-#ifdef HAVE_LIBOPENBABEL
-        const std::list<std::string>& getFirstSmiResultStringList() const { 
-            if (haveBeenSwapped) {
-                return smiSet2; 
-            } else {
-                return smiSet1;
-            }
-        }
-        
-        const std::list<std::string>& getSecondSmiResultStringList() const { 
-            if (haveBeenSwapped) {
-                return smiSet1; 
-            } else {
-                return smiSet2;
-            }
-        }
-#endif
         
         const std::list<std::string>& getFirstSdfResultStringList() const { 
             if (haveBeenSwapped) {
@@ -114,18 +93,9 @@ namespace FMCS {
         
         void clearResult();
         
-        //bool isTimeout() const {
-            //return _isTimeout;
-        //}
-        
     private:
-        //bool timeoutStop;
 
         bool haveBeenSwapped;
-        
-        //int _timeout;
-        
-        //bool _isTimeout;
         
         RunningMode runningMode;
         
@@ -133,10 +103,6 @@ namespace FMCS {
         
         size_t bestSize;
         
-        
-        //double timeUsed;
-//		  clock_t startTime;
-
         std::list<MCSMap> bestList;
 
         MCSMap currentMapping;
