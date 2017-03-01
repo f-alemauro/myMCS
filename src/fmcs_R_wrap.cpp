@@ -13,86 +13,86 @@ using namespace std;
 using namespace FMCS;
 
 extern "C" {
-//	std::vector<string> sdfSet;
-//	int userDefinedLowerBound = 0, substructureNumLimit = 1;
-//	int a = 0;
-//	int b = 0;
-//	int c = 0;
-//	int d = 0;
-//	int e = 0;
-//	int f = 0;
-//	
-//	int *atomMismatchLowerBound = &a;
-//	int *atomMismatchUpperBound = &b;
-//	int *bondMismatchLowerBound = &d;
-//	int *bondMismatchUpperBound = &e;
-//	int *timeout = &f;
-//	MCS::MatchType matchType = MCS::RING_SENSETIVE;
-//	MCS::RunningMode runningMode = MCS::DETAIL;
-//
-//	__declspec(dllexport) void test(){
-//		cout << "test done!" << endl;
-//	}
-//	__declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne, const char** stringTwo){
-//		ifstream myReadFile;
-//		myReadFile.open(fileName);
-//		std::stringstream buffer;
-//		buffer << myReadFile.rdbuf();
-//		std::string contents(buffer.str());
-//		size_t last = 0;
-//		size_t next = 0;
-//		while ((next = contents.find("$$$$", last)) != string::npos) {
-//			sdfSet.push_back(contents.substr(last, next-last+5));
-//			last = next +6;
-//		}
-//		myReadFile.close();
-//		cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
-//	
-//		*stringOne =sdfSet[0].c_str();
-//		*stringTwo =sdfSet[1].c_str();
-//	}
-//	//
-//	__declspec(dllexport) void computeMCS(const char* structureStringOne, const char* structureStringTwo,
-//			char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
-//	
-//		if (structureStringOne == NULL) {
-//			cout << "input structure one cannot be NULL...\n";
-//			return;
-//		}
-//		if (structureStringTwo == NULL) {
-//			cout << "input structure two cannot be NULL...\n";
-//			return;
-//		}
-//		MCSCompound compoundOne, compoundTwo;
-//	
-//		compoundOne.read(string(structureStringOne));
-//		compoundTwo.read(string(structureStringTwo));
-//		MCS mcs(compoundOne, compoundTwo, userDefinedLowerBound, substructureNumLimit, *atomMismatchLowerBound, *atomMismatchUpperBound,
-//				*bondMismatchLowerBound, *bondMismatchUpperBound,
-//				matchType, runningMode, *timeout);
-//	
-//		mcs.calculate();
-//	if (runningMode == MCS::DETAIL) {
-//		list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
-//		list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-//
-//		string s = compoundOne.createDissimilarSDFs(index1.front());
-//		*sdfOne = (char*)malloc(sizeof(char)*s.length()+1);
-//		strcpy(*sdfOne, s.c_str());
-//
-//		string s1 = compoundTwo.createDissimilarSDFs(index2.front());
-//		*sdfTwo = (char*)malloc(sizeof(char) * s1.length()+1);
-//		strcpy(*sdfTwo, s1.c_str());
-//
-//		string s2 = compoundOne.createMCSSDFs(index1.front());
-//		*sdfMCS1 = (char*)malloc(sizeof(char) * s2.length()+1);
-//		strcpy(*sdfMCS1, s2.c_str());
-//
-//		string s3 = compoundTwo.createMCSSDFs(index2.front());
-//		*sdfMCS2 = (char*)malloc(sizeof(char) * s3.length()+1);
-//		strcpy(*sdfMCS2, s3.c_str());
-//		}
-//}
+	std::vector<string> sdfSet;
+	int userDefinedLowerBound = 0, substructureNumLimit = 1;
+	int a = 0;
+	int b = 0;
+	int c = 0;
+	int d = 0;
+	int e = 0;
+	int f = 0;
+	
+	int *atomMismatchLowerBound = &a;
+	int *atomMismatchUpperBound = &b;
+	int *bondMismatchLowerBound = &d;
+	int *bondMismatchUpperBound = &e;
+	int *timeout = &f;
+	MCS::MatchType matchType = MCS::RING_SENSETIVE;
+	MCS::RunningMode runningMode = MCS::DETAIL;
+
+	__declspec(dllexport) void test(){
+		cout << "test done!" << endl;
+	}
+	__declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne, const char** stringTwo){
+		ifstream myReadFile;
+		myReadFile.open(fileName);
+		std::stringstream buffer;
+		buffer << myReadFile.rdbuf();
+		std::string contents(buffer.str());
+		size_t last = 0;
+		size_t next = 0;
+		while ((next = contents.find("$$$$", last)) != string::npos) {
+			sdfSet.push_back(contents.substr(last, next-last+5));
+			last = next +6;
+		}
+		myReadFile.close();
+		cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
+	
+		*stringOne =sdfSet[0].c_str();
+		*stringTwo =sdfSet[1].c_str();
+	}
+
+		__declspec(dllexport) void computeMCS(const char* structureStringOne, const char* structureStringTwo,
+			char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
+	
+		if (structureStringOne == NULL) {
+			cout << "input structure one cannot be NULL...\n";
+			return;
+		}
+		if (structureStringTwo == NULL) {
+			cout << "input structure two cannot be NULL...\n";
+			return;
+		}
+		MCSCompound compoundOne, compoundTwo;
+	
+		compoundOne.read(string(structureStringOne));
+		compoundTwo.read(string(structureStringTwo));
+		MCS mcs(compoundOne, compoundTwo, userDefinedLowerBound, substructureNumLimit, *atomMismatchLowerBound, *atomMismatchUpperBound,
+				*bondMismatchLowerBound, *bondMismatchUpperBound,
+				matchType, runningMode, *timeout);
+	
+		mcs.calculate();
+	if (runningMode == MCS::DETAIL) {
+		list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
+		list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
+
+		string s = compoundOne.createDissimilarSDFs(index1.front());
+		*sdfOne = (char*)malloc(sizeof(char)*s.length()+1);
+		strcpy(*sdfOne, s.c_str());
+
+		string s1 = compoundTwo.createDissimilarSDFs(index2.front());
+		*sdfTwo = (char*)malloc(sizeof(char) * s1.length()+1);
+		strcpy(*sdfTwo, s1.c_str());
+
+		string s2 = compoundOne.createMCSSDFs(index1.front());
+		*sdfMCS1 = (char*)malloc(sizeof(char) * s2.length()+1);
+		strcpy(*sdfMCS1, s2.c_str());
+
+		string s3 = compoundTwo.createMCSSDFs(index2.front());
+		*sdfMCS2 = (char*)malloc(sizeof(char) * s3.length()+1);
+		strcpy(*sdfMCS2, s3.c_str());
+		}
+}
 
 //void fmcs_R_wrap(const char** structureStringOne, const char** structureStringTwo,
 //		int *atomMismatchLowerBound, int *atomMismatchUpperBound,
