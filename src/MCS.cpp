@@ -115,7 +115,7 @@ void MCS::calculate() {
 			}
 	//if the two compound are different calculate the MCS
 	} else
-		max();
+		massimo();
 
 	//end of MCS computation! Now start composing the output
 //		clock_t end = clock();
@@ -194,7 +194,7 @@ void MCS::calculate() {
 	}
 }
 
-	void MCS::max() {
+	void MCS::massimo() {
 		MCSList<size_t> atomListOne = compoundOne.getAtomList();
 		MCSList<size_t> atomListTwo = compoundTwo.getAtomList();
 		grow(atomListOne, atomListTwo);

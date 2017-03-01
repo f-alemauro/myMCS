@@ -175,7 +175,7 @@ namespace FMCS {
         MCS(const MCS&);
         MCS& operator=(const MCS&);
         
-        void max();
+        void massimo();
         
         bool compatible(size_t v1, size_t v2, size_t& bondMis, 
                         bool& introduceNewComponent) const;
