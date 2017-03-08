@@ -642,27 +642,31 @@ namespace FMCS {
 
                     if (!molB.chgISO.empty()) {
                         propertyList = evaluateCHGs(listOfAtoms);
+						cout << "ok charge!" << endl;
                         propertyString = generatePropertyString(propertyList);
+						cout << "ok property!" << endl;
                     }
 
                     string bondString = generateBondString(subgraph);
+					cout << "ok bond!" << endl;
                     string atomString = generateAtomString(listOfAtoms);
-
+					cout << "ok atom!" << endl;
                     stringstream infoLiness;
                     infoLiness << " " << listOfAtoms.size() << " " << subgraph.size() << "  0  0  0  0            999 V2000" << endl;
 
                     finalSDF += molB.infoBlock + "\n";
                     finalSDF += infoLiness.str();
-                    ;
+                    
                     finalSDF += atomString;
                     finalSDF += bondString;
                     finalSDF += propertyString;
                     finalSDF += "M  END\n$$$$\n";
-
+					cout << "ok finalSDF!" << endl;
                 } else
                     *(i->begin()) = 1;
             }
         }
+		cout << "QUI!" << endl;
         return finalSDF;
 
     }
@@ -698,6 +702,7 @@ namespace FMCS {
     }
 
     list<std::vector<int> > MCSCompound::evaluateCHGs(std::vector<size_t> mcs) {
+		
         list<std::vector<int> > newPropList;
         vector<int> tmpPropRow;
 
@@ -709,7 +714,7 @@ namespace FMCS {
             outListNumber += streamNum.str();
             outListNumber += "\n";
         }
-
+		
         list<std::vector<int> > listOfProp = strings2int(outListNumber, false);
         std::sort(mcs.begin(), mcs.end());
         int atomLinesCounter = 1;
@@ -718,7 +723,7 @@ namespace FMCS {
             atomLinesCounter = 1;
             for (vector<size_t>::iterator k = mcs.begin(); k != mcs.end(); ++k) {
                 for (int z = 0; z < (*resultI)[0]; z++) {
-                    cout << z << " - Riga: " << (*resultI)[z * 2 + 1] << " - " << (*resultI)[z * 2 + 2] << endl;
+					cout << *k << " - Riga: " << (*resultI)[z * 2 + 1] << "; " << (*resultI)[z * 2 + 2] << endl;
                     if ((*resultI)[z * 2 + 1] == *k) {
                         cout << "P_Change: " << *k << "-->" << atomLinesCounter << endl;
                         tmpPropRow.push_back(atomLinesCounter);
@@ -727,8 +732,7 @@ namespace FMCS {
                 }
                 atomLinesCounter++;
             }
-            newPropList.push_back(tmpPropRow);
-
+            newPropList.push_back(tmpPropRow);		
         }
         return newPropList;
     }
@@ -780,20 +784,18 @@ namespace FMCS {
         }
         return bondStringSS.str();
     }
-
-    string MCSCompound::generateAtomString(std::vector<size_t> listOfAtoms) {
-        string atomString;
+	string MCSCompound::generateAtomString(std::vector<size_t> listOfAtoms) {
+		string atomString;
         std::sort(listOfAtoms.begin(), listOfAtoms.end());
-        std::istringstream fB(molB.atomBlock);
+		std::istringstream fB(molB.atomBlock);
         std::string line;
         vector<size_t>::iterator k = listOfAtoms.begin();
-        int lineCounter = 1;
-        while (std::getline(fB, line)) {
-            if ((*k) == lineCounter++) {
-                atomString += line + "\n";
-                k++;
-            }
-        }
+		int lineCounter = 0;
+		for (vector<size_t>::iterator k = listOfAtoms.begin(); k != listOfAtoms.end(); ++k) {
+			for (; lineCounter < *k; lineCounter++)
+				std::getline(fB, line);
+			atomString += line + "\n";
+		}
         return atomString;
     }
 
