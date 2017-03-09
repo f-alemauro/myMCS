@@ -1,4 +1,5 @@
 #include "../include/config.h"
+#include "../include/log.h"
 #include "../include/MCS.h"
 #include <cstdlib>
 #include <stdexcept>
@@ -30,6 +31,9 @@ int *timeout = &f;
 MCS::MatchType matchType = MCS::RING_SENSETIVE;
 MCS::RunningMode runningMode = MCS::DETAIL;
 
+/**
+ * setupMCS (function exported from the library): given an SDF file name, it extracts the first two molecule's SDF
+ */
 #ifdef _WIN32
 __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne, const char** stringTwo){
 #elif __linux__
@@ -43,16 +47,14 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 		size_t last = 0;
 		size_t next = 0;
 		while ((next = contents.find("$$$$", last)) != string::npos) {
-			sdfSet.push_back(contents.substr(last, next-last+5));
-			last = next +6;
+			sdfSet.push_back(contents.substr(last, next-last+5)); //take the substring from (last) position (next-last+5) long. +5 is for the final "$$$$"
+			last = next +5; //update the (last) position to skip the "%%%%"
 		}
 		myReadFile.close();
-		cout<<"Read "<< sdfSet.size()<<" molecules."<<endl;
-
+		LOG(logINFO)<< "Read "<< sdfSet.size()<<" molecules.";
 		*stringOne =sdfSet[0].c_str();
 		*stringTwo =sdfSet[1].c_str();
 	}
-
 
 #ifdef _WIN32
 	__declspec(dllexport) void computeMCS(const char* structureStringOne, const char* structureStringTwo, char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
@@ -222,13 +224,14 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 		}
 
 		int main(int argc, char *argv[]){
+			Log::ReportingLevel() = logDEBUG; //set the log level to DEBUG
+
 			std::vector<string> sdfSet;
 			string temp, actualSDF;
 			int i = 0;
-
 			if (argc != 9){
-				cout << "Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
-						"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout" << endl;
+				LOG(logERROR) << "Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
+						"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout";
 				return -1;
 			}
 
@@ -240,23 +243,10 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 			int matchTypeInt = atoi(argv[6]);
 			int runningModeInt = atoi(argv[7]);
 			int timeout = atoi(argv[8]);
-
-
-			ifstream myReadFile;
-			myReadFile.open(fileName);
-
-			std::stringstream buffer;
-			buffer << myReadFile.rdbuf();
-			std::string contents(buffer.str());
-
-			size_t last = 0;
-			size_t next = 0;
-			while ((next = contents.find("$$$$", last)) != string::npos) {
-				sdfSet.push_back(contents.substr(last, next - last + 5));
-				last = next + 5;
-			}
-			myReadFile.close();
-			fmcs_R_wrap_mod(sdfSet[0].c_str(), sdfSet[1].c_str(), &atomMismatchLowerBound, &atomMismatchUpperBound,
+			const char* firstSDF;
+			const char* secondSDF;
+			setupMCS(fileName, &firstSDF, &secondSDF);
+			fmcs_R_wrap_mod(firstSDF, secondSDF, &atomMismatchLowerBound, &atomMismatchUpperBound,
 					&bondMismatchLowerBound, &bondMismatchUpperBound, &matchTypeInt,
 					&runningModeInt, &timeout);
 			return 0;

@@ -1,7 +1,6 @@
 #include "../include/util.h"
 #include <cctype>
 #include <string>
-
 using namespace std;
 
 string getUpper(const string& s) {
@@ -62,4 +61,3 @@ list<std::vector<size_t> > strings2size_t (string block, bool addBit){
 	}
 	return outList;
 }
-
