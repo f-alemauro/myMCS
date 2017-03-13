@@ -4,6 +4,7 @@
 #include "../include/MCSCompound.h"
 #include "../include/MCSRingDetector.h"
 #include "../include/util.h"
+#include "../include/log.h"
 
 
 #ifdef HAVE_LIBOPENBABEL
@@ -141,29 +142,10 @@ namespace FMCS {
 
         return *this;
     }
-#ifdef HAVE_LIBOPENBABEL
 
-    void MCSCompound::read(const string& sdfString, ReadType type) {
-
-        switch (type) {
-            case SMI:
-                parseSMI(sdfString);
-                break;
-            case SDF:
-                parseSDF(sdfString);
-                break;
-        }
-
-        for (int i = 0; i < bondCount; ++i) {
-            atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
-            atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
-            atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
-            atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
-        }
-
-    }
-#else
-
+    /**
+     * read: it receives a string containing the
+     */
     void MCSCompound::read(const std::string& sdfString) {
         molB = parseSDF(sdfString);
         size_t newAtomCount = 0;
@@ -177,8 +159,6 @@ namespace FMCS {
         MCSRingDetector ringDector(*this);
         ringDector.detect();
     }
-
-#endif
 
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {
 
@@ -273,86 +253,9 @@ namespace FMCS {
         return l;
     }
 
-#ifdef HAVE_LIBOPENBABEL
-
-    void MCSCompound::parseSMI(const string& smiString) {
-
-        stringstream smiss, outss;
-        smiss << smiString;
-        OBConversion conv(&smiss, &outss);
-        if (conv.SetInAndOutFormats("SMI", "SDF")) {
-            OBMol mol;
-            conv.Read(&mol);
-            conv.Write(&mol);
-        }
-        parseSDF(outss.str().c_str());
-    }
-#endif
-
-#ifdef HAVE_LIBOPENBABEL
-
-    void MCSCompound::parseSDF(const string& sdfString) {
-
-        stringstream ss;
-        stringstream ssSMI;
-        stringstream ssSDF;
-
-        ss << sdfString;
-        ss >> compoundName;
-
-        OBConversion conv(&ss, &ssSDF);
-
-        if (conv.SetInAndOutFormats("SDF", "SDF")) {
-            OBMol mol;
-            if (conv.Read(&mol)) {
-                mol.DeleteHydrogens();
-                atoms = new Atom[mol.NumAtoms()];
-                bonds = new Bond[mol.NumBonds()];
-                int i = 0;
-
-                FOR_ATOMS_OF_MOL(atom, mol) {
-                    atoms[i] = Atom(atom->GetIdx() - 1, atom->GetAtomicNum());
-                    ++i;
-                }
-                i = 0;
-
-                FOR_BONDS_OF_MOL(bond, mol) {
-                    int bondType = 0;
-                    if (bond->IsKSingle()) {
-                        bondType = 1;
-                    } else if (bond->IsKDouble()) {
-                        bondType = 2;
-                    } else if (bond->IsKTriple()) {
-                        bondType = 3;
-                    } else {
-                        delete[] atoms;
-                        atoms = NULL;
-                        delete[] bonds;
-                        atoms = NULL;
-                        throw InvalidBondTypeException();
-                    }
-                    bonds[i] = Bond(bond->GetIdx(), bond->GetBeginAtomIdx() - 1, bond->GetEndAtomIdx() - 1, bondType, bond->IsAromatic(), bond->IsInRing());
-                    ++i;
-                }
-
-                this->bondCount = mol.NumBonds();
-                this->atomCount = mol.NumAtoms();
-
-                conv.Write(&mol);
-                SdfContentString = ssSDF.str();
-            }
-        }
-
-        OBConversion conv2(&ssSDF, &ssSMI);
-        if (conv2.SetInAndOutFormats("SDF", "SMI")) {
-            OBMol mol;
-            conv2.Read(&mol);
-            conv2.Write(&mol);
-            SmiContentString = ssSMI.str();
-        }
-    }
-#else
-
+    /**
+     * deleteHydrogens:
+     */
     string MCSCompound::deleteHydrogens(const string& sdf, vector<size_t>& originalIds, molBlocks& molB) {
         stringstream originalStringStream;
         originalStringStream << sdf;
@@ -360,24 +263,18 @@ namespace FMCS {
         string informationLine;
         string commentLine;
         getline(originalStringStream, compoundNameLine);
-	cout << "NAME:" << compoundNameLine<<endl;
-	getline(originalStringStream, informationLine);
-	cout<<"INFO LEN:"<<informationLine.length()<<endl;
-	if (informationLine.length() <2 ){
-		cout << "EMPTY LINE FOUND" << endl;
-		getline(originalStringStream, informationLine);
-	}
-	else
-		cout << "NO EMPTY LINE FOUND" << endl;
-	cout << "INFO:" << informationLine<<endl;
-	getline(originalStringStream, commentLine);
-	cout << "CMT:" <<  commentLine<<endl;
-
-        string oldCountsLine;
-        getline(originalStringStream, oldCountsLine);
-	cout << "COUNT:" <<  oldCountsLine<<endl;
-        string atomCountString = oldCountsLine.substr(0, 3);
-        string bondCountString = oldCountsLine.substr(3, 3);
+        LOG(logDEBUG) << "Name:" << compoundNameLine;
+        getline(originalStringStream, informationLine);
+        if (informationLine.length() <2 )
+        	getline(originalStringStream, informationLine);
+        LOG(logDEBUG) << "Information:" << informationLine;
+        getline(originalStringStream, commentLine);
+        LOG(logDEBUG) << "Comment: " << commentLine;
+        string CountsLine;
+        getline(originalStringStream, CountsLine);
+        cout << "COUNT:" <<  CountsLine<<endl;
+        string atomCountString = CountsLine.substr(0, 3);
+        string bondCountString = CountsLine.substr(3, 3);
         int oldAtomCount = atoi(atomCountString.c_str());
         int oldBondCount = atoi(bondCountString.c_str());
 
@@ -446,7 +343,7 @@ namespace FMCS {
         newCountLineStringStream << newAtomCount;
         newCountLineStringStream.width(3);
         newCountLineStringStream << newBondCount;
-        newCountLineStringStream << oldCountsLine.substr(6);
+        newCountLineStringStream << CountsLine.substr(6);
         string newCountLine = newCountLineStringStream.str();
         delete newAtomIndex;
         newAtomIndex = NULL;
@@ -524,8 +421,6 @@ namespace FMCS {
 		cout << "End of parsing" << endl;
         return molB;
     }
-
-#endif
 
     const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAtom) const {
 

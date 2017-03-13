@@ -24,8 +24,14 @@ myMCS: a tool for finding the maximum common subgraph between two molecules and 
 4. Buid the project; you can build automatically both the two subproject (fmcsWrap for the executable and myMCS for the .dll), or build only the one you need.
 
 
-TBD.
+BUGS:
+. Test number 2: error on mol 1 dissimilarities.
+. Test number 1: MCS close a ring without that should not be considered. Maybe we have not to include it and prune the other MCS?
+. Test number 37: MCS are not correct. Why?
+. Error in modality 0 or 1!
 
-
+TODO:
+. add alert in final SDF if the two MCSs are different
+. for each atom in dissimilarities in common with the MCS, add tag for specifying aromatic/alifatic/"chain". <Aromatic>
 
 

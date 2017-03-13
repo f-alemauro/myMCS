@@ -1,84 +1,79 @@
-#include "../include/config.h"
+/**
+    @author Alessio M. Franchi, Azadi Golbamaki
+    @version 0.8, 2017/03/01
+*/
+
 #include "../include/log.h"
 #include "../include/MCS.h"
 #include <cstdlib>
-#include <stdexcept>
-#include <sstream>
-#include <iostream>
 #include <fstream>
-#include <string>
-#include <list>
-#include <vector>
 
 using namespace std;
 using namespace FMCS;
 
 extern "C" {
-std::vector<string> sdfSet;
-int userDefinedLowerBound = 0, substructureNumLimit = 1;
-int a = 0;
-int b = 0;
-int c = 0;
-int d = 0;
-int e = 0;
-int f = 0;
 
-int *atomMismatchLowerBound = &a;
-int *atomMismatchUpperBound = &b;
-int *bondMismatchLowerBound = &d;
-int *bondMismatchUpperBound = &e;
-int *timeout = &f;
-MCS::MatchType matchType = MCS::RING_SENSETIVE;
-MCS::RunningMode runningMode = MCS::DETAIL;
-
-/**
- * setupMCS (function exported from the library): given an SDF file name, it extracts the first two molecule's SDF
- */
-#ifdef _WIN32
-__declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne, const char** stringTwo){
-#elif __linux__
-	void setupMCS(const char* fileName, const char** stringOne, const char** stringTwo){
-#endif
-		ifstream myReadFile;
-		myReadFile.open(fileName);
-		std::stringstream buffer;
-		buffer << myReadFile.rdbuf();
-		std::string contents(buffer.str());
-		size_t last = 0;
-		size_t next = 0;
-		while ((next = contents.find("$$$$", last)) != string::npos) {
-			sdfSet.push_back(contents.substr(last, next-last+5)); //take the substring from (last) position (next-last+5) long. +5 is for the final "$$$$"
-			last = next +5; //update the (last) position to skip the "%%%%"
+	/**
+	 * splitSDF (function exported from the library): given an SDF file name, it extracts the first two molecule's SDF.
+	 * It returns void.
+	 */
+	#ifdef _WIN32
+		__declspec(dllexport) void splitSDF(const char* fileName, const char** stringOne, const char** stringTwo){
+	#elif __linux__
+		void splitSDF(const char* fileName, const char** stringOne, const char** stringTwo){
+	#endif
+			std::vector<string> sdfSet;
+			ifstream myReadFile;
+			myReadFile.open(fileName); //open the SDF file
+			std::stringstream buffer;
+			buffer << myReadFile.rdbuf();
+			std::string contents(buffer.str());
+			size_t last = 0, next = 0;
+			//this loop search for the "$$$$" simbols to split each molecule in the SDF file
+			while ((next = contents.find("$$$$", last)) != string::npos) { //repeat until end of file
+				sdfSet.push_back(contents.substr(last, next-last+5)); //take the substring from (last) position (next-last+5) long. +5 is for the final "$$$$"
+				last = next +5; //update the (last) position to skip the "%%%%"
+			}
+			myReadFile.close(); //close the SDF file
+			LOG(logINFO)<< "Extracted "<< sdfSet.size()<<" molecules from the input SDF file. Considering the first two.";
+			*stringOne =sdfSet[0].c_str();
+			*stringTwo =sdfSet[1].c_str();
 		}
-		myReadFile.close();
-		LOG(logINFO)<< "Read "<< sdfSet.size()<<" molecules.";
-		*stringOne =sdfSet[0].c_str();
-		*stringTwo =sdfSet[1].c_str();
-	}
 
-#ifdef _WIN32
-	__declspec(dllexport) void computeMCS(const char* structureStringOne, const char* structureStringTwo, char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
-#elif __linux__
+		/**
+		 * computeMCS (function exported from the library): given the two SDF to be compared, it computes the MCS, and the "extra" part of the two molecules.
+		 * Return void.
+		 */
+	#ifdef _WIN32
+		__declspec(dllexport) void computeMCS(const char* structureStringOne, const char* structureStringTwo, char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
+	#elif __linux__
 		void computeMCS(const char* structureStringOne, const char* structureStringTwo, char** sdfMCS1, char** sdfMCS2, char** sdfOne, char** sdfTwo){
-#endif
-			if (structureStringOne == NULL) {
-				cout << "input structure one cannot be NULL...\n";
-				return;
-			}
-			if (structureStringTwo == NULL) {
-				cout << "input structure two cannot be NULL...\n";
-				return;
-			}
+	#endif
+			MCS::MatchType matchType = MCS::RING_SENSETIVE;
+			MCS::RunningMode runningMode = MCS::DETAIL;
 			MCSCompound compoundOne, compoundTwo;
 
+			if (structureStringOne == NULL) {
+				LOG(logERROR) << "Input structure one cannot be empty!";
+				return;
+			}
+
+			if (structureStringTwo == NULL) {
+				LOG(logERROR) << "Input structure tow cannot be empty!";
+				return;
+			}
+
+			//parsing the two SDFs to fill the compound structure
 			compoundOne.read(string(structureStringOne));
 			compoundTwo.read(string(structureStringTwo));
-			MCS mcs(compoundOne, compoundTwo, userDefinedLowerBound, substructureNumLimit, *atomMismatchLowerBound, *atomMismatchUpperBound,
-					*bondMismatchLowerBound, *bondMismatchUpperBound,
-					matchType, runningMode, *timeout);
+
+			MCS mcs(compoundOne, compoundTwo, 0, 1, 0, 0, 0, 0, matchType, runningMode, 0);
 
 			mcs.calculate();
+
 			if (runningMode == MCS::DETAIL) {
+
+				//Retrieve all the MCS (they may be one or more)
 				list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 				list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
 
@@ -100,11 +95,11 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 			}
 		}
 
-	void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureStringTwo,
-			int *atomMismatchLowerBound, int *atomMismatchUpperBound,
-			int *bondMismatchLowerBound, int *bondMismatchUpperBound,
-			int *matchTypeInt, int* runningModeInt,
-			int *timeout) {
+		void fmcs_R_wrap_mod(const char* structureStringOne, const char* structureStringTwo,
+				int *atomMismatchLowerBound, int *atomMismatchUpperBound,
+				int *bondMismatchLowerBound, int *bondMismatchUpperBound,
+				int *matchTypeInt, int* runningModeInt,
+				int *timeout) {
 
 			if (structureStringOne == NULL) {
 				cout << "input structure one cannot be NULL...\n";
@@ -119,39 +114,28 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 			int userDefinedLowerBound = 0;
 			MCS::MatchType matchType;
 			switch (*matchTypeInt) {
-			case 0: matchType = MCS::DEFAULT; break;
-			case 1: matchType = MCS::AROMATICITY_SENSETIVE; break;
-			case 2: matchType = MCS::RING_SENSETIVE; break;
-			default:
+				case 0: matchType = MCS::DEFAULT; break;
+				case 1: matchType = MCS::AROMATICITY_SENSETIVE; break;
+				case 2: matchType = MCS::RING_SENSETIVE; break;
+				default:
 				;
 			}
-
 
 			MCS::RunningMode runningMode;
 			switch (*runningModeInt) {
-			case 0: runningMode = MCS::FAST; break;
-			case 1: runningMode = MCS::DETAIL; break;
-			default:
+				case 0: runningMode = MCS::FAST; break;
+				case 1: runningMode = MCS::DETAIL; break;
+				default:
 				;
 			}
-
 			MCSCompound compoundOne, compoundTwo;
-
-
-#ifdef HAVE_LIBOPENBABEL
-		compoundOne.read(string(*structureStringOne), MCSCompound::SDF);
-		compoundTwo.read(string(*structureStringTwo), MCSCompound::SDF);
-#else
-		compoundOne.read(string(structureStringOne));
-		compoundTwo.read(string(structureStringTwo));
-#endif
-		MCS mcs(compoundOne, compoundTwo,
+			compoundOne.read(string(structureStringOne));
+			compoundTwo.read(string(structureStringTwo));
+			MCS mcs(compoundOne, compoundTwo,
 					userDefinedLowerBound, substructureNumLimit,
 					*atomMismatchLowerBound, *atomMismatchUpperBound,
 					*bondMismatchLowerBound, *bondMismatchUpperBound,
 					matchType, runningMode, *timeout);
-
-
 			mcs.calculate();
 			static int cmpOneSize, cmpTwoSize, mSize;
 			cmpOneSize = mcs.getCompoundOne().size();
@@ -160,18 +144,15 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 			if (runningMode == MCS::DETAIL) {
 				list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 				list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-
 				string sdfOut = compoundOne.createDissimilarSDFs(index1.front());
 				ofstream myfile;
 				myfile.open("out1.sdf");
 				myfile << sdfOut;
 				myfile.close();
-
 				sdfOut = compoundTwo.createDissimilarSDFs(index2.front());
 				myfile.open("out2.sdf");
 				myfile << sdfOut;
 				myfile.close();
-
 				sdfOut = compoundOne.createMCSSDFs(index1.front());
 				myfile.open("outMCS1.sdf");
 				myfile << sdfOut;
@@ -180,61 +161,46 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 				myfile.open("outMCS2.sdf");
 				myfile << sdfOut;
 				myfile.close();
-
 				stringstream indexOneStringStream, indexTwoStringStream;
 				for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
-					for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+					for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j)
 						indexOneStringStream << *j << " ";
-					}
 					indexOneStringStream << "\n";
 				}
 				for (list<vector<size_t> >::const_iterator i = index2.begin(); i != index2.end(); ++i) {
-					for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j) {
+					for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j)
 						indexTwoStringStream << *j << " ";
-					}
 					indexTwoStringStream << "\n";
 				}
 				static string indexOneString, indexTwoString;
 				indexOneString = indexOneStringStream.str();
 				indexTwoString = indexTwoStringStream.str();
-
 				cout << "indexOneString: " << endl;
 				cout << indexOneString << endl;
-
 				cout << "indexTwoString: " << endl;
 				cout << indexTwoString << endl;
 			}
-
 			stringstream sizeStringStream;
-
 			sizeStringStream << cmpOneSize;
 			static string cmpOneSizeString;
 			cmpOneSizeString = sizeStringStream.str();
-
 			sizeStringStream.str("");
 			sizeStringStream << cmpTwoSize;
 			static string cmpTwoSizeString;
 			cmpTwoSizeString = sizeStringStream.str();
-
 			sizeStringStream.str("");
 			sizeStringStream << mSize;
 			static string mSizeString;
 			mSizeString = sizeStringStream.str();
-
 		}
 
 		int main(int argc, char *argv[]){
 			Log::ReportingLevel() = logDEBUG; //set the log level to DEBUG
-
-			std::vector<string> sdfSet;
-			string temp, actualSDF;
-			int i = 0;
 			if (argc != 9){
 				LOG(logERROR) << "Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
 						"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout";
 				return -1;
 			}
-
 			const char* fileName = (const char*)argv[1];
 			int atomMismatchLowerBound = atoi(argv[2]);
 			int atomMismatchUpperBound = atoi(argv[3]);
@@ -245,7 +211,7 @@ __declspec(dllexport) void setupMCS(const char* fileName, const char** stringOne
 			int timeout = atoi(argv[8]);
 			const char* firstSDF;
 			const char* secondSDF;
-			setupMCS(fileName, &firstSDF, &secondSDF);
+			splitSDF(fileName, &firstSDF, &secondSDF);
 			fmcs_R_wrap_mod(firstSDF, secondSDF, &atomMismatchLowerBound, &atomMismatchUpperBound,
 					&bondMismatchLowerBound, &bondMismatchUpperBound, &matchTypeInt,
 					&runningModeInt, &timeout);
