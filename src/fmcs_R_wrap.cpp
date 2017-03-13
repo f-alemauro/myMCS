@@ -109,7 +109,7 @@ extern "C" {
 				cout << "input structure two cannot be NULL...\n";
 				return;
 			}
-
+                       
 			int substructureNumLimit = 1;
 			int userDefinedLowerBound = 0;
 			MCS::MatchType matchType;
@@ -128,9 +128,11 @@ extern "C" {
 				default:
 				;
 			}
-			MCSCompound compoundOne, compoundTwo;
-			compoundOne.read(string(structureStringOne));
-			compoundTwo.read(string(structureStringTwo));
+                     
+                        MCSCompound compoundOne, compoundTwo;
+                        
+                        compoundOne.read(string(structureStringOne));
+                        compoundTwo.read(string(structureStringTwo));
 			MCS mcs(compoundOne, compoundTwo,
 					userDefinedLowerBound, substructureNumLimit,
 					*atomMismatchLowerBound, *atomMismatchUpperBound,
@@ -144,8 +146,19 @@ extern "C" {
 			if (runningMode == MCS::DETAIL) {
 				list<vector<size_t> > index1 = mcs.getFirstOriginalIndice();
 				list<vector<size_t> > index2 = mcs.getSecondOriginalIndice();
-				string sdfOut = compoundOne.createDissimilarSDFs(index1.front());
-				ofstream myfile;
+                                
+                                ofstream myfile;
+                                string sdfOut = compoundOne.createMCSSDFs(index1.front());
+				myfile.open("originalMCS1.sdf");
+				myfile << sdfOut;
+				myfile.close();
+                                sdfOut = compoundOne.createMCSSDFs(index2.front());
+				myfile.open("originalMCS2.sdf");
+				myfile << sdfOut;
+				myfile.close();
+                                
+                                //ofstream myfile;
+				sdfOut = compoundOne.createDissimilarSDFs(index1.front());
 				myfile.open("out1.sdf");
 				myfile << sdfOut;
 				myfile.close();
@@ -161,6 +174,9 @@ extern "C" {
 				myfile.open("outMCS2.sdf");
 				myfile << sdfOut;
 				myfile.close();
+                                
+                                
+                                
 				stringstream indexOneStringStream, indexTwoStringStream;
 				for (list<vector<size_t> >::const_iterator i = index1.begin(); i != index1.end(); ++i) {
 					for (vector<size_t>::const_iterator j = i->begin(); j != i->end(); ++j)
@@ -197,7 +213,7 @@ extern "C" {
 		int main(int argc, char *argv[]){
 			Log::ReportingLevel() = logDEBUG; //set the log level to DEBUG
 			if (argc != 9){
-				LOG(logERROR) << "Missing parameters; usage is ./mcswrap sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
+				LOG(logERROR) << "Missing parameters; usage is ./runMCS sdfFileName atomMismatchLowerBound atomMismatchUpperBound "
 						"bondMismatchLowerBound bondMismatchUpperBound matchTypeInt runningModeInt timeout";
 				return -1;
 			}
@@ -209,10 +225,11 @@ extern "C" {
 			int matchTypeInt = atoi(argv[6]);
 			int runningModeInt = atoi(argv[7]);
 			int timeout = atoi(argv[8]);
-			const char* firstSDF;
+                        
+            		const char* firstSDF;
 			const char* secondSDF;
 			splitSDF(fileName, &firstSDF, &secondSDF);
-			fmcs_R_wrap_mod(firstSDF, secondSDF, &atomMismatchLowerBound, &atomMismatchUpperBound,
+  			fmcs_R_wrap_mod(string(firstSDF).c_str(), string(secondSDF).c_str(), &atomMismatchLowerBound, &atomMismatchUpperBound,
 					&bondMismatchLowerBound, &bondMismatchUpperBound, &matchTypeInt,
 					&runningModeInt, &timeout);
 			return 0;

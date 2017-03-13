@@ -2,12 +2,6 @@
 #include "../include/MCS.h"
 #include "../include/MCSMap.h"
 #include "../include/util.h"
-//#ifdef HAVE_LIBOPENBABEL
-//#include <openbabel/mol.h>
-//#include <openbabel/obconversion.h>
-//using namespace OpenBabel;
-//#endif
-
 #include <ctime>
 #include <string>
 #include <vector>
@@ -19,7 +13,6 @@
 using namespace std;
 namespace FMCS {
 
-//bool timeoutStop = false;
 
 /**
  * Opening and reading the rules file.
@@ -77,23 +70,12 @@ void MCS::calculate() {
 	size_t atomCountOne, atomCountTwo;
 	int resultCount;
 	clearResult();
-	//clock_t start = clock();
-	//startTime = start;
-	//Check whether the two molecules are the same
-	//#ifdef HAVE_LIBOPENBABEL
-//		if (compoundOne.getSmiString() == compoundTwo.getSmiString()) {
-	//#else
+
 		if (compoundOne.getSdfString() == compoundTwo.getSdfString()) {
-//	#endif
+
 			identicalGraph = true;
 			if (runningMode == DETAIL) {
-	//			#ifdef HAVE_LIBOPENBABEL
-		//			smiSet1.push_back(compoundOne.getSmiString());
-			//		smiSet2.push_back(compoundTwo.getSmiString());
-//				#endif
 
-				//sdfSet1.push_back(compoundOne.getSdfString());
-				//sdfSet2.push_back(compoundTwo.getSdfString());
 
 				//get the atoms of compound one and their number
 				atomsOne = compoundOne.getAtoms();
@@ -116,13 +98,29 @@ void MCS::calculate() {
 	//if the two compound are different calculate the MCS
 	} else
 		massimo();
-
-	//end of MCS computation! Now start composing the output
-//		clock_t end = clock();
-		//timeUsed = (double) (end - start) / CLOCKS_PER_SEC * 1000.0;
+        resultCount = 0;
+            stringstream resultCountStringStream;
+            resultCountStringStream << resultCount;
+            string resultCountString = resultCountStringStream.str();
+            stringstream resultStringStreamOne(
+			compoundOne.subgraph(bestList.begin()->getKeyList(), size(), string("fmcs_") + resultCountString));
+            stringstream resultStringStreamTwo(
+			compoundTwo.subgraph(bestList.begin()->getValueList(), size(), string("fmcs_") + resultCountString));
+                const size_t* idArrayOnePtr = bestList.begin()->getKeyList();
+                const size_t* idArrayTwoPtr = bestList.begin()->getValueList();
+                cout<<"Saving original MCS!"<<endl;
+                vector<size_t> originalMCSOne, originalMCSTwo;
+			for (int i = 0; i < size(); ++i) {
+				originalMCSOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
+                                originalMCSTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
+			}
+                 originalIdArray1.push_back(originalMCSOne);
+                 originalIdArray2.push_back(originalMCSTwo);
+        
 	if (runningMode == DETAIL) {
 		resultCount = 0;
-		//for each MCS found (there may be more than one MCS, all with the same number of atoms
+                
+		//for each MCS found (there may be more than one MCS, all with the same number of atoms), close the rings
 		for (std::list<MCSMap>::const_iterator iMap = bestList.begin(); iMap != bestList.end(); ++iMap) {
 			++resultCount;
 
@@ -169,28 +167,11 @@ void MCS::calculate() {
 					}
 				}
 			}
-			originalIdArray1.push_back(idxOne);
+                        
+			originalIdArray1.push_back(idxOne);                      
 			originalIdArray2.push_back(idxTwo);
-//			#ifdef HAVE_LIBOPENBABEL
-//				stringstream output1, output2;
-//				OBConversion conv1(&resultStringStreamOne, &output1);
-//				OBConversion conv2(&resultStringStreamTwo, &output2);
-//				if (conv1.SetInAndOutFormats("SDF", "SMI")) {
-//					OBMol mol;
-//					conv1.Read(&mol);
-//					conv1.Write(&mol);
-//				}
-//				if (conv2.SetInAndOutFormats("SDF", "SMI")) {
-//					OBMol mol;
-//					conv2.Read(&mol);
-//					conv2.Write(&mol);
-//				}
-//				smiSet1.push_back(output1.str());
-//				smiSet2.push_back(output2.str());
-//			#endif
-			//sdfSet1.push_back(resultStringStreamOne.str());
-			//sdfSet2.push_back(resultStringStreamTwo.str());
 		}
+                
 	}
 }
 
@@ -263,18 +244,6 @@ void MCS::calculate() {
 					++bondMisCount;
 				}
 			}
-//			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
-//				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
-//				const MCSCompound::Bond bondOne = compoundOne.getAtom(atomOne).getBond(targetNeighborMappingPtr[i]);
-//				const MCSCompound::Bond bondTwo = compoundTwo.getAtom(atomTwo).getBond(n);
-//				if (bondOne.isInARing != bondTwo.isInARing) {
-//					++bondMisCount;
-//				} else {
-//					if (bondOne.bondType != bondTwo.bondType) {
-//						++bondMisCount;
-//					}
-//				}
-//			}
 		}
 
 		return true;
@@ -318,10 +287,6 @@ void MCS::calculate() {
 	}
 
 	void MCS::boundary() {
-//		double diff = (double) (clock() - startTime) / CLOCKS_PER_SEC * 1000;
-		//if (!timeoutStop && _timeout != 0 && diff >= _timeout) {
-//			timeoutStop = true;
-//		}
 		if (runningMode == FAST) {
 			if (currentMapping.size() > bestSize) {
 				if (atomMismatchCurr < atomMismatchLowerBound || bondMismatchCurr < bondMismatchLowerBound) {
@@ -347,12 +312,6 @@ void MCS::calculate() {
 	}
 
 	void MCS::grow(MCSList<size_t>& atomListOne, MCSList<size_t>& atomListTwo) {
-//#ifndef WINDOWS
-	//	if (timeoutStop) {
-			//_isTimeout = true;
-			//return;
-		//}
-//#endif
 		MCSList<size_t> atomListOneCopy = atomListOne;
 		MCSList<size_t> atomListTwoCopy = atomListTwo;
 		MCSList<size_t> atomListOneDegrees;
@@ -496,10 +455,6 @@ void MCS::calculate() {
 		bestList.clear();
 		identicalGraph = false;
 		currentMapping.clear();
-#ifdef HAVE_LIBOPENBABEL
-		smiSet1.clear();
-		smiSet2.clear();
-#endif
 		sdfSet1.clear();
 		sdfSet2.clear();
 //		timeoutStop = false;

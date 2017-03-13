@@ -258,26 +258,21 @@ namespace FMCS {
      */
     string MCSCompound::deleteHydrogens(const string& sdf, vector<size_t>& originalIds, molBlocks& molB) {
         stringstream originalStringStream;
-        originalStringStream << sdf;
+        originalStringStream << sdf.c_str();
         string compoundNameLine;
         string informationLine;
         string commentLine;
+        string oldCountsLine;
         getline(originalStringStream, compoundNameLine);
-        LOG(logDEBUG) << "Name:" << compoundNameLine;
         getline(originalStringStream, informationLine);
         if (informationLine.length() <2 )
-        	getline(originalStringStream, informationLine);
-        LOG(logDEBUG) << "Information:" << informationLine;
+        getline(originalStringStream, informationLine);
         getline(originalStringStream, commentLine);
-        LOG(logDEBUG) << "Comment: " << commentLine;
-        string CountsLine;
-        getline(originalStringStream, CountsLine);
-        cout << "COUNT:" <<  CountsLine<<endl;
-        string atomCountString = CountsLine.substr(0, 3);
-        string bondCountString = CountsLine.substr(3, 3);
+        getline(originalStringStream, oldCountsLine);
+        string atomCountString = oldCountsLine.substr(0, 3);
+        string bondCountString = oldCountsLine.substr(3, 3);
         int oldAtomCount = atoi(atomCountString.c_str());
         int oldBondCount = atoi(bondCountString.c_str());
-
         string newAtomBlock;
         int *newAtomIndex = new int[oldAtomCount];
         int newAtomCount = 0;
@@ -343,7 +338,7 @@ namespace FMCS {
         newCountLineStringStream << newAtomCount;
         newCountLineStringStream.width(3);
         newCountLineStringStream << newBondCount;
-        newCountLineStringStream << CountsLine.substr(6);
+        newCountLineStringStream << oldCountsLine.substr(6);
         string newCountLine = newCountLineStringStream.str();
         delete newAtomIndex;
         newAtomIndex = NULL;
@@ -357,9 +352,6 @@ namespace FMCS {
                 + "M END\n"
                 + "$$$$";
 
-        //string infoString = compoundNameLine + "\n"
-        //		+ informationLine + "\n"
-        //		+ commentLine;
         string infoString = "\n"
                 + informationLine + "\n"
                 + commentLine;
@@ -367,59 +359,53 @@ namespace FMCS {
         molB.atomBlock = newAtomBlock;
         molB.bondBlock = newBondBlock;
         molB.chgISO = chgISOlines;
-
         return newSDFString;
     }
 
     MCSCompound::molBlocks MCSCompound::parseSDF(const string& sdf) {
+        
         stringstream sdfStringStream;
         vector<size_t> originalIds;
         molBlocks molB;
-
         SdfContentString = deleteHydrogens(sdf, originalIds, molB);
         sdfStringStream << SdfContentString;
         string compoundNameLine;
         string informationLine;
         string commentLine;
+        string countsLine;
         getline(sdfStringStream, compoundNameLine);
         getline(sdfStringStream, informationLine);
-	getline(sdfStringStream, commentLine);
-	string countsLine;
+        getline(sdfStringStream, commentLine);
         getline(sdfStringStream, countsLine);
-	string atomCountString = countsLine.substr(0, 3);
+        string atomCountString = countsLine.substr(0, 3);
         string bondCountString = countsLine.substr(3, 3);
-
         atomCount = atoi(atomCountString.c_str());
         bondCount = atoi(bondCountString.c_str());
 		
         atoms = new Atom[atomCount];
         bonds = new Bond[bondCount];
-        cout << "Reading atoms: " << atomCount<< endl;
-
+        
         for (size_t i = 0; i < atomCount; ++i) {
             string atomBlockLine;
             getline(sdfStringStream, atomBlockLine);
-			cout << "AtomLine: " << atomBlockLine << endl;
-            string atomSymbolRawString = atomBlockLine.substr(31, 3);
+	    string atomSymbolRawString = atomBlockLine.substr(31, 3);
             stringstream rawStringStream(atomSymbolRawString);
             string atomSymbol;
             rawStringStream >> atomSymbol;
             std::vector<size_t> id;
             atoms[i] = Atom(i, originalIds[i], MCSCompound::Atom::atomTypeMap[getUpper(atomSymbol)], atomSymbol, false, id);
         }
-		cout << "Reading bonds: " << bondCount << endl;
+	
         for (size_t i = 0; i < bondCount; ++i) {
             string bondBlockLine;
             getline(sdfStringStream, bondBlockLine);
-			cout << "BondLine: " << bondBlockLine << endl;
-            int firstAtom = -1, secondAtom = -1, bondType = -1;
+	    int firstAtom = -1, secondAtom = -1, bondType = -1;
             firstAtom = atoi(bondBlockLine.substr(0, 3).c_str()) - 1;
             secondAtom = atoi(bondBlockLine.substr(3, 3).c_str()) - 1;
             bondType = atoi(bondBlockLine.substr(6, 3).c_str());
             bonds[i] = Bond(i, firstAtom, secondAtom, bondType, false, false);
         }
-		cout << "End of parsing" << endl;
-        return molB;
+	return molB;
     }
 
     const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAtom) const {
@@ -556,7 +542,7 @@ namespace FMCS {
                     finalSDF += bondString;
                     finalSDF += propertyString;
                     finalSDF += "M  END\n$$$$\n";
-					cout << "ok finalSDF!" << endl;
+		cout << "ok finalSDF!" << endl;
                 } else
                     *(i->begin()) = 1;
             }
