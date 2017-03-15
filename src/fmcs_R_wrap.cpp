@@ -162,7 +162,7 @@ extern "C" {
                                 
 				index1.pop_front();
 				index2.pop_front();
-                sdfOut = compoundOne.createDissimilarSDFs(index1.front());
+				sdfOut = compoundOne.createDissimilarSDFs(index1.front());
 				myfile.open("out1.sdf");
 				myfile << sdfOut;
 				myfile.close();
@@ -178,7 +178,34 @@ extern "C" {
 				myfile.open("outMCS2.sdf");
 				myfile << sdfOut;
 				myfile.close();
-                                
+				/*string nameDiss, nameMCS;
+				for (int i = 0; i < index1.size(); i++){
+					sdfOut = compoundOne.createDissimilarSDFs(index1.front());
+					nameDiss = to_string(i)	+ "outFirst.sdf";
+					myfile.open(nameDiss);
+					myfile << sdfOut;
+					myfile.close();
+					sdfOut = compoundOne.createMCSSDFs(index1.front());
+					nameMCS = to_string(i) + "mcsAltFirst.sdf";
+					myfile.open(nameMCS);
+					myfile << sdfOut;
+					myfile.close();
+				}*/
+
+
+			/*for (int i = 0; i < index1.size(); i++){
+					sdfOut = compoundTwo.createDissimilarSDFs(index2.front());
+					nameDiss = to_string(i) + "outSecond.sdf";
+					myfile.open(nameDiss);
+					myfile << sdfOut;
+					myfile.close();
+
+					sdfOut = compoundTwo.createMCSSDFs(index2.front());
+					nameMCS = to_string(i) + "mcsAltSecond.sdf";
+					myfile.open(nameMCS);
+					myfile << sdfOut;
+					myfile.close();
+				}*/
                                 
                                 
 				stringstream indexOneStringStream, indexTwoStringStream;

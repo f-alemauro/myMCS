@@ -227,12 +227,195 @@ void MCS::calculate() {
 					++bondMisCount;
 				}
 			}
-		} else {
+		} else { //ring sensetive
+			int flagMis = 0;
 			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
 				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
 				const MCSCompound::Bond bondOne = compoundOne.atoms[atomOne].getBond(targetNeighborMappingPtr[i]);
 				const MCSCompound::Bond bondTwo = compoundTwo.atoms[atomTwo].getBond(n);
-				if (bondOne.bondType != bondTwo.bondType) {
+				
+				if (bondOne.isInARing != bondTwo.isInARing)
+					++bondMisCount;
+
+				else if (bondOne.isInARing){ //here the two bonds are both in a ring
+
+					cout << "Bond "<<bondOne.bondId <<" and bond "<<bondTwo.bondId<<" are both in a ring!" << endl;
+					
+					//check if the two rings have the same atoms.
+					//compoundOne.ring
+					
+					size_t oneAtomA = bondOne.firstAtom;
+					size_t oneAtomB = bondOne.secondAtom;
+					cout << "Bond " << bondOne.bondId << ": " << compoundOne.atoms[oneAtomA].originalId << " - " << compoundOne.atoms[oneAtomB].originalId << endl;
+					size_t secondAtomA = bondTwo.firstAtom;
+					size_t secondAtomB = bondTwo.secondAtom;
+					cout << "Bond " << bondTwo.bondId << ": " << compoundTwo.atoms[secondAtomA].originalId << " - " << compoundTwo.atoms[secondAtomB].originalId << endl;
+					vector<size_t> ringIntersectionOneAll, ringIntersectionOne, ringIntersectionSecondAll, ringIntersectionSecond;
+					//extract the id of the ring the atoms are in
+					//getchar();
+
+					vector<size_t> ringsIDoneA = compoundOne.atoms[oneAtomA].ringId;
+					cout << "Atom  " << compoundOne.atoms[oneAtomA].originalId << ": ";
+					for (int r = 0; r < ringsIDoneA.size(); r++)
+						cout << ringsIDoneA[r] << " - ";
+					cout << endl;
+
+
+					vector<size_t> ringsIDoneB = compoundOne.atoms[oneAtomB].ringId;
+					cout << "Atom  " << compoundOne.atoms[oneAtomB].originalId << ": ";
+					for (int r = 0; r < ringsIDoneB.size(); r++)
+						cout << ringsIDoneB[r] << " - ";
+					cout << endl;
+
+
+					vector<size_t> ringsIDsecondA = compoundTwo.atoms[secondAtomA].ringId;
+					cout << "Atom  " << compoundTwo.atoms[secondAtomA].originalId << ": ";
+					for (int r = 0; r < ringsIDsecondA.size(); r++)
+						cout << ringsIDsecondA[r]<< " - ";
+					cout << endl;
+
+
+					vector<size_t> ringsIDsecondB = compoundTwo.atoms[secondAtomB].ringId;
+					cout << "Atom  " << compoundTwo.atoms[secondAtomB].originalId << ": ";
+					for (int r = 0; r < ringsIDsecondB.size(); r++)
+						cout << ringsIDsecondB[r]<< " - ";
+					cout << endl;
+
+					//computing the intersection between the two lists of ring IDs (we extract the two lists for the two bonds of rings that contain both the atoms of a bond)
+					sort(ringsIDoneA.begin(), ringsIDoneA.end());
+					sort(ringsIDoneB.begin(), ringsIDoneB.end());
+					sort(ringsIDsecondA.begin(), ringsIDsecondA.end());
+					sort(ringsIDsecondB.begin(), ringsIDsecondB.end());
+
+					set_intersection(ringsIDoneA.begin(), ringsIDoneA.end(), ringsIDoneB.begin(), ringsIDoneB.end(), back_inserter(ringIntersectionOneAll));
+					set_intersection(ringsIDsecondA.begin(), ringsIDsecondA.end(), ringsIDsecondB.begin(), ringsIDsecondB.end(), back_inserter(ringIntersectionSecondAll));
+					int r;
+					ringIntersectionOne.clear();
+					ringIntersectionSecond.clear();
+
+					//removing ring bigger than 7 atoms
+					for (r = 0; r < ringIntersectionOneAll.size(); r++){
+						if (compoundOne.ringAtomsMap.find(ringIntersectionOneAll[r])->second.size()<8)
+							ringIntersectionOne.push_back(ringIntersectionOneAll[r]);
+					}
+
+					cout << "RingIntersectionOne: ";
+					for (r = 0; r < ringIntersectionOne.size(); r++)
+						cout << ringIntersectionOne[r] << " - ";
+					cout << endl;
+
+					//removing ring bigger than 7 atoms
+					for (r = 0; r < ringIntersectionSecondAll.size(); r++){
+						if (compoundTwo.ringAtomsMap.find(ringIntersectionSecondAll[r])->second.size()<8)
+							ringIntersectionSecond.push_back(ringIntersectionSecondAll[r]);
+					}
+
+					cout << "RingIntersectionSecond: ";
+					for (r = 0; r < ringIntersectionSecond.size(); r++)
+						cout << ringIntersectionSecond[r] << " - ";
+					cout << endl;
+
+					
+					int i, j, k, z;
+					map<size_t, vector<size_t> >::const_iterator selectedlistOfAtomsOne, selectedlistOfAtomsSecond;
+					vector<string> ringAtomsOne, ringAtomsSecond;
+					vector<size_t> listOfAtomsInRingOne, listOfAtomsInRingSecond;
+
+					for (i = 0; i < ringIntersectionOne.size(); i++) {
+						size_t ID = ringIntersectionOne[i];
+						cout << "COMPOUND 1 RING ID: " << ID << endl;
+						
+						selectedlistOfAtomsOne = compoundOne.ringAtomsMap.find(ID);
+						listOfAtomsInRingOne = selectedlistOfAtomsOne->second;
+						cout << "List of atoms in ring: ";
+						for (int r = 0; r < listOfAtomsInRingOne.size(); r++)
+							cout << compoundOne.atoms[listOfAtomsInRingOne[r]].originalId << " - ";
+						cout << endl;
+
+						ringAtomsOne.clear();
+
+						for (z = 0; z < listOfAtomsInRingOne.size(); z++){
+							int atom = listOfAtomsInRingOne[z];
+							MCSCompound::Atom a = compoundOne.getAtom(atom);
+							ringAtomsOne.push_back(a.atomSymbol);
+						}
+						cout << i + 1 << " ring of first bond: ";
+						for (int r = 0; r < ringAtomsOne.size(); r++)
+							cout << ringAtomsOne[r]<<" - ";
+						cout << endl;
+						sort(ringAtomsOne.begin(), ringAtomsOne.end());
+
+						for (j = 0; j < ringIntersectionSecond.size(); j++) {
+							size_t IDSecond = ringIntersectionSecond[j];
+							cout << "COMPOUND 2 RING ID: " << IDSecond << endl;
+							selectedlistOfAtomsSecond = compoundTwo.ringAtomsMap.find(IDSecond);
+							listOfAtomsInRingSecond = selectedlistOfAtomsSecond->second;
+
+							cout << "List of atoms in ring: ";
+							for (int r = 0; r < listOfAtomsInRingSecond.size(); r++)
+								cout << compoundTwo.atoms[listOfAtomsInRingSecond[r]].originalId << " - ";
+							cout << endl;
+							ringAtomsSecond.clear();
+							for (k = 0; k < listOfAtomsInRingSecond.size(); k++){
+								int atom = listOfAtomsInRingSecond[k];
+								MCSCompound::Atom a = compoundTwo.getAtom(atom);
+								ringAtomsSecond.push_back(a.atomSymbol);
+							}
+							cout << i + 1 << " ring of second bond: ";
+							for (int r = 0; r < ringAtomsSecond.size(); r++)
+								cout << ringAtomsSecond[r] << " - ";
+							cout << endl;
+							sort(ringAtomsSecond.begin(), ringAtomsSecond.end());
+
+							cout << "SORTED RINGS FIRST: ";
+							for (int r = 0; r < ringAtomsOne.size(); r++)
+								cout << ringAtomsOne[r];
+							cout << endl;
+
+							cout << "SORTED RINGS SECOND: ";
+							for (int r = 0; r < ringAtomsSecond.size(); r++)
+								cout << ringAtomsSecond[r];
+							cout << endl;
+							
+							if (ringAtomsSecond == ringAtomsOne){
+								cout << "The two rings are equal!" << endl;
+								cout << "Ring " << ID << " ";
+								for (int r = 0; r < ringAtomsOne.size(); r++)
+									cout << ringAtomsOne[r];
+								cout << " vs Ring " << IDSecond << " ";
+								for (int r = 0; r < ringAtomsSecond.size(); r++)
+									cout << ringAtomsSecond[r];
+								cout << endl;
+								//getchar();
+								flagMis = 1;
+							}
+							else{
+
+								//if (ID == 0){
+									cout << "Ring " << ID << " ";
+									for (int r = 0; r < ringAtomsOne.size(); r++)
+										cout << ringAtomsOne[r];
+									cout << " vs Ring " << IDSecond << " ";
+									for (int r = 0; r < ringAtomsSecond.size(); r++)
+										cout << ringAtomsSecond[r];
+									cout << endl;
+									//getchar();
+								//}
+							}
+						}
+					}
+					if (flagMis == 0){
+						//if (find(ringIntersectionOne.begin(), ringIntersectionOne.end(), 2) != ringIntersectionOne.end() || (find(ringIntersectionOne.begin(), ringIntersectionOne.end(), 0) != ringIntersectionOne.end()))
+//							if (find(ringIntersectionSecond.begin(), ringIntersectionSecond.end(), 2) != ringIntersectionSecond.end())
+								//getchar();
+						++bondMisCount;
+					}
+					 if (bondOne.isAromatic != bondTwo.isAromatic) //
+							++bondMisCount;
+					else if (!bondOne.isAromatic && bondOne.bondType != bondTwo.bondType)
+							++bondMisCount;
+					}
+				else if (bondOne.bondType != bondTwo.bondType) {
 					++bondMisCount;
 				}
 			}

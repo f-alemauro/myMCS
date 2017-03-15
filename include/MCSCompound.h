@@ -170,6 +170,7 @@ namespace FMCS {
         
         //saving for each atom its corresponding ID of the ring(s))
         void setRingId(size_t atomPos, size_t Id) {            
+			//std::cout << "Pushing Ring ID " << Id << std::endl;
             atoms[atomPos].ringId.push_back(Id);            
         }
         
