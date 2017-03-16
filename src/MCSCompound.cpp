@@ -167,6 +167,31 @@ namespace FMCS {
         MCSRingDetector ringDector(*this);
 		ringDector.detect();
 
+		for (std::map<size_t, vector<size_t> >::iterator it = ringAtomsMap.begin(); it != ringAtomsMap.end(); it++){
+
+			cout << it->first << ": ";
+			vector<size_t> temp = it->second;
+			for (int r = 0; r < temp.size(); r++){
+				cout << atoms[temp[r]].originalId << "(" << atoms[temp[r]].atomSymbol << ") - ";
+			}
+			cout << endl;
+
+		}
+		cout << "RING EDGE MAP" << endl;
+		for (std::map<size_t, vector<size_t> >::iterator it = ringEdgeMap.begin(); it != ringEdgeMap.end(); it++){
+
+			cout << it->first << ": ";
+			vector<size_t> temp = it->second;
+			for (int r = 0; r < temp.size(); r++){
+				cout << "(" << atoms[bonds[temp[r]].firstAtom].originalId << "- " << atoms[bonds[temp[r]].secondAtom].originalId << ")";
+			}
+			cout << endl;
+
+		}
+		getchar();
+		getchar();
+
+
     }
 
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {
@@ -527,16 +552,12 @@ namespace FMCS {
 
                     if (!molB.chgISO.empty()) {
                         propertyList = evaluateCHGs(listOfAtoms);
-						cout << "ok charge!" << endl;
-                        propertyString = generatePropertyString(propertyList);
-						cout << "ok property!" << endl;
-                    }
+					    propertyString = generatePropertyString(propertyList);
+					}
 
                     string bondString = generateBondString(subgraph);
-					cout << "ok bond!" << endl;
                     string atomString = generateAtomString(listOfAtoms);
-					cout << "ok atom!" << endl;
-                    stringstream infoLiness;
+					stringstream infoLiness;
                     infoLiness << " " << listOfAtoms.size() << " " << subgraph.size() << "  0  0  0  0            999 V2000" << endl;
 
                     finalSDF += molB.infoBlock + "\n";
@@ -546,12 +567,10 @@ namespace FMCS {
                     finalSDF += bondString;
                     finalSDF += propertyString;
                     finalSDF += "M  END\n$$$$\n";
-		cout << "ok finalSDF!" << endl;
                 } else
                     *(i->begin()) = 1;
             }
         }
-		cout << "QUI!" << endl;
         return finalSDF;
 
     }

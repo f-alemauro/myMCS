@@ -77,19 +77,37 @@ namespace FMCS {
         
         const std::list<std::vector<size_t> >& getFirstOriginalIndice() const { 
             if (haveBeenSwapped) {
-                return originalIdArray2; 
+                return originalMCS2; 
             } else {
-                return originalIdArray1;
+				return originalMCS1;
             }  
         }
         
         const std::list<std::vector<size_t> >& getSecondOriginalIndice() const { 
             if (haveBeenSwapped) {
-                return originalIdArray1; 
+				return originalMCS1;
             } else {
-                return originalIdArray2;
+				return originalMCS2;
             } 
         }
+
+		const std::list<std::vector<size_t> >& getFirstClosedIndice() const {
+			if (haveBeenSwapped) {
+				return closedMCS2;
+			}
+			else {
+				return closedMCS1;
+			}
+		}
+
+		const std::list<std::vector<size_t> >& getSecondClosedIndice() const {
+			if (haveBeenSwapped) {
+				return closedMCS1;
+			}
+			else {
+				return closedMCS2;
+			}
+		}
         
         void clearResult();
         
@@ -135,8 +153,10 @@ namespace FMCS {
         std::list<std::string> sdfSet1;
         std::list<std::string> sdfSet2;
         
-        std::list<std::vector<size_t> > originalIdArray1;
-        std::list<std::vector<size_t> > originalIdArray2;
+        std::list<std::vector<size_t> > originalMCS1;
+		std::list<std::vector<size_t> > closedMCS1;
+		std::list<std::vector<size_t> > closedMCS2;
+        std::list<std::vector<size_t> > originalMCS2;
 
         MCS(const MCS&);
         MCS& operator=(const MCS&);
