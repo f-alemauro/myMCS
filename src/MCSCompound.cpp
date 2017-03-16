@@ -150,14 +150,22 @@ namespace FMCS {
         molB = parseSDF(sdfString);
         size_t newAtomCount = 0;
         size_t newBondCount = 0;
+		
         for (int i = 0; i < bondCount; ++i) {
             atoms[bonds[i].firstAtom].neighborAtoms.push_back(bonds[i].secondAtom);
             atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
             atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
+		
         MCSRingDetector ringDector(*this);
         ringDector.detect();
+
+		for (int i = 0; i < bondCount; ++i) {
+			cout << "Bond " << bonds[i].bondId << ": " << atoms[bonds[i].firstAtom].originalId << " - " << atoms[bonds[i].secondAtom].originalId << endl;
+		}
+		getchar();
+
     }
 
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {

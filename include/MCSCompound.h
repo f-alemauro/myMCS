@@ -109,10 +109,7 @@ namespace FMCS {
         Atom *atoms;
         Bond *bonds;
         std::vector<Atom> newRingAtoms;
-        
-#ifdef HAVE_LIBOPENBABEL
-        void parseSMI(const std::string& sdfString);
-#endif
+      
         MCSCompound::molBlocks parseSDF(const std::string& sdfString);
         std::list<std::vector<size_t> > updateBondList(std::vector<size_t> listOfAtoms,std::list<std::vector<size_t> > listOfSubgraph);
         
@@ -174,14 +171,17 @@ namespace FMCS {
             atoms[atomPos].ringId.push_back(Id);            
         }
         
-        void setMaps(std::map<size_t,std::vector<size_t> > ringAtomsMap, std::map<size_t,std::vector<size_t> >ringEdgeMap){
+		void setMaps(std::map<size_t, std::vector<size_t> > ringAtomsMap, std::map<size_t, std::vector<size_t> >ringEdgeMap, std::map<size_t, bool >ringAromMap){
             this->ringAtomsMap = ringAtomsMap;
             this->ringEdgeMap = ringEdgeMap;
+			this->ringAromMap = ringAromMap;
         }
         
         size_t getAtomCount() const { return atomCount; }
         size_t getBondCount() const { return bondCount; }
         std::map<size_t,std::vector<size_t> > ringAtomsMap, ringEdgeMap;
+		std::map<size_t, bool> ringAromMap;
+
         inline size_t size() const {
             return atomCount;
         }

@@ -178,6 +178,8 @@ namespace FMCS {
         int aromaticCount = 0;
  
         std::map<size_t,vector<size_t> > ringAtomsMap, ringEdgeMap;
+		std::map<size_t, bool > ringAromMap;
+
         for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
             //the index of each ring is saved in the ringID
             size_t ringID = ringIterator - rings.begin();
@@ -189,13 +191,15 @@ namespace FMCS {
                 compound.setRingBond(*ringEdgeIter);
                 tempBondList.push_back(*ringEdgeIter);
             }
-            ringEdgeMap[ringID]= tempBondList;
-            
-            if (ringIterator->isAromatic()) {
+			ringEdgeMap[ringID]= tempBondList;
+			ringAromMap[ringID] = ringIterator->isAromatic();
+		    if (ringIterator->isAromatic()) {
                 for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                     compound.setAromaticBond(*ringEdgeIter);
+					
                 }
             }
+
             for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter)
                 ringSMART += atoms[*ringAtomIter].atomSymbol;
             //for each ring create a new Ring Node called "Rx"
@@ -224,7 +228,7 @@ namespace FMCS {
             }
             ringAtomsMap[ringID]= tempAtomList;
         }
-        compound.setMaps(ringAtomsMap, ringEdgeMap);
+        compound.setMaps(ringAtomsMap, ringEdgeMap, ringAromMap);
     }
     
     map<string, int> MCSRingDetector::Ring::electronMap;
@@ -288,31 +292,30 @@ namespace FMCS {
     }
     
     bool MCSRingDetector::Ring::isAromatic() const {
-        
         const MCSCompound::Bond* bonds= compoundPtr->getBonds();
+		
+		
         int piElectornCount = 0;
         for (vector<int>::const_iterator i = vertexPath.begin(); i != vertexPath.end(); ++i) {
-            bool hasLonePair = false;
-            if (! isSp2Hybridized(*i, 1, hasLonePair)) {
-                return false;
-            }
-            
+			bool hasLonePair = true;
+			//bool hasLonePair = false;
+			/*if (!isSp2Hybridized(*i, 1, hasLonePair)){
+				cout << "FALSE" << endl;
+				return false;
+			}*/
             size_t leftEdge = this->leftEdge(*i);
             size_t rightEdge = this->rightEdge(*i);
-            
-            if (bonds[leftEdge].isDoubleBond()) {
+			if (bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) {
                 ++piElectornCount;
             }
-            if (bonds[rightEdge].isDoubleBond()) {
-                ++piElectornCount;
-            }
-            
-            if (!bonds[leftEdge].isDoubleBond() && !bonds[rightEdge].isDoubleBond() && hasLonePair) {
+			if (bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) {
+				++piElectornCount;
+			}
+			if (!(bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) && !(bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) && hasLonePair) {
                 piElectornCount += 2;
             }
         }
-        
-        return (piElectornCount - 2) % 4 == 0;
+		return ((piElectornCount/2) - 2) % 4 == 0;
     }
 
 }
