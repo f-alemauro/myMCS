@@ -231,8 +231,8 @@ void MCS::calculate() {
 			int flagMis = 0;
 			for (size_t i = 0; i < targetNeighborMappingSize; ++i) {
 				size_t n = currentMapping.getValue(targetNeighborMappingPtr[i]);
-				const MCSCompound::Bond bondOne = compoundOne.atoms[atomOne].getBond(targetNeighborMappingPtr[i]);
-				const MCSCompound::Bond bondTwo = compoundTwo.atoms[atomTwo].getBond(n);
+				const MCSCompound::Bond bondOne = compoundOne.atomsOriginal[atomOne].getBond(targetNeighborMappingPtr[i]);
+				const MCSCompound::Bond bondTwo = compoundTwo.atomsOriginal[atomTwo].getBond(n);
 				
 				if (bondOne.isInARing != bondTwo.isInARing)
 					++bondMisCount;
@@ -245,46 +245,43 @@ void MCS::calculate() {
 						++bondMisCount;
 
 					}
-					else{ //if the two bonds have the same aromaticity, then check the rings...
-
+					/*else{ //if the two bonds have the same aromaticity, then check the rings...
 						cout << "Bond " << bondOne.bondId << " and bond " << bondTwo.bondId << " are both in a ring!" << endl;
-
 						//check if the two rings have the same atoms.
 						//compoundOne.ring
-
 						size_t oneAtomA = bondOne.firstAtom;
 						size_t oneAtomB = bondOne.secondAtom;
-						cout << "Bond " << bondOne.bondId << ": " << compoundOne.atoms[oneAtomA].originalId << " - " << compoundOne.atoms[oneAtomB].originalId << endl;
+						cout << "Bond " << bondOne.bondId << ": " << compoundOne.atomsOriginal[oneAtomA].originalId << " - " << compoundOne.atomsOriginal[oneAtomB].originalId << endl;
 						size_t secondAtomA = bondTwo.firstAtom;
 						size_t secondAtomB = bondTwo.secondAtom;
-						cout << "Bond " << bondTwo.bondId << ": " << compoundTwo.atoms[secondAtomA].originalId << " - " << compoundTwo.atoms[secondAtomB].originalId << endl;
+						cout << "Bond " << bondTwo.bondId << ": " << compoundTwo.atomsOriginal[secondAtomA].originalId << " - " << compoundTwo.atomsOriginal[secondAtomB].originalId << endl;
 						vector<size_t> ringIntersectionOneAll, ringIntersectionOne, ringIntersectionSecondAll, ringIntersectionSecond;
 						//extract the id of the ring the atoms are in
 						//getchar();
 
-						vector<size_t> ringsIDoneA = compoundOne.atoms[oneAtomA].ringId;
-						cout << "Atom  " << compoundOne.atoms[oneAtomA].originalId << ": ";
+						vector<size_t> ringsIDoneA = compoundOne.atomsOriginal[oneAtomA].ringId;
+						cout << "Atom  " << compoundOne.atomsOriginal[oneAtomA].originalId << ": ";
 						for (int r = 0; r < ringsIDoneA.size(); r++)
 							cout << ringsIDoneA[r] << " - ";
 						cout << endl;
 
 
-						vector<size_t> ringsIDoneB = compoundOne.atoms[oneAtomB].ringId;
-						cout << "Atom  " << compoundOne.atoms[oneAtomB].originalId << ": ";
+						vector<size_t> ringsIDoneB = compoundOne.atomsOriginal[oneAtomB].ringId;
+						cout << "Atom  " << compoundOne.atomsOriginal[oneAtomB].originalId << ": ";
 						for (int r = 0; r < ringsIDoneB.size(); r++)
 							cout << ringsIDoneB[r] << " - ";
 						cout << endl;
 
 
-						vector<size_t> ringsIDsecondA = compoundTwo.atoms[secondAtomA].ringId;
-						cout << "Atom  " << compoundTwo.atoms[secondAtomA].originalId << ": ";
+						vector<size_t> ringsIDsecondA = compoundTwo.atomsOriginal[secondAtomA].ringId;
+						cout << "Atom  " << compoundTwo.atomsOriginal[secondAtomA].originalId << ": ";
 						for (int r = 0; r < ringsIDsecondA.size(); r++)
 							cout << ringsIDsecondA[r] << " - ";
 						cout << endl;
 
 
-						vector<size_t> ringsIDsecondB = compoundTwo.atoms[secondAtomB].ringId;
-						cout << "Atom  " << compoundTwo.atoms[secondAtomB].originalId << ": ";
+						vector<size_t> ringsIDsecondB = compoundTwo.atomsOriginal[secondAtomB].ringId;
+						cout << "Atom  " << compoundTwo.atomsOriginal[secondAtomB].originalId << ": ";
 						for (int r = 0; r < ringsIDsecondB.size(); r++)
 							cout << ringsIDsecondB[r] << " - ";
 						cout << endl;
@@ -328,6 +325,7 @@ void MCS::calculate() {
 						vector<string> ringAtomsOne, ringAtomsSecond;
 						vector<size_t> listOfAtomsInRingOne, listOfAtomsInRingSecond;
 						if (ringIntersectionOne.size()!=0 &&  ringIntersectionSecond.size()!=0){
+							
 							for (i = 0; i < ringIntersectionOne.size(); i++) {
 								size_t ID = ringIntersectionOne[i];
 								bool isRingOneAromatic = compoundOne.ringAromMap.find(ID)->second;
@@ -336,7 +334,7 @@ void MCS::calculate() {
 								listOfAtomsInRingOne = selectedlistOfAtomsOne->second;
 								cout << "List of atoms in ring: ";
 								for (int r = 0; r < listOfAtomsInRingOne.size(); r++)
-									cout << compoundOne.atoms[listOfAtomsInRingOne[r]].originalId << " - ";
+									cout << compoundOne.atomsOriginal[listOfAtomsInRingOne[r]].originalId << " - ";
 								cout << endl;
 
 								ringAtomsOne.clear();
@@ -361,7 +359,7 @@ void MCS::calculate() {
 
 									cout << "List of atoms in ring: ";
 									for (int r = 0; r < listOfAtomsInRingSecond.size(); r++)
-										cout << compoundTwo.atoms[listOfAtomsInRingSecond[r]].originalId << " - ";
+										cout << compoundTwo.atomsOriginal[listOfAtomsInRingSecond[r]].originalId << " - ";
 									cout << endl;
 									ringAtomsSecond.clear();
 									for (k = 0; k < listOfAtomsInRingSecond.size(); k++){
@@ -420,13 +418,15 @@ void MCS::calculate() {
 							if (flagMis == 0){
 								//if (find(ringIntersectionOne.begin(), ringIntersectionOne.end(), 2) != ringIntersectionOne.end() || (find(ringIntersectionOne.begin(), ringIntersectionOne.end(), 0) != ringIntersectionOne.end()))
 								//							if (find(ringIntersectionSecond.begin(), ringIntersectionSecond.end(), 2) != ringIntersectionSecond.end())
-								cout << "different rings!" << endl;
+								//cout << "different rings!" << endl;
 								//getchar();
 								++bondMisCount;
 							}
 						} //END if "sum of ring is greater than 2"
 					} //END if "both rings have the same aromaticity"
+					*/
 				} //END if "both are in a ring!"
+				
 				else if (bondOne.bondType != bondTwo.bondType) {
 					++bondMisCount;
 				}

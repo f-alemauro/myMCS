@@ -108,6 +108,9 @@ namespace FMCS {
         
         Atom *atoms;
         Bond *bonds;
+		Atom* atomsOriginal;
+		Bond* bondsOriginal;
+
         std::vector<Atom> newRingAtoms;
       
         MCSCompound::molBlocks parseSDF(const std::string& sdfString);

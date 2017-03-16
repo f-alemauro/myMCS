@@ -157,14 +157,15 @@ namespace FMCS {
             atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
+
+		atomsOriginal = static_cast<Atom *>(malloc(atomCount*sizeof(Atom)));
+		bondsOriginal = static_cast<Bond *>(malloc(bondCount*sizeof(Bond)));
+
+		memcpy(atomsOriginal, atoms, atomCount*sizeof(Atom));
+		memcpy(bondsOriginal, bonds, bondCount*sizeof(Bond));
 		
         MCSRingDetector ringDector(*this);
-        ringDector.detect();
-
-		for (int i = 0; i < bondCount; ++i) {
-			cout << "Bond " << bonds[i].bondId << ": " << atoms[bonds[i].firstAtom].originalId << " - " << atoms[bonds[i].secondAtom].originalId << endl;
-		}
-		getchar();
+		ringDector.detect();
 
     }
 

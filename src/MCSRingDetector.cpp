@@ -161,7 +161,6 @@ namespace FMCS {
             
             vector<int> edgePath;
             edgePath.push_back(nextEdgeId());
-            
             edgeMap[currEdgeId()] = Edge(vertexPath, edgePath);
         }
     }
@@ -191,12 +190,14 @@ namespace FMCS {
                 compound.setRingBond(*ringEdgeIter);
                 tempBondList.push_back(*ringEdgeIter);
             }
+			
 			ringEdgeMap[ringID]= tempBondList;
 			ringAromMap[ringID] = ringIterator->isAromatic();
-		    if (ringIterator->isAromatic()) {
+		    
+			if (ringIterator->isAromatic()) {
                 for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
                     compound.setAromaticBond(*ringEdgeIter);
-					
+		
                 }
             }
 
