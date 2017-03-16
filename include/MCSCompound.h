@@ -174,16 +174,19 @@ namespace FMCS {
             atoms[atomPos].ringId.push_back(Id);            
         }
         
-		void setMaps(std::map<size_t, std::vector<size_t> > ringAtomsMap, std::map<size_t, std::vector<size_t> >ringEdgeMap, std::map<size_t, bool >ringAromMap){
+		void setMaps(std::map<size_t, std::vector<size_t> > ringAtomsMap, std::map<size_t, std::vector<size_t> >ringEdgeMap, std::map<size_t, bool >ringAromMap, std::map<size_t, std::string> ringSmartMap){
             this->ringAtomsMap = ringAtomsMap;
             this->ringEdgeMap = ringEdgeMap;
 			this->ringAromMap = ringAromMap;
+			this->ringSmartMap = ringSmartMap;
         }
         
         size_t getAtomCount() const { return atomCount; }
         size_t getBondCount() const { return bondCount; }
         std::map<size_t,std::vector<size_t> > ringAtomsMap, ringEdgeMap;
 		std::map<size_t, bool> ringAromMap;
+		std::map<size_t, std::string> ringSmartMap;
+		
 
         inline size_t size() const {
             return atomCount;

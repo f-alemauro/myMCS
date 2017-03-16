@@ -133,7 +133,6 @@ namespace FMCS {
                 Vertex& otherVertex = vertexMap[edge.front()];
                 otherVertex.removeConnectedEdge(edgeId);
             }
-            
             edgeMap.erase(edgeId);
         }
     }
@@ -166,8 +165,7 @@ namespace FMCS {
     }
     
     void  MCSRingDetector::detect() {
-        //const MCSCompound::Bond* bonds = compound.getBonds();
-        //const MCSCompound::Atom* atoms = compound.getAtoms();
+        const MCSCompound::Atom* atoms = compound.getAtoms();
 		
 		while (!vertexQueue.empty()) {
             int vertex = vertexQueue.back();
@@ -180,11 +178,12 @@ namespace FMCS {
 
 		std::map<size_t,vector<size_t> > ringAtomsMap, ringEdgeMap;
 		std::map<size_t, bool > ringAromMap;
+		std::map<size_t, string> ringSmartMap;
 
 		for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
 			//the index of each ring is saved in the ringID
 			size_t ringID = ringIterator - rings.begin();
-			//std::string ringSMART = "";
+			
 			const vector<int>& ringEdges = ringIterator->edgePath;
 			const vector<int>& ringAtoms = ringIterator->vertexPath;
 			vector<size_t> tempBondList;
@@ -201,8 +200,14 @@ namespace FMCS {
 					compound.setAromaticBond(*ringEdgeIter);
 			}
 
-			//for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter)
-			//ringSMART += atoms[*ringAtomIter].atomSymbol;
+			std::string ringSMART = "";
+			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){
+				ringSMART += atoms[*ringAtomIter].atomSymbol;
+				sort(ringSMART.begin(), ringSMART.end());
+			}
+			ringSmartMap[ringID] = ringSMART;
+			
+
 			//for each ring create a new Ring Node called "Rx"
 			//size_t id = compound.addNewRingAtom(ringSMART);
 			//for each node in a ring mark it as atom in a ring
@@ -234,7 +239,7 @@ namespace FMCS {
             //}
             ringAtomsMap[ringID]= tempAtomList;
         }
-        compound.setMaps(ringAtomsMap, ringEdgeMap, ringAromMap);
+        compound.setMaps(ringAtomsMap, ringEdgeMap, ringAromMap, ringSmartMap);
     }
     
     map<string, int> MCSRingDetector::Ring::electronMap;

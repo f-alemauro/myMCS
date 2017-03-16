@@ -156,42 +156,9 @@ namespace FMCS {
             atoms[bonds[i].firstAtom].neighborBonds.push_back(&bonds[i]);
             atoms[bonds[i].secondAtom].neighborAtoms.push_back(bonds[i].firstAtom);
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
-        }
-
-		atomsOriginal = static_cast<Atom *>(malloc(atomCount*sizeof(Atom)));
-		bondsOriginal = static_cast<Bond *>(malloc(bondCount*sizeof(Bond)));
-
-		memcpy(atomsOriginal, atoms, atomCount*sizeof(Atom));
-		memcpy(bondsOriginal, bonds, bondCount*sizeof(Bond));
-		
+        }		
         MCSRingDetector ringDector(*this);
 		ringDector.detect();
-
-		for (std::map<size_t, vector<size_t> >::iterator it = ringAtomsMap.begin(); it != ringAtomsMap.end(); it++){
-
-			cout << it->first << ": ";
-			vector<size_t> temp = it->second;
-			for (int r = 0; r < temp.size(); r++){
-				cout << atoms[temp[r]].originalId << "(" << atoms[temp[r]].atomSymbol << ") - ";
-			}
-			cout << endl;
-
-		}
-		cout << "RING EDGE MAP" << endl;
-		for (std::map<size_t, vector<size_t> >::iterator it = ringEdgeMap.begin(); it != ringEdgeMap.end(); it++){
-
-			cout << it->first << ": ";
-			vector<size_t> temp = it->second;
-			for (int r = 0; r < temp.size(); r++){
-				cout << "(" << atoms[bonds[temp[r]].firstAtom].originalId << "- " << atoms[bonds[temp[r]].secondAtom].originalId << ")";
-			}
-			cout << endl;
-
-		}
-		getchar();
-		getchar();
-
-
     }
 
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {

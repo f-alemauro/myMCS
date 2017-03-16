@@ -137,6 +137,10 @@ extern "C" {
                         
                         compoundOne.read(string(structureStringOne));
                         compoundTwo.read(string(structureStringTwo));
+						
+
+
+
 			MCS mcs(compoundOne, compoundTwo,
 					userDefinedLowerBound, substructureNumLimit,
 					*atomMismatchLowerBound, *atomMismatchUpperBound,

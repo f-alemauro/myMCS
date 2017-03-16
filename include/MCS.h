@@ -145,6 +145,8 @@ namespace FMCS {
         const MCSCompound& compoundOne;
         const MCSCompound& compoundTwo;
 
+		int **ringsCompareMap;
+
         std::map<int, std::map<int, bool> > rules;
 #ifdef HAVE_LIBOPENBABEL
         std::list<std::string> smiSet1;
