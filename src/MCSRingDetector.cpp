@@ -105,7 +105,7 @@ namespace FMCS {
     void MCSRingDetector::remove(int vertex) {
         
         int connectedEdgeCount = vertexMap[vertex].connectedEdges.size();
-        
+		
         for (int i = 0; i < connectedEdgeCount-1; ++i) {
             for (int j = i + 1; j < connectedEdgeCount; ++j) {
                 const Edge& one = edgeMap[vertexMap[vertex].connectedEdges[i]];
@@ -113,11 +113,11 @@ namespace FMCS {
                 if (!canCat(one, another)) {
                     continue;
                 }
-                
                 Edge newEdge = catEdge(one, another);
                 if (newEdge.front() == newEdge.back()) {
-                    rings.push_back(Ring(newEdge, &compound));
-                } else {
+					if(newEdge.vertexPath.size()<10)
+						rings.push_back(Ring(newEdge, &compound));				
+		        } else {
                     addEdge(newEdge);
                 }
             }
@@ -181,6 +181,7 @@ namespace FMCS {
 		std::map<size_t, string> ringSmartMap;
 
 		for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
+			cout << "Ring size: " << ringIterator->vertexPath.size() << endl;
 			//the index of each ring is saved in the ringID
 			size_t ringID = ringIterator - rings.begin();
 			
@@ -192,10 +193,11 @@ namespace FMCS {
 				tempBondList.push_back(*ringEdgeIter);
 			}
 
+			bool isAromatic = ringIterator->isAromatic();
 			ringEdgeMap[ringID] = tempBondList;
-			ringAromMap[ringID] = ringIterator->isAromatic();
+			ringAromMap[ringID] = isAromatic;
 
-			if (ringIterator->isAromatic()) {
+				if (isAromatic) {
 				for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter)
 					compound.setAromaticBond(*ringEdgeIter);
 			}
@@ -208,35 +210,12 @@ namespace FMCS {
 			ringSmartMap[ringID] = ringSMART;
 			
 
-			//for each ring create a new Ring Node called "Rx"
-			//size_t id = compound.addNewRingAtom(ringSMART);
-			//for each node in a ring mark it as atom in a ring
-
-
-			vector<size_t> tempAtomList;
+						vector<size_t> tempAtomList;
 			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){
 				tempAtomList.push_back(*ringAtomIter);
 				compound.setRingId(*ringAtomIter, ringID);
 			}
 			
-                //cout<<*ringAtomIter<<"; ";
-                //calling setRingId function to assign the ring index to the corresponding atom
-				
-                //compound.setRingAtom(*ringAtomIter);
-                //MCSList<MCSCompound::Bond*> bondList = atoms[*ringAtomIter].neighborBonds;
-                //search for bond of an atom that are not in the ring (i.e: external bonds)
-                //while (!bondList.empty()) {
-                  //  MCSCompound::Bond* b = bondList.back();
-//                    //re-route external bond to account for new ring node.
-  //                  if (!b->isInARing){
-                        //if (b->firstAtom == *ringAtomIter)
-                            //b->secondAtom = id;
-                        //else
-                            //b->firstAtom = id;
-                 //   }
-                //   bondList.pop_back();
-                //}
-            //}
             ringAtomsMap[ringID]= tempAtomList;
         }
         compound.setMaps(ringAtomsMap, ringEdgeMap, ringAromMap, ringSmartMap);
@@ -304,29 +283,42 @@ namespace FMCS {
     
     bool MCSRingDetector::Ring::isAromatic() const {
         const MCSCompound::Bond* bonds= compoundPtr->getBonds();
-		
-		
+		const MCSCompound::Atom* atoms = compoundPtr->getAtoms();
+	
         int piElectornCount = 0;
         for (vector<int>::const_iterator i = vertexPath.begin(); i != vertexPath.end(); ++i) {
-			bool hasLonePair = true;
-			//bool hasLonePair = false;
-			/*if (!isSp2Hybridized(*i, 1, hasLonePair)){
-				cout << "FALSE" << endl;
+			cout << "vertex: " << atoms[*i].originalId << endl;
+			//bool hasLonePair = true;
+			bool hasLonePair = false;
+			if (!isSp2Hybridized(*i, 1, hasLonePair)){
+				cout << "Is aro? 0" << endl;
+				getchar();
 				return false;
-			}*/
+			}
             size_t leftEdge = this->leftEdge(*i);
+			//cout << "LEFT BOND: " << atoms[bonds[leftEdge].firstAtom].originalId << " - " << atoms[bonds[leftEdge].secondAtom].originalId << endl;;
             size_t rightEdge = this->rightEdge(*i);
-			if (bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) {
+			//cout << "RIGHT BOND: " << atoms[bonds[rightEdge].firstAtom].originalId << " - " << atoms[bonds[rightEdge].secondAtom].originalId << endl;
+			//if (bonds[leftEdge].bondType == 4 && bonds[rightEdge].bondType == 4)
+//				return true;
+
+			if (bonds[leftEdge].isDoubleBond()){// || bonds[leftEdge].bondType == 4) {
+				cout << "Left edge is double bond!" << endl;
                 ++piElectornCount;
             }
-			if (bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) {
+			if (bonds[rightEdge].isDoubleBond()){// || bonds[rightEdge].bondType == 4) {
+				cout << "Right edge is double bond!" << endl;
 				++piElectornCount;
 			}
-			if (!(bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) && !(bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) && hasLonePair) {
+			//if (!(bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) && !(bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) && hasLonePair) {
+			if (!bonds[leftEdge].isDoubleBond() && !bonds[rightEdge].isDoubleBond()  && hasLonePair) {
+				cout << "No double bond but hasLonePair" << endl;
                 piElectornCount += 2;
             }
         }
-		return ((piElectornCount/2) - 2) % 4 == 0;
+		bool isAro = (piElectornCount - 2) % 4 == 0;
+		cout << "Is aromatic? " << isAro << endl;
+		return isAro;
     }
 
 }

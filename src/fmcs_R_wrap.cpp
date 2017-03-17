@@ -156,31 +156,32 @@ extern "C" {
 				string nameDiss, nameMCS, sdfOut;
 				
 				list<vector<size_t> > originalIndex1 = mcs.getFirstOriginalIndice();
-
-				/*for (int i = 0; i < originalIndex1.size(); i++){
+				list<vector<size_t> > originalIndex2 = mcs.getSecondOriginalIndice();
+			/*	cout << "size: :" << originalIndex1.size() << endl;
+				for (int i = 0; i < originalIndex1.size(); i++){
 					vector<size_t> temp = originalIndex1.front();
 					cout << i << " MCS FOUND A: ";
 					for (int i = 0; i < temp.size(); ++i){
-						cout << temp[i] << " - ";
+						cout << compoundOne.getAtoms()[temp[i]].originalId << " - ";
 					}
 					cout << endl;
 					originalIndex1.pop_front();
 				}
-				*/
-				list<vector<size_t> > originalIndex2 = mcs.getSecondOriginalIndice();
+				
+				
 
-				/*for (int i = 0; i < originalIndex2.size(); i++){
+				for (int i = 0; i < originalIndex2.size(); i++){
 					vector<size_t> temp = originalIndex2.front();
 					cout << i << " MCS FOUND B: ";
 					for (int i = 0; i < temp.size(); ++i){
-						cout << temp[i] << " - ";
+						cout << compoundTwo.getAtoms()[temp[i]].originalId << " - ";
 					}
 					cout << endl;
 					originalIndex2.pop_front();
-				}
+				}*/
 
-				getchar();
-				*/
+				//getchar();
+				
 				cout << "Writing to file..." << endl;
 				for (int i = 0; i < originalIndex1.size(); i++){
 					sdfOut = compoundOne.createDissimilarSDFs(originalIndex1.front());
@@ -189,6 +190,7 @@ extern "C" {
 					myfile << sdfOut;
 					myfile.close();
 					cout << "Dissimilar SDFs for molecule 1 written" << endl;
+					
 					sdfOut = compoundOne.createMCSSDFs(originalIndex1.front());
 					nameMCS = to_string(i) + "_originalMCSFirst.sdf";
 					myfile.open(nameMCS);

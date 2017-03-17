@@ -159,6 +159,10 @@ namespace FMCS {
         }		
         MCSRingDetector ringDector(*this);
 		ringDector.detect();
+		for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
+			cout << "RING " << it->first << ": " << it->second << endl;
+		}
+		getchar();
     }
 
     string MCSCompound::subgraph(const size_t* index, size_t indexLength, const string& newCompoundName) const {
@@ -428,8 +432,11 @@ namespace FMCS {
         list<std::vector<int> > propertyList;
         std::vector<size_t> listOfAtoms;
         string finalSDF;
+		
+
         for (list<vector<size_t> >::iterator i = bondsList.begin(); i != bondsList.end(); ++i) {
-            if (*(i->begin()) == 0) {
+
+			if (*(i->begin()) == 0) {
                 subgraph.clear();
                 listOfAtoms.clear();
                 size_t atom1, atom2;
@@ -451,67 +458,67 @@ namespace FMCS {
 
                     if (!isMCS) {
 
-                        //creating an atom list id list from the bond block of the subgraph   
-                        for (list<vector<size_t> >::iterator j = subgraph.begin(); j != subgraph.end(); ++j) {
-                            atomA = *(j->begin() + 1);
-                            atomB = *(j->begin() + 2);
+       //                 //creating an atom list id list from the bond block of the subgraph 
+       //                 for (list<vector<size_t> >::iterator j = subgraph.begin(); j != subgraph.end(); ++j) {
+       //                     atomA = *(j->begin() + 1);
+       //                     atomB = *(j->begin() + 2);
+       //                     atom_ids.push_back(atomA);
+       //                     atom_ids.push_back(atomB);
+       //                 }
 
-                            atom_ids.push_back(atomA);
-                            atom_ids.push_back(atomB);
-                        }
-
-
-                        //eliminating the duplicates from the atoms list to be searched in the mcs list
-                        sort(atom_ids.begin(), atom_ids.end());
-                        atom_ids.erase(unique(atom_ids.begin(), atom_ids.end()), atom_ids.end());
+       //                 //eliminating the duplicates from the atoms list to be searched in the mcs list
+       //                 sort(atom_ids.begin(), atom_ids.end());
+       //                 atom_ids.erase(unique(atom_ids.begin(), atom_ids.end()), atom_ids.end());
 
 
-                        //std::cout<<" MCS: ";
-                        //for (std::vector<size_t>::iterator it = mcs.begin(); it != mcs.end(); ++it)
-                        //std::cout << " " << *it;
-                        //cout<<"\n";
+       //                 /*std::cout<<" MCS: ";
+       //                 for (std::vector<size_t>::iterator it = mcs.begin(); it != mcs.end(); ++it)
+       //                 std::cout << " " << *it;
+       //                 cout<<"\n";*/
 
-                        //std::cout<<" No duplicates: ";
-                        for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {
-                            //std::cout << " " << *it;
-                            atom_pos_in_mcs = find(mcs.begin(), mcs.end(), *it);
+       //                 //std::cout<<" No duplicates: ";
+       //                 for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {
+       //                     //std::cout << " " << *it;
+       //                     atom_pos_in_mcs = find(mcs.begin(), mcs.end(), *it);
 
-                            //std::cout<<"\n";
-                            if (atom_pos_in_mcs != mcs.end()) {
-                                found++;
-                                //std::cout<<"atom in common:" <<*(atom_pos_in_mcs)<< endl;
-                                atoms_pos.push_back(*(atom_pos_in_mcs));
-                            }
+       //                     //std::cout<<"\n";
+       //                     if (atom_pos_in_mcs != mcs.end()) {
+       //                         found++;
+       //                         std::cout<<"atom in common:" <<atoms[*(atom_pos_in_mcs)].originalId<< endl;
+       //                         atoms_pos.push_back(*(atom_pos_in_mcs));
+       //                     }
 
-                        }
+       //                 }
 
 
-                        //std::cout<<"\n";    
-                        //std::cout << "found: "<< found <<" atoms"<<"\n";
-                        if (found >= 2) {
-                            int combinationNumber = factorial(found) / (factorial(found - 2)*2);
-                            vector<size_t> listOfCombination;
+       //                 std::cout<<"\n";    
+       //                 std::cout << "found: "<< found <<" atoms"<<"\n";
+       //                 if (found >= 2) {
+       //                     int combinationNumber = factorial(found) / (factorial(found - 2)*2);
+							//cout << combinationNumber << endl;
+       //                     vector<size_t> listOfCombination;
 
-                            for (int i = 0; i < combinationNumber; i++)
-                                for (int j = i + 1; j < combinationNumber; j++) {
-                                    listOfCombination.push_back(atoms_pos.at(i));
-                                    listOfCombination.push_back(atoms_pos.at(j));
-                                }
-                            for (vector<size_t>::iterator z = listOfCombination.begin(); z != listOfCombination.end(); z = z + 2) {
-                                size_t A = *z;
-                                size_t B = *(z + 1);
+       //                     for (int i = 0; i < combinationNumber; i++)
+       //                         for (int j = i + 1; j < combinationNumber; j++) {
+       //                             listOfCombination.push_back(atoms_pos.at(i));
+       //                             listOfCombination.push_back(atoms_pos.at(j));
+       //                         }
+							//cout << "YEAH" << endl;
+       //                     for (vector<size_t>::iterator z = listOfCombination.begin(); z != listOfCombination.end(); z = z + 2) {
+       //                         size_t A = *z;
+       //                         size_t B = *(z + 1);
 
-                                for (list<vector<size_t> >::iterator k = bondsList.begin(); k != bondsList.end(); ++k) {
-                                    atom_one = *(k->begin() + 1);
-                                    atom_two = *(k->begin() + 2);
-                                    if (((atom_one == A) || (atom_one == B)) && ((atom_two == A) || (atom_two == B))) {
-                                        subgraph.push_back(*k);
-                                    }
-                                }
-                            }
-                        }
-                        found = 0;
-                    }
+       //                         for (list<vector<size_t> >::iterator k = bondsList.begin(); k != bondsList.end(); ++k) {
+       //                             atom_one = *(k->begin() + 1);
+       //                             atom_two = *(k->begin() + 2);
+       //                             if (((atom_one == A) || (atom_one == B)) && ((atom_two == A) || (atom_two == B))) {
+       //                                 subgraph.push_back(*k);
+       //                             }
+       //                         }
+       //                     }
+       //                 }
+       //                 found = 0;
+                   }
 
 
                     subgraph = updateBondList(listOfAtoms, subgraph);
@@ -521,7 +528,6 @@ namespace FMCS {
                         propertyList = evaluateCHGs(listOfAtoms);
 					    propertyString = generatePropertyString(propertyList);
 					}
-
                     string bondString = generateBondString(subgraph);
                     string atomString = generateAtomString(listOfAtoms);
 					stringstream infoLiness;
