@@ -9,27 +9,25 @@ include_directories(include)
 file(GLOB SOURCES "*.cpp")
 
 #Compile the library
-if (WIN32)
-	SET(LIBNAME "libMCS")
-elseif (UNIX AND NOT APPLE)
-	if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-		SET(LIBNAME "libMCS-x64")
-	else( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-		SET(LIBNAME "libMCS-x32")
-	endif ()
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+	SET(LIBNAME "libMCS-x64")
+else( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+	SET(LIBNAME "libMCS-x64")
 endif ()
 
-
 add_library(${LIBNAME} SHARED ${SOURCES})
+#forcing not to add "lib" prefix to library file
+set_target_properties(${LIBNAME} PROPERTIES PREFIX "")
+
 #Compile the executable
 add_executable(runMCS ${SOURCES})
-#forcing to add "lib" prefix to library file
-set_target_properties(${LIBNAME} PROPERTIES PREFIX "")
+
 #forcing 32bit compilation
 #set(CMAKE_C_FLAGS "-m32")
 #set(CMAKE_CXX_FLAGS "-m32")
 
 #forcing debug compilation
-set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_BUILD_TYPE RELEASE)
+
 
 

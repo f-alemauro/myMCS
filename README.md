@@ -19,16 +19,15 @@ myMCS: a tool for finding the maximum common subgraph between two molecules and 
 
 1. create a "build" directory --> mkdir build
 1. goto to build directory --> cd build
-2. execture cmake to generate the makefile --> cmake -G "Visual Studio xx yyyy Win64" ../src
+2. execture cmake to generate the makefile -->  cmake -G "Visual Studio xx yyyy Win64" ../src
+(e.g.: for visual studio 2013 x64 --> cmake -G "Visual Studio 12 2013 Win64" ../src)
 3. open the solution with Visual Studio
-4. Buid the project; you can build automatically both the two subproject (fmcsWrap for the executable and myMCS for the .dll), or build only the one you need.
+4. Select the prefered build type from the IDE (it is set in Debug mode by default, but you can easily switch to Release)
+5. IMPORTANT STEP FOR BUILDING THE LIBRARY: select the "libMCS-x86/libMCS-x64" project--> right click--> properties-->"C/C++"-->Code Generation-->Runtime Library--> select "/MT" (for release) or "/MTd" (for debug). This ensures the compiler to statically link the required libraries.
+6. Buid the project; you can build automatically both the two subproject (fmcsWrap for the executable and myMCS for the .dll), or build only the one you need.
 
 
 BUGS:
-. Test number 2: error on mol 1 dissimilarities.
-. Test number 1: MCS close a ring without that should not be considered. Maybe we have not to include it and prune the other MCS?
-. Test number 37: MCS are not correct. Why?
-. Error in modality 0 or 1!
 
 TODO:
 . add alert in final SDF if the two MCSs are different
