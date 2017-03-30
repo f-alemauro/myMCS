@@ -292,7 +292,7 @@ namespace FMCS {
 			bool hasLonePair = false;
 			if (!isSp2Hybridized(*i, 1, hasLonePair)){
 				cout << "Is aro? 0" << endl;
-				getchar();
+				
 				return false;
 			}
             size_t leftEdge = this->leftEdge(*i);

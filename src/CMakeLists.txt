@@ -15,6 +15,11 @@ else( CMAKE_SIZEOF_VOID_P EQUAL 4 )
 	SET(LIBNAME "libMCS-x64")
 endif ()
 
+
+if(UNIX)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
+endif() 
+
 add_library(${LIBNAME} SHARED ${SOURCES})
 #forcing not to add "lib" prefix to library file
 set_target_properties(${LIBNAME} PROPERTIES PREFIX "")

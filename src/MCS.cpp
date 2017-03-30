@@ -251,25 +251,35 @@ void MCS::calculate() {
 					++bondMisCount;
 
 				else if (bondOne.isInARing){ //here the two bonds are both in a ring
-
+                                        
 					if (bondOne.isAromatic != bondTwo.isAromatic){ //if the aromaticity is different -> miscount++
 						//cout << "Aromaticity error!" << endl;						
 						//getchar();
 						++bondMisCount;
-
 					}
-					else{ //if the two bonds have the same aromaticity, then check the rings...
-						//check if the two rings have the same atoms.
-						size_t oneAtomA = bondOne.firstAtom;
+                                        
+                                        
+					
+                                        else { // if both are in an aromatic or both in an aliphatic ring                                            
+                                            
+                                            if (bondOne.bondType != bondTwo.bondType) // this check is only for aliphatics                                                     
+                                                ++bondMisCount;
+                                            
+                                            else {    //else bondtype check
+                                                //if the two bonds have the same aromaticity, then check the rings...
+                                            //check if the two rings have the same atoms.
+                                                
+                                                size_t oneAtomA = bondOne.firstAtom;
 						size_t oneAtomB = bondOne.secondAtom;
 						size_t secondAtomA = bondTwo.firstAtom;
 						size_t secondAtomB = bondTwo.secondAtom;
 						vector<size_t> ringIntersectionOne, ringIntersectionSecond;
+                                                
 	
 						//extract the id of the ring the atoms are in
 						
 						vector<size_t> ringsIDoneA = compoundOne.atoms[oneAtomA].ringId;
-				    	vector<size_t> ringsIDoneB = compoundOne.atoms[oneAtomB].ringId;
+                                                vector<size_t> ringsIDoneB = compoundOne.atoms[oneAtomB].ringId;
 						vector<size_t> ringsIDsecondA = compoundTwo.atoms[secondAtomA].ringId;
 						vector<size_t> ringsIDsecondB = compoundTwo.atoms[secondAtomB].ringId;
 					
@@ -298,7 +308,10 @@ void MCS::calculate() {
 						if (flagMis == 0){
 							++bondMisCount;
 						}
-					} //END if "both rings have the same aromaticity"
+                                                
+                                            } //else bondtype check    
+                                            
+					} //END if "both rings are aromatic"
 				} //END if "both are in a ring!"
 				else if (bondOne.bondType != bondTwo.bondType) {
 					++bondMisCount;
