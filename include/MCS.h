@@ -108,6 +108,24 @@ namespace FMCS {
 				return closedMCS2;
 			}
 		}
+                
+                 const std::list<std::vector<size_t> >& getFirstPrunedIndice() const {
+			if (haveBeenSwapped) {
+				return prunedMCS2;
+			}
+			else {
+				return prunedMCS1;
+			}
+		}
+
+		const std::list<std::vector<size_t> >& getSecondPrunedIndice() const {
+			if (haveBeenSwapped) {
+				return prunedMCS1;
+			}
+			else {
+				return prunedMCS2;
+			}
+		}
         
         void clearResult();
         
@@ -156,9 +174,11 @@ namespace FMCS {
         std::list<std::string> sdfSet2;
         
         std::list<std::vector<size_t> > originalMCS1;
-		std::list<std::vector<size_t> > closedMCS1;
-		std::list<std::vector<size_t> > closedMCS2;
         std::list<std::vector<size_t> > originalMCS2;
+        std::list<std::vector<size_t> > closedMCS1;
+	std::list<std::vector<size_t> > closedMCS2;
+        std::list<std::vector<size_t> > prunedMCS1;
+        std::list<std::vector<size_t> > prunedMCS2;
 
         MCS(const MCS&);
         MCS& operator=(const MCS&);

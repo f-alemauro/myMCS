@@ -122,24 +122,19 @@ void MCS::calculate() {
 		}
 	if (runningMode == DETAIL) {
 		resultCount = 0;
-    	//for each MCS found (there may be more than one MCS, all with the same number of atoms), close the rings
+                //for each MCS found (there may be more than one MCS, all with the same number of atoms), close the rings
 		for (std::list<MCSMap>::const_iterator iMap = bestList.begin(); iMap != bestList.end(); ++iMap) {
 			++resultCount;
-			//stringstream resultCountStringStream;
-			//resultCountStringStream << resultCount;
-			//string resultCountString = resultCountStringStream.str();
-			//stringstream resultStringStreamOne(
-			//compoundOne.subgraph(iMap->getKeyList(), size(), string("fmcs_") + resultCountString));
-			//stringstream resultStringStreamTwo(
-			//compoundTwo.subgraph(iMap->getValueList(), size(), string("fmcs_") + resultCountString));
-			
 			const size_t* idArrayOnePtr = iMap->getKeyList();
 			const size_t* idArrayTwoPtr = iMap->getValueList();
 			int length = size();
-			vector<size_t> idxOne, idxTwo;
+			vector<size_t> idxOne, idxTwo,prunedIdxOne,prunedIdxTwo;
+                 
 			for (int i = 0; i < length; ++i) {
 				idxOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
+                                prunedIdxOne.push_back(compoundOne.atoms[idArrayOnePtr[i]].originalId);
 				idxTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
+                                prunedIdxTwo.push_back(compoundTwo.atoms[idArrayTwoPtr[i]].originalId);
 			}
 			originalMCS1.push_back(idxOne);
 			originalMCS2.push_back(idxTwo);
@@ -147,7 +142,7 @@ void MCS::calculate() {
 			if (matchType == RING_SENSETIVE) {
 				//serching for idxOne
 				for(map<size_t, vector<size_t> >::const_iterator mappa = compoundOne.ringAtomsMap.begin(); mappa!= compoundOne.ringAtomsMap.end(); mappa++){
-					if (mappa->second.size()<7){
+					if (mappa->second.size()<7){// da togliere
 						int counter = 0;
 						for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end()&& counter<3 ;atoms++)
 							if (std::find(idxOne.begin(), idxOne.end(), compoundOne.atoms[*atoms].originalId) != idxOne.end())
@@ -171,11 +166,68 @@ void MCS::calculate() {
 										idxTwo.push_back(compoundTwo.atoms[*atoms].originalId);
 					}
 				}
+                                closedMCS1.push_back(idxOne);                      
+                                closedMCS2.push_back(idxTwo);
+                                
+                                vector<size_t> toBePruned, toBeKept,result;
+                                toBePruned.clear();
+                                toBeKept.clear();
+                                result.clear();
+                                for(map<size_t, vector<size_t> >::const_iterator mappa = compoundOne.ringAtomsMap.begin(); mappa!= compoundOne.ringAtomsMap.end(); mappa++){
+					
+						int counter = 0;
+        					for(vector<size_t>::const_iterator atoms = mappa->second.begin(); atoms!=mappa->second.end() ; atoms++)
+                                                    if (std::find(prunedIdxOne.begin(), prunedIdxOne.end(), compoundOne.atoms[*atoms].originalId) != prunedIdxOne.end())
+                                                        counter ++;                                                                
+						if (counter < mappa->second.size()) // if the number of the atoms in the actual ring are less than those in the MCS
+                                                    for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++){
+                                                        vector<size_t>::const_iterator elem = std::find(prunedIdxOne.begin(), prunedIdxOne.end(), compoundOne.atoms[*atoms].originalId);
+                                                        if (elem != prunedIdxOne.end())
+                                                            toBePruned.push_back(*elem);
+                                                }
+                                                else if (counter == mappa->second.size())
+                                                    for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++)
+                                                        toBeKept.push_back(compoundOne.atoms[*atoms].originalId);
+				}
+                                
+                      
+                                std::sort(toBePruned.begin(),toBePruned.end());
+                                std::sort(toBeKept.begin(),toBeKept.end());
+                                std::set_difference(toBePruned.begin(),toBePruned.end(),toBeKept.begin(),toBeKept.end(),back_inserter(result));
+                                result.erase(unique(result.begin(),result.end()),result.end());
+                                for(vector<size_t>::const_iterator atoms= result.begin();atoms!=result.end(); atoms++)
+                                    prunedIdxOne.erase(std::remove(prunedIdxOne.begin(),prunedIdxOne.end(),*atoms));
+                                prunedMCS1.push_back(prunedIdxOne);      
+
+				//serching for idxTwo
+                                toBePruned.clear();
+                                toBeKept.clear();
+                                result.clear();
+                               for(map<size_t, vector<size_t> >::const_iterator mappa = compoundTwo.ringAtomsMap.begin(); mappa!= compoundTwo.ringAtomsMap.end(); mappa++){
+						int counter = 0;
+						for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end()  ; atoms++)
+                                			if (std::find(prunedIdxTwo.begin(), prunedIdxTwo.end(), compoundTwo.atoms[*atoms].originalId) != prunedIdxTwo.end())
+                                                            counter ++;
+						if (counter < mappa->second.size())
+                                                    for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++){
+                                                        vector<size_t>::const_iterator elem = std::find(prunedIdxTwo.begin(), prunedIdxTwo.end(), compoundTwo.atoms[*atoms].originalId);
+                                                            if (elem != prunedIdxTwo.end())
+                                                                toBePruned.push_back(*elem);
+                                                }
+                                                else if (counter == mappa->second.size())
+                                                    for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++)
+                                                        toBeKept.push_back(compoundTwo.atoms[*atoms].originalId);
+				}
+                                
+                                std::sort(toBePruned.begin(),toBePruned.end());
+                                std::sort(toBeKept.begin(),toBeKept.end());
+                                std::set_difference(toBePruned.begin(),toBePruned.end(),toBeKept.begin(),toBeKept.end(),back_inserter(result));
+                                result.erase(unique(result.begin(),result.end()),result.end());
+                                for(vector<size_t>::const_iterator atoms= result.begin();atoms!=result.end(); atoms++)
+                                    prunedIdxTwo.erase(std::remove(prunedIdxTwo.begin(),prunedIdxTwo.end(),*atoms));
+                                prunedMCS2.push_back(prunedIdxTwo);
 			}            
-			closedMCS1.push_back(idxOne);                      
-			closedMCS2.push_back(idxTwo);
 		}
-                
 	}
 }
 
