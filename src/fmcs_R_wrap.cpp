@@ -422,15 +422,15 @@ extern "C" {
 			string sdfOut;
 		        list<vector<size_t> > originalIndex1 = mcs.getFirstOriginalIndice();
 			for(list<vector<size_t> >::iterator it = originalIndex1.begin();it!=originalIndex1.end();it++){
-				sdfOut = compoundOne.createDissimilarSDFs(*it);
+                                sdfOut = compoundOne.createDissimilarSDFs(*it);
 				originaDelta1.push_back(sdfOut);
 				sdfOut = compoundOne.createMCSSDFs(*it);
 				originalMcs1.push_back(sdfOut);
 			}
 
 			list<vector<size_t> > originalIndex2 = mcs.getSecondOriginalIndice();
-			for(list<vector<size_t> >::iterator it = originalIndex2.begin();it!=originalIndex2.end();it++){
-				sdfOut = compoundTwo.createDissimilarSDFs(*it);
+			for(list<vector<size_t> >::iterator it = originalIndex2.begin();it!=originalIndex2.end();it++){				
+                                sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				originalDelta2.push_back(sdfOut);
 				sdfOut = compoundTwo.createMCSSDFs(*it);
 				originalMcs2.push_back(sdfOut);
@@ -528,14 +528,14 @@ extern "C" {
 			list<vector<size_t> > originalIndex1 = mcs.getFirstOriginalIndice();
                         for(list<vector<size_t> >::iterator it = originalIndex1.begin();it!=originalIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_originalDeltaFirst.sdf";
+				nameDiss = "first_mol_original_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Dissimilar SDFs for molecule 1 written" << endl;
 
 				sdfOut = compoundOne.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_originalMCSFirst.sdf";
+				nameMCS = "first_mol_original_MCS_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();
@@ -547,13 +547,13 @@ extern "C" {
                         i = 0;  
                         for(list<vector<size_t> >::iterator it = originalIndex2.begin();it!=originalIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_originalDeltaSecond.sdf";
+				nameDiss = "second_mol_original_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_originalMCSSecond.sdf";
+				nameMCS = "second_mol_original_MCS_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();
@@ -566,13 +566,13 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = closedIndex1.begin();it!=closedIndex1.end();it++){
 			
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_closedDeltaFirst.sdf";
+                                nameDiss = "first_mol_closed_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Closed dissimilar SDFs for molecule 1 written" << endl;
 				sdfOut = compoundOne.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_closedMCSFirst.sdf";
+                                nameMCS = "first_mol_closed_mcs_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();
@@ -585,13 +585,13 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = closedIndex2.begin();it!=closedIndex2.end();it++){
 			
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_closedDeltaSecond.sdf";
+				nameDiss = "second_mol_closed_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Closed dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_closedMCSSecond.sdf";
+				nameMCS = "second_mol_closed_mcs_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();
@@ -603,13 +603,13 @@ extern "C" {
                         i = 0;  
                         for(list<vector<size_t> >::iterator it = prunedIndex1.begin();it!=prunedIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_prunedDeltaFirst.sdf";
+				nameDiss = "first_mol_pruned_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Pruned dissimilar SDFs for molecule 1 written" << endl;
 				sdfOut = compoundOne.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_prunedMCSFirst.sdf";
+				nameMCS = "first_mol_pruned_mcs_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();
@@ -621,13 +621,13 @@ extern "C" {
                          i = 0;  
                         for(list<vector<size_t> >::iterator it = prunedIndex2.begin();it!=prunedIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
-				nameDiss = to_string(i) + "_prunedDeltaSecond.sdf";
+				nameDiss = "second_mol_pruned_delta_" +to_string(i) + ".sdf";
 				myfile.open(nameDiss);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Pruned dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
-				nameMCS = to_string(i) + "_prunedMCSSecond.sdf";
+				nameMCS = "second_mol_pruned_mcs_" +to_string(i) + ".sdf";
 				myfile.open(nameMCS);
 				myfile << sdfOut;
 				myfile.close();

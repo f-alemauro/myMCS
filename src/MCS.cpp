@@ -80,7 +80,7 @@ void MCS::calculate() {
 				atomsOne = compoundOne.getAtoms();
 				atomCountOne = compoundOne.getAtomCount();
 				//for each atom, get its corresponding original index ID
-				for (int i = 0; i < atomCountOne; ++i)
+				for (int i = 0; i < (int) atomCountOne; ++i)
 					tmpIdVector.push_back(atomsOne[i].originalId);
 				originalMCS1.push_back(tmpIdVector);
 
@@ -90,7 +90,7 @@ void MCS::calculate() {
 				atomsTwo = compoundTwo.getAtoms();
 				atomCountTwo = compoundTwo.getAtomCount();
 				//for each atom, get its corresponding original index ID
-				for (int i = 0; i < atomCountTwo; ++i)
+				for (int i = 0; i < (int) atomCountTwo; ++i)
 					tmpIdVector.push_back(atomsTwo[i].originalId);
 				originalMCS2.push_back(tmpIdVector);
 			}
@@ -179,13 +179,13 @@ void MCS::calculate() {
         					for(vector<size_t>::const_iterator atoms = mappa->second.begin(); atoms!=mappa->second.end() ; atoms++)
                                                     if (std::find(prunedIdxOne.begin(), prunedIdxOne.end(), compoundOne.atoms[*atoms].originalId) != prunedIdxOne.end())
                                                         counter ++;                                                                
-						if (counter < mappa->second.size()) // if the number of the atoms in the actual ring are less than those in the MCS
+						if (counter < (int) mappa->second.size()) // if the number of the atoms in the actual ring are less than those in the MCS
                                                     for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++){
                                                         vector<size_t>::const_iterator elem = std::find(prunedIdxOne.begin(), prunedIdxOne.end(), compoundOne.atoms[*atoms].originalId);
                                                         if (elem != prunedIdxOne.end())
                                                             toBePruned.push_back(*elem);
                                                 }
-                                                else if (counter == mappa->second.size())
+                                                else if (counter == (int) mappa->second.size())
                                                     for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++)
                                                         toBeKept.push_back(compoundOne.atoms[*atoms].originalId);
 				}
@@ -208,13 +208,13 @@ void MCS::calculate() {
 						for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end()  ; atoms++)
                                 			if (std::find(prunedIdxTwo.begin(), prunedIdxTwo.end(), compoundTwo.atoms[*atoms].originalId) != prunedIdxTwo.end())
                                                             counter ++;
-						if (counter < mappa->second.size())
+						if (counter < (int) mappa->second.size())
                                                     for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end();atoms++){
                                                         vector<size_t>::const_iterator elem = std::find(prunedIdxTwo.begin(), prunedIdxTwo.end(), compoundTwo.atoms[*atoms].originalId);
                                                             if (elem != prunedIdxTwo.end())
                                                                 toBePruned.push_back(*elem);
                                                 }
-                                                else if (counter == mappa->second.size())
+                                                else if (counter == (int) mappa->second.size())
                                                     for(vector<size_t>::const_iterator atoms= mappa->second.begin();atoms!=mappa->second.end(); atoms++)
                                                         toBeKept.push_back(compoundTwo.atoms[*atoms].originalId);
 				}
@@ -306,7 +306,7 @@ void MCS::calculate() {
                                         
 					if (bondOne.isAromatic != bondTwo.isAromatic){ //if the aromaticity is different -> miscount++
 						//cout << "Aromaticity error!" << endl;						
-						//getchar();
+						
 						++bondMisCount;
 					}
                                         
@@ -314,7 +314,7 @@ void MCS::calculate() {
 					
                                         else { // if both are in an aromatic or both in an aliphatic ring                                            
                                             
-                                            if (bondOne.bondType != bondTwo.bondType) // this check is only for aliphatics                                                     
+                                            if ((bondOne.bondType != bondTwo.bondType) && (!bondOne.isAromatic) && (!bondTwo.isAromatic)) // this check is only for aliphatics                                                     
                                                 ++bondMisCount;
                                             
                                             else {    //else bondtype check
@@ -345,12 +345,12 @@ void MCS::calculate() {
 						set_intersection(ringsIDsecondA.begin(), ringsIDsecondA.end(), ringsIDsecondB.begin(), ringsIDsecondB.end(), back_inserter(ringIntersectionSecond));
 						
 						
-						int i, j, k, z;
+						int i, j;
 						vector<size_t> listOfAtomsInRingOne, listOfAtomsInRingSecond;
 	
-						for (i = 0; i < ringIntersectionOne.size(); i++) {
+						for (i = 0; i < (int) ringIntersectionOne.size(); i++) {
 							size_t ID = ringIntersectionOne[i];
-							for (j = 0; j < ringIntersectionSecond.size(); j++) {
+							for (j = 0; j < (int) ringIntersectionSecond.size(); j++) {
 								size_t IDSecond = ringIntersectionSecond[j];
 								if (ringsCompareMap[ID][IDSecond] == 1){
 									flagMis = 1;
