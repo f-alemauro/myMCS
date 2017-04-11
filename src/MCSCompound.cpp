@@ -159,7 +159,7 @@ namespace FMCS {
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
         MCSRingDetector ringDector(*this);
-		ringDector.detect();
+		ringDector.detect();                
 		for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
 			cout << "RING " << it->first << ": " << it->second << endl;
 		}
@@ -190,7 +190,7 @@ namespace FMCS {
         bondNumss >> numbonds;
 
         MCSMap atomMap;
-        for (int i = 0; i < indexLength; ++i) {
+        for (int i = 0; i < (int) indexLength; ++i) {
             subLines.push_back(lines[4 + index[i]]);
             atomMap.push_back(index[i], i);
         }
@@ -469,21 +469,21 @@ namespace FMCS {
                         }
 
 
-                        std::cout << "atom_ids: ";
-                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-                            std::cout << *i <<" ";
-
-                        std::cout << endl;
+//                        std::cout << "atom_ids: ";
+//                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
+//                            std::cout << *i <<" ";
+//
+//                        std::cout << endl;
 
 
                         //eliminating the duplicates from the atoms list to be searched in the mcs list
                         sort(atom_ids.begin(), atom_ids.end());
                         atom_ids.erase(unique(atom_ids.begin(), atom_ids.end()), atom_ids.end());
 
-                        std::cout << "atom_ids sorted: ";
-                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-                            std::cout << *i <<" ";
-                        cout << endl;
+//                        std::cout << "atom_ids sorted: ";
+//                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
+//                            std::cout << *i <<" ";
+//                        cout << endl;
                       
 
                          
@@ -492,24 +492,26 @@ namespace FMCS {
                         for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {                                              
                          
                             atom_pos_in_mcs = find(mcs.begin(), mcs.end(), *it);
-                           //std::cout<<"\n";
-                            if (atom_pos_in_mcs != mcs.end()) { 
-                                cout <<" atom Id: " << atoms[*atom_pos_in_mcs].atomId; 
-                                std::vector<size_t> ringIds = atoms[*it].ringId;
-                                std::vector<size_t> ringIds_org = atoms[atoms[*it].originalId].ringId;
-                                if (!ringIds.empty()){ 
-                                    //cout << "is in a ring: " << atoms[*it].isInARing << endl;
-                                    cout << "    ring Id:   " ;                                    
+                           //std::cout<<"\n";cd /S
+                            if (atom_pos_in_mcs != mcs.end()) {                                
+                                //cout <<" atom Id_it: " << atoms[*it].atomId;
+                                //the atoms[*it] gives me the original ID, while the ringIds are saved for the new Ids, so I put atoms[*it-1] to access the new id    
+                                std::vector<size_t> ringIds = atoms[*it-1].ringId;                                
+                                if (!ringIds.empty()){                                 
+
+                                    //cout << "    ring Id:   " ;               
                                     
-                                    for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
-                                        //if (ringit->isAromatic())
-                                            //cout << " Aromatic   ," ;
-                                        cout << *ringit<< "    ";                                
-                                    }
+                                    //for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
+                                        
+                                        //cout << *ringit<< "    ";
+                                        
+                                    //for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
+                                        //cout << "RING " << it->first << "->" << it->second << endl;                                                                      
+                                    //}
                                     
-                                    cout << endl;
+                                    //cout << endl;
                                 }
-                                getchar();
+                                //getchar();
                                 found++;
                                 //std::cout<<"atom in common:" << *it << endl;
                                 atoms_pos.push_back(*(atom_pos_in_mcs));
@@ -518,9 +520,7 @@ namespace FMCS {
                         }
                         
                         
-                        //finding the atoms of the dissimilarities connected to the rings in the MCS (Aromatic or Aliphatic)
-                        
-                        
+                                          
                         
                        
                         
