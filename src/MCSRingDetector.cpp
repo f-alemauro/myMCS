@@ -191,6 +191,7 @@ namespace FMCS {
 			vector<size_t> tempBondList;  
                         
 			bool isAromatic = ringIterator->isAromatic();
+                        //cout << "isAromatic is : " << isAromatic <<endl;
 			ringEdgeMap[ringID] = tempBondList;
 			ringAromMap[ringID] = isAromatic;
 
@@ -212,7 +213,6 @@ namespace FMCS {
 			
                         
                         for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
-                            //cout << *ringEdgeIter << " - ";
                             compound.setRingBond(*ringEdgeIter);
                             tempBondList.push_back(*ringEdgeIter);
 			}
@@ -221,14 +221,11 @@ namespace FMCS {
                         
 			vector<size_t> tempAtomList;
                         cout << "ring Id: " << ringID << endl;
-                        cout << "ring atoms: " << endl;
 			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){				
-                            cout << "org: " << atoms[*ringAtomIter].originalId << " - ";                            
-                            cout << "new: " << atoms[*ringAtomIter].atomId << " - "; 
                             compound.setRingId(*ringAtomIter, ringID);
-                            tempAtomList.push_back(*ringAtomIter);
-                            //tempAtomList.push_back(atoms[*ringAtomIter].originalId);
+                            tempAtomList.push_back(*ringAtomIter);                            
 			}			
+                        cout <<endl;
                         ringAtomsMap[ringID]= tempAtomList;
                         
                         
@@ -242,6 +239,13 @@ namespace FMCS {
                                 cout << " " << *ringAtomIter << " - ";
                             cout << endl;
                         }
+                        
+                        for (map<size_t,bool >::const_iterator iter = ringAromMap.begin(); iter != ringAromMap.end(); iter++)
+                        {
+                            cout << "ringID: " << iter->first << "  Aromaticity:  " << iter->second << endl;                            
+                        }
+                        getchar();
+                        
                         
         }
                 
@@ -276,7 +280,7 @@ namespace FMCS {
             } else if (neighborBonds[i]->isDoubleBond()) {
                 electronCount += 2;
             } else {
-                electronCount +=3;
+                electronCount += 3;
             }
         }
         
@@ -310,41 +314,50 @@ namespace FMCS {
     
     bool MCSRingDetector::Ring::isAromatic() const {
         const MCSCompound::Bond* bonds= compoundPtr->getBonds();
-	const MCSCompound::Atom* atoms = compoundPtr->getAtoms();
+	//const MCSCompound::Atom* atoms = compoundPtr->getAtoms();
 	
         int piElectornCount = 0;
         for (vector<int>::const_iterator i = vertexPath.begin(); i != vertexPath.end(); ++i) {
-			//cout << "vertex: " << atoms[*i].originalId << endl;
-			//bool hasLonePair = true;
-			bool hasLonePair = false;
-			if (!isSp2Hybridized(*i, 1, hasLonePair)){
-				cout << "Is aro? 0" << endl;				
-				return false;
-			}
+            //cout << "vertex: " << atoms[*i].originalId << endl;            
+            //bool hasLonePair = false;
+            //if (!isSp2Hybridized(*i, 1, hasLonePair)){
+                    //cout << "Is aro? 0" << endl;				
+                    //return false;
+            //}
+            
             size_t leftEdge = this->leftEdge(*i);
-			//cout << "LEFT BOND: " << atoms[bonds[leftEdge].firstAtom].originalId << " - " << atoms[bonds[leftEdge].secondAtom].originalId << endl;;
+            //cout << "LEFT BOND: " << atoms[bonds[leftEdge].firstAtom].originalId << " - " << atoms[bonds[leftEdge].secondAtom].originalId << endl;;
             size_t rightEdge = this->rightEdge(*i);
-			//cout << "RIGHT BOND: " << atoms[bonds[rightEdge].firstAtom].originalId << " - " << atoms[bonds[rightEdge].secondAtom].originalId << endl;
-			//if (bonds[leftEdge].bondType == 4 && bonds[rightEdge].bondType == 4)
-//				return true;
+            //cout << "RIGHT BOND: " << atoms[bonds[rightEdge].firstAtom].originalId << " - " << atoms[bonds[rightEdge].secondAtom].originalId << endl;
 
-			if (bonds[leftEdge].isDoubleBond()){// || bonds[leftEdge].bondType == 4) {
-				cout << "Left edge is double bond!" << endl;
+
+            if (bonds[leftEdge].isDoubleBond()){// || bonds[leftEdge].bondType == 4) {
+                //cout << "Left edge is double bond!" << endl;
                 ++piElectornCount;
             }
-			if (bonds[rightEdge].isDoubleBond()){// || bonds[rightEdge].bondType == 4) {
-				cout << "Right edge is double bond!" << endl;
-				++piElectornCount;
-			}
-			//if (!(bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) && !(bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) && hasLonePair) {
-			if (!bonds[leftEdge].isDoubleBond() && !bonds[rightEdge].isDoubleBond()  && hasLonePair) {
-				cout << "No double bond but hasLonePair" << endl;
-                piElectornCount += 2;
+            if (bonds[rightEdge].isDoubleBond()){// || bonds[rightEdge].bondType == 4) {
+                //cout << "Right edge is double bond!" << endl;
+                ++piElectornCount;
+            }
+            //if (!(bonds[leftEdge].isDoubleBond() || bonds[leftEdge].bondType == 4) && !(bonds[rightEdge].isDoubleBond() || bonds[rightEdge].bondType == 4) && hasLonePair) {
+            //if (!bonds[leftEdge].isDoubleBond() && !bonds[rightEdge].isDoubleBond()  && hasLonePair) {
+                    //cout << "No double bond but hasLonePair" << endl;
+                //piElectornCount += 2;
+            //}
+        }
+        
+        bool aromCHECK = true;
+        vector<int> ringEdges = this->edgePath;
+        
+        // check all the edges of the ring, even if one of them is not type 4 then the ring is not aromatic
+        for (vector<int>::const_iterator edgeIter = ringEdges.begin(); edgeIter != ringEdges.end(); ++edgeIter) {            
+            if (bonds[*edgeIter].bondType != 4){
+                aromCHECK = false;        
+                break;
             }
         }
-		bool isAro = (piElectornCount - 2) % 4 == 0;
-		cout << "Is aromatic? " << isAro << endl;
-		return isAro;
+        bool isAro = ((piElectornCount - 2) % 4 == 0) || aromCHECK ;        
+        return isAro;
     }
 
 }

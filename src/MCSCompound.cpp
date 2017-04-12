@@ -505,9 +505,9 @@ namespace FMCS {
                                         
                                         //cout << *ringit<< "    ";
                                         
-                                    //for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
-                                        //cout << "RING " << it->first << "->" << it->second << endl;                                                                      
-                                    //}
+                                    for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
+                                        cout << "RING " << it->first << "->" << it->second << endl;                                                                      
+                                    }
                                     
                                     //cout << endl;
                                 }
@@ -611,11 +611,11 @@ namespace FMCS {
         for (vector<size_t>::iterator k = listOfAtoms.begin(); k != listOfAtoms.end(); ++k) {
             for (list<vector<size_t> >::iterator resultI = listOfSubgraph.begin(); resultI != listOfSubgraph.end(); ++resultI) {
                 if ((*resultI)[1] == *k) {
-                    cout << "Change: " << *k << "-->" << atomLinesCounter << endl;
+                    //cout << "Change: " << *k << "-->" << atomLinesCounter << endl;
                     (*resultI)[1] = atomLinesCounter;
                 }
                 if ((*resultI)[2] == *k) {
-                    cout << "Change: " << *k << "-->" << atomLinesCounter << endl;
+                    //cout << "Change: " << *k << "-->" << atomLinesCounter << endl;
                     (*resultI)[2] = atomLinesCounter;
                 }
             }
