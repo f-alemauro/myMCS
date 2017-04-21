@@ -110,14 +110,22 @@ void MCS::calculate() {
 					return;
 			}
 
-
-			for (int r = 0; r < nRingOne; r++)
-				for (int c = 0; c < nRingTwo; c++)
-					if (compoundOne.ringSmartMap.find(r)->second == compoundTwo.ringSmartMap.find(c)->second)
-						ringsCompareMap[r][c] = 1;
-					else 
-						ringsCompareMap[r][c] = 0;
-		
+                        string ringAtomsStr1 = "";
+                        string ringAtomsStr2 = "";
+			for (int r = 0; r < nRingOne; r++){
+                                ringAtomsStr1 = compoundOne.ringSmartMap.find(r)->second;
+                                sort(ringAtomsStr1.begin(), ringAtomsStr1.end());
+                                cout << "ringAtomsString 1 sorted: " << ringAtomsStr1 << endl;
+				for (int c = 0; c < nRingTwo; c++){                                    
+                                    ringAtomsStr2 = compoundTwo.ringSmartMap.find(c)->second;                                    
+                                    sort(ringAtomsStr2.begin(), ringAtomsStr2.end());                                    
+                                    cout << "ringAtomsString 2 sorted: " << ringAtomsStr2 << endl;
+                                    if (ringAtomsStr1 == ringAtomsStr2)
+					ringsCompareMap[r][c] = 1;
+                                    else 
+					ringsCompareMap[r][c] = 0;
+                                }
+                        }
 			massimo();
 		}
 	if (runningMode == DETAIL) {

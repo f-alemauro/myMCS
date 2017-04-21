@@ -487,7 +487,7 @@ namespace FMCS {
                       
 
                          
-                        
+                        list<std::vector<string> > ringInfoTags;
                         //std::cout<<" No duplicates: ";
                         for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {                                              
                          
@@ -497,38 +497,38 @@ namespace FMCS {
                                 //cout <<" atom Id_it: " << atoms[*it].atomId;
                                 //the atoms[*it] gives me the original ID, while the ringIds are saved for the new Ids, so I put atoms[*it-1] to access the new id    
                                 std::vector<size_t> ringIds = atoms[*it-1].ringId;                                
-                                if (!ringIds.empty()){                                 
-
-                                    //cout << "    ring Id:   " ;               
+                                
+                                if (!ringIds.empty()){
+                                    string atomId;
+                                    vector<string> ringInfoTagsRow;
                                     
-                                    //for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
-                                        
-                                        //cout << *ringit<< "    ";
-                                        
-                                    for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
-                                        cout << "RING " << it->first << "->" << it->second << endl;                                                                      
-                                    }
                                     
-                                    //cout << endl;
+                                    cout << "    ring Id:   " ; 
+                                    for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
+                                        cout << *ringit<< "    ";
+                                        atomId = to_string(*it-1);
+                                        ringInfoTagsRow.push_back(atomId); 
+                                        cout << "atom_id: " << *it-1 << " ;  ";
+                                        if (ringAromMap.find(*ringit) != ringAromMap.end()){
+                                            ringInfoTagsRow.push_back(to_string(ringAromMap.at(*ringit)));
+                                            cout << "aromaticity: " << ringAromMap.at(*ringit) << " ;  ";}
+                                        if (ringSmartMap.find(*ringit) != ringSmartMap.end()){
+                                            ringInfoTagsRow.push_back(ringSmartMap.at(*ringit));
+                                            cout << "atom symbols: " << ringSmartMap.at(*ringit) << " ." << endl;}
+                                        ringInfoTags.push_back(ringInfoTagsRow);                                          
+                                        ringInfoTagsRow.clear();
+                                        
+                                    } 
                                 }
-                                //getchar();
+                                
                                 found++;
                                 //std::cout<<"atom in common:" << *it << endl;
-                                atoms_pos.push_back(*(atom_pos_in_mcs));
+                                atoms_pos.push_back(*(atom_pos_in_mcs));                               
+
+                                
                             }
                             
                         }
-                        
-                        
-                                          
-                        
-                       
-                        
-                        
-                        
-                        
-                        
-                        
                         //closing the open rings in the dissimilarity SDFs.
                         if (found >= 2) {
                             int combinationNumber = factorial(found) / (factorial(found - 2)*2);

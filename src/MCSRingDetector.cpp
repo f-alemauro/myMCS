@@ -201,15 +201,17 @@ namespace FMCS {
 			}
 
 			std::string ringSMART = "";
-                        cout << "ring atom symbols: ";
+                        cout << "ring atom ids: ";
 			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){
-                            cout << atoms[*ringAtomIter].atomSymbol;
+                            cout << atoms[*ringAtomIter].atomId << " ";
                             ringSMART += atoms[*ringAtomIter].atomSymbol;                                                       
 			}
                         cout << endl;
                         
-                        sort(ringSMART.begin(), ringSMART.end());
+                        //we will sort later in the MCS.cpp when we are checking if the rings atom symbols are equal.
+                        //sort(ringSMART.begin(), ringSMART.end());
 			ringSmartMap[ringID] = ringSMART;
+                        cout << "ringSmartMap[" << ringID << "] : " << ringSMART <<endl;
 			
                         
                         for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
@@ -230,20 +232,20 @@ namespace FMCS {
                         
                         
                         //testing... printing 
-                        typedef map<size_t,vector<size_t> >::const_iterator MapIterator;
-                        for (MapIterator iter = ringAtomsMap.begin(); iter != ringAtomsMap.end(); iter++)
-                        {
-                            cout << "ringID: " << iter->first << "  :  " << "Atoms:";
-                            typedef vector<size_t>::const_iterator VectorIterator;
-                            for (VectorIterator ringAtomIter = iter->second.begin(); ringAtomIter != iter->second.end(); ++ringAtomIter)
-                                cout << " " << *ringAtomIter << " - ";
-                            cout << endl;
-                        }
+//                        typedef map<size_t,vector<size_t> >::const_iterator MapIterator;
+//                        for (MapIterator iter = ringAtomsMap.begin(); iter != ringAtomsMap.end(); iter++)
+//                        {
+//                            cout << "ringID: " << iter->first << "  :  " << "Atoms:";
+//                            typedef vector<size_t>::const_iterator VectorIterator;
+//                            for (VectorIterator ringAtomIter = iter->second.begin(); ringAtomIter != iter->second.end(); ++ringAtomIter)
+//                                cout << " " << *ringAtomIter << " - ";
+//                            cout << endl;
+//                        }
                         
-                        for (map<size_t,bool >::const_iterator iter = ringAromMap.begin(); iter != ringAromMap.end(); iter++)
-                        {
-                            cout << "ringID: " << iter->first << "  Aromaticity:  " << iter->second << endl;                            
-                        }
+//                        for (map<size_t,bool >::const_iterator iter = ringAromMap.begin(); iter != ringAromMap.end(); iter++)
+//                        {
+//                            cout << "ringID: " << iter->first << "  Aromaticity:  " << iter->second << endl;                            
+//                        }
                         getchar();
                         
                         
@@ -356,7 +358,12 @@ namespace FMCS {
                 break;
             }
         }
-        bool isAro = ((piElectornCount - 2) % 4 == 0) || aromCHECK ;        
+        
+        bool isAro;
+        if (piElectornCount == 2)
+            isAro = false;
+        else
+            isAro = ((piElectornCount - 2) % 4 == 0) || aromCHECK ;        
         return isAro;
     }
 
