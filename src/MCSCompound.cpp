@@ -585,7 +585,10 @@ namespace FMCS {
                                     cout << "taggedAtom: " << *(taggedAtom->begin()) << " dissAtom" << *dissAtom<< endl ;
                                     (*taggedAtom->begin()) = to_string(pos_counter);
                                     cout << " changed into:" << pos_counter << endl ;
-                                    atomRingInfo << ">  <RING ATTACHMENTS IN THE MCS>\n" << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n\n" ;
+                                    if (atomRingInfo.str() == "" )
+                                        atomRingInfo << ">  <RING ATTACHMENTS IN THE MCS>\n" << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n" ;
+                                    else
+                                        atomRingInfo << atomRingInfo.str() << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n" ;
                                     cout << atomRingInfo.str() << endl;
                                 }    
                             ++pos_counter;
@@ -604,7 +607,7 @@ namespace FMCS {
                     finalSDF += propertyString;
                     finalSDF += "M  END\n";
                     finalSDF += atomRingInfo.str();
-                    finalSDF += "$$$$\n";
+                    finalSDF += "\n$$$$\n";
                 } else
                     *(i->begin()) = 1;
             }
