@@ -246,7 +246,7 @@ namespace FMCS {
 //                        {
 //                            cout << "ringID: " << iter->first << "  Aromaticity:  " << iter->second << endl;                            
 //                        }
-                        getchar();
+                        
                         
                         
         }

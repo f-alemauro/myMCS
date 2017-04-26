@@ -432,6 +432,7 @@ namespace FMCS {
         list<std::vector<size_t> > subgraph;
         list<std::vector<int> > propertyList;
         std::vector<size_t> listOfAtoms;
+        list<std::vector<string> > ringInfoTags;
         string finalSDF;
 
 
@@ -469,25 +470,24 @@ namespace FMCS {
                         }
 
 
-//                        std::cout << "atom_ids: ";
-//                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-//                            std::cout << *i <<" ";
-//
-//                        std::cout << endl;
+                        std::cout << "atom_ids: ";
+                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
+                            std::cout << *i <<" ";
+                        std::cout << endl;
 
 
                         //eliminating the duplicates from the atoms list to be searched in the mcs list
                         sort(atom_ids.begin(), atom_ids.end());
                         atom_ids.erase(unique(atom_ids.begin(), atom_ids.end()), atom_ids.end());
 
-//                        std::cout << "atom_ids sorted: ";
-//                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-//                            std::cout << *i <<" ";
-//                        cout << endl;
+                        std::cout << "atom_ids sorted: ";
+                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
+                            std::cout << *i <<" ";
+                        cout << endl;
                       
 
                          
-                        list<std::vector<string> > ringInfoTags;
+                        
                         //std::cout<<" No duplicates: ";
                         for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {                                              
                          
@@ -502,13 +502,12 @@ namespace FMCS {
                                     string atomId;
                                     vector<string> ringInfoTagsRow;
                                     
-                                    
                                     cout << "    ring Id:   " ; 
                                     for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
                                         cout << *ringit<< "    ";
-                                        atomId = to_string(*it-1);
+                                        atomId = to_string(*it);
                                         ringInfoTagsRow.push_back(atomId); 
-                                        cout << "atom_id: " << *it-1 << " ;  ";
+                                        cout << "atom_id: " << *it << " ;  ";
                                         if (ringAromMap.find(*ringit) != ringAromMap.end()){
                                             ringInfoTagsRow.push_back(to_string(ringAromMap.at(*ringit)));
                                             cout << "aromaticity: " << ringAromMap.at(*ringit) << " ;  ";}
@@ -516,24 +515,18 @@ namespace FMCS {
                                             ringInfoTagsRow.push_back(ringSmartMap.at(*ringit));
                                             cout << "atom symbols: " << ringSmartMap.at(*ringit) << " ." << endl;}
                                         ringInfoTags.push_back(ringInfoTagsRow);                                          
-                                        ringInfoTagsRow.clear();
-                                        
+                                        ringInfoTagsRow.clear();                                       
                                     } 
                                 }
-                                
-                                found++;
-                                //std::cout<<"atom in common:" << *it << endl;
-                                atoms_pos.push_back(*(atom_pos_in_mcs));                               
-
-                                
+                                found++;                                
+                                atoms_pos.push_back(*(atom_pos_in_mcs));
                             }
                             
                         }
                         //closing the open rings in the dissimilarity SDFs.
                         if (found >= 2) {
-                            int combinationNumber = factorial(found) / (factorial(found - 2)*2);
-                            //cout << "combinationNumber" << combinationNumber << endl;
                             
+                            int combinationNumber = factorial(found) / (factorial(found - 2)*2);                                                        
                             vector<size_t> listOfCombination;
                             
                             //in case there are two numbers in common, the combinationNumber needs to become 2 (the formula gives 1)
@@ -578,16 +571,40 @@ namespace FMCS {
                     string bondString = generateBondString(subgraph);
                     string atomString = generateAtomString(listOfAtoms);
                     stringstream infoLiness;
-                    string ringInfoTags;
+                    stringstream atomRingInfo;
+                    
                     infoLiness << " " << listOfAtoms.size() << " " << subgraph.size() << "  0  0  0  0            999 V2000" << endl;
+                    
+                    //update the ID of the atom with ring tag in the dissimilarity SDF 
+                    if (!ringInfoTags.empty()){
+                    int pos_counter;    
+                        for (list<vector<string> >::iterator taggedAtom = ringInfoTags.begin(); taggedAtom != ringInfoTags.end(); ++taggedAtom){
+                            pos_counter = 1;
+                            for (std:: vector<size_t>::iterator dissAtom = listOfAtoms.begin(); dissAtom != listOfAtoms.end(); ++ dissAtom){
+                                if (std::stoi(*(taggedAtom->begin())) == (int) *dissAtom ){
+                                    cout << "taggedAtom: " << *(taggedAtom->begin()) << " dissAtom" << *dissAtom<< endl ;
+                                    (*taggedAtom->begin()) = to_string(pos_counter);
+                                    cout << " changed into:" << pos_counter << endl ;
+                                    atomRingInfo << ">  <RING ATTACHMENTS IN THE MCS>\n" << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n\n" ;
+                                    cout << atomRingInfo.str() << endl;
+                                }    
+                            ++pos_counter;
+                            //cout << "taggedAtom: " << *(taggedAtom->begin()) << " ringId: " << *(taggedAtom->begin()+1)<< " smart: " << *(taggedAtom->begin()+2)<< endl ;
+                            }
+                        }
+                    } 
+                    
 
+                    
                     finalSDF += molB.infoBlock + "\n";
                     finalSDF += infoLiness.str();
 
                     finalSDF += atomString;
                     finalSDF += bondString;
                     finalSDF += propertyString;
-                    finalSDF += "M  END\n$$$$\n";
+                    finalSDF += "M  END\n";
+                    finalSDF += atomRingInfo.str();
+                    finalSDF += "$$$$\n";
                 } else
                     *(i->begin()) = 1;
             }
@@ -621,7 +638,7 @@ namespace FMCS {
             }
             atomLinesCounter++;
         }
-	cout << "end of change" << endl;
+	
         return listOfSubgraph;
     }
 
