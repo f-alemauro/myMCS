@@ -601,7 +601,6 @@ namespace FMCS {
                     
                     finalSDF += molB.infoBlock + "\n";
                     finalSDF += infoLiness.str();
-
                     finalSDF += atomString;
                     finalSDF += bondString;
                     finalSDF += propertyString;
