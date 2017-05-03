@@ -115,11 +115,11 @@ void MCS::calculate() {
 			for (int r = 0; r < nRingOne; r++){
                                 ringAtomsStr1 = compoundOne.ringSmartMap.find(r)->second;
                                 sort(ringAtomsStr1.begin(), ringAtomsStr1.end());
-                                cout << "ringAtomsString 1 sorted: " << ringAtomsStr1 << endl;
+                                //cout << "ringAtomsString 1 sorted: " << ringAtomsStr1 << endl;
 				for (int c = 0; c < nRingTwo; c++){                                    
                                     ringAtomsStr2 = compoundTwo.ringSmartMap.find(c)->second;                                    
                                     sort(ringAtomsStr2.begin(), ringAtomsStr2.end());                                    
-                                    cout << "ringAtomsString 2 sorted: " << ringAtomsStr2 << endl;
+                                    //cout << "ringAtomsString 2 sorted: " << ringAtomsStr2 << endl;
                                     if (ringAtomsStr1 == ringAtomsStr2)
 					ringsCompareMap[r][c] = 1;
                                     else 

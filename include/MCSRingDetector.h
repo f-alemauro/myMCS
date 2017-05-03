@@ -192,6 +192,7 @@ namespace FMCS {
             convert();
         }
         void detect();
+//        void ringsInMCS(std::vector<size_t> mcsAtoms);
 
     };
     

@@ -115,9 +115,9 @@ namespace FMCS {
                 }
                 Edge newEdge = catEdge(one, another);
                 if (newEdge.front() == newEdge.back()) {
-					if(newEdge.vertexPath.size()<10)
-						rings.push_back(Ring(newEdge, &compound));				
-		        } else {
+                    if(newEdge.vertexPath.size()<10)
+                            rings.push_back(Ring(newEdge, &compound));				
+                } else {
                     addEdge(newEdge);
                 }
             }
@@ -174,14 +174,12 @@ namespace FMCS {
             sortVertexQueue();
         }
 		
-		int aromaticCount = 0;
-
 		std::map<size_t,vector<size_t> > ringAtomsMap, ringEdgeMap;
 		std::map<size_t, bool > ringAromMap;
-		std::map<size_t, string> ringSmartMap;
+		std::map<size_t, string> ringSmartMap;                
 
 		for (vector<Ring>::const_iterator ringIterator = rings.begin(); ringIterator != rings.end(); ++ringIterator) {
-			cout << "Ring size: " << ringIterator->vertexPath.size() << endl;			
+			//cout << "Ring size: " << ringIterator->vertexPath.size() << endl;			
                         //the index of each ring is saved in the ringID
 			size_t ringID = ringIterator - rings.begin();
                         
@@ -201,17 +199,17 @@ namespace FMCS {
 			}
 
 			std::string ringSMART = "";
-                        cout << "ring atom ids: ";
+                        //cout << "ring atom ids: ";
 			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){
-                            cout << atoms[*ringAtomIter].atomId << " ";
+                            //cout << atoms[*ringAtomIter].atomId << " ";
                             ringSMART += atoms[*ringAtomIter].atomSymbol;                                                       
 			}
-                        cout << endl;
+                        //cout << endl;
                         
                         //we will sort later in the MCS.cpp when we are checking if the rings atom symbols are equal.
                         //sort(ringSMART.begin(), ringSMART.end());
 			ringSmartMap[ringID] = ringSMART;
-                        cout << "ringSmartMap[" << ringID << "] : " << ringSMART <<endl;
+                        //cout << "ringSmartMap[" << ringID << "] : " << ringSMART <<endl;
 			
                         
                         for (vector<int>::const_iterator ringEdgeIter = ringEdges.begin(); ringEdgeIter != ringEdges.end(); ++ringEdgeIter) {
@@ -222,33 +220,13 @@ namespace FMCS {
                         ringEdgeMap [ringID]= tempBondList;
                         
 			vector<size_t> tempAtomList;
-                        cout << "ring Id: " << ringID << endl;
+                        //cout << "ring Id: " << ringID << endl;
 			for (vector<int>::const_iterator ringAtomIter = ringAtoms.begin(); ringAtomIter != ringAtoms.end(); ++ringAtomIter){				
                             compound.setRingId(*ringAtomIter, ringID);
                             tempAtomList.push_back(*ringAtomIter);                            
 			}			
-                        cout <<endl;
+                        //cout <<endl;
                         ringAtomsMap[ringID]= tempAtomList;
-                        
-                        
-                        //testing... printing 
-//                        typedef map<size_t,vector<size_t> >::const_iterator MapIterator;
-//                        for (MapIterator iter = ringAtomsMap.begin(); iter != ringAtomsMap.end(); iter++)
-//                        {
-//                            cout << "ringID: " << iter->first << "  :  " << "Atoms:";
-//                            typedef vector<size_t>::const_iterator VectorIterator;
-//                            for (VectorIterator ringAtomIter = iter->second.begin(); ringAtomIter != iter->second.end(); ++ringAtomIter)
-//                                cout << " " << *ringAtomIter << " - ";
-//                            cout << endl;
-//                        }
-                        
-//                        for (map<size_t,bool >::const_iterator iter = ringAromMap.begin(); iter != ringAromMap.end(); iter++)
-//                        {
-//                            cout << "ringID: " << iter->first << "  Aromaticity:  " << iter->second << endl;                            
-//                        }
-                        
-                        
-                        
         }
                 
         compound.setMaps(ringAtomsMap, ringEdgeMap, ringAromMap, ringSmartMap);
@@ -352,7 +330,7 @@ namespace FMCS {
         vector<int> ringEdges = this->edgePath;
         
         // check all the edges of the ring, even if one of them is not type 4 then the ring is not aromatic
-        for (vector<int>::const_iterator edgeIter = ringEdges.begin(); edgeIter != ringEdges.end(); ++edgeIter) {            
+        for (std::vector<int>::const_iterator edgeIter = ringEdges.begin(); edgeIter != ringEdges.end(); ++edgeIter) {            
             if (bonds[*edgeIter].bondType != 4){
                 aromCHECK = false;        
                 break;
@@ -366,6 +344,7 @@ namespace FMCS {
             isAro = ((piElectornCount - 2) % 4 == 0) || aromCHECK ;        
         return isAro;
     }
+
 
 }
 

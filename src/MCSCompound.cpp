@@ -159,10 +159,10 @@ namespace FMCS {
             atoms[bonds[i].secondAtom].neighborBonds.push_back(&bonds[i]);
         }
         MCSRingDetector ringDector(*this);
-		ringDector.detect();                
-		for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
-			cout << "RING " << it->first << ": " << it->second << endl;
-		}
+        ringDector.detect();                
+//        for (std::map<size_t, bool>::iterator it = ringAromMap.begin(); it != ringAromMap.end(); it++){
+//                cout << "RING " << it->first << ": " << it->second << endl;
+//        }
 
     }
 
@@ -416,7 +416,7 @@ namespace FMCS {
 
     const MCSCompound::Bond* MCSCompound::getBond(size_t firstAtom, size_t secondAtom) const {
 
-        for (int i = 0; i < bondCount; ++i) {
+        for (int i = 0; i < (int) bondCount; ++i) {
             if ((bonds[i].firstAtom == firstAtom && bonds[i].secondAtom == secondAtom)
                     || (bonds[i].firstAtom == secondAtom && bonds[i].secondAtom == firstAtom)) {
                 return bonds + i;
@@ -426,7 +426,7 @@ namespace FMCS {
         return NULL;
     }
 
-    string MCSCompound::MCS2SDF(vector<size_t> mcs, bool isMCS) {
+    string MCSCompound::MCS2SDF(std::vector<size_t> mcs, bool isMCS) {
 
         list<std::vector<size_t> > bondsList = strings2size_t(molB.bondBlock, true);
         list<std::vector<size_t> > subgraph;
@@ -470,23 +470,14 @@ namespace FMCS {
                         }
 
 
-                        std::cout << "atom_ids: ";
-                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-                            std::cout << *i <<" ";
-                        std::cout << endl;
-
 
                         //eliminating the duplicates from the atoms list to be searched in the mcs list
                         sort(atom_ids.begin(), atom_ids.end());
                         atom_ids.erase(unique(atom_ids.begin(), atom_ids.end()), atom_ids.end());
 
-                        std::cout << "atom_ids sorted: ";
-                        for (std::vector<size_t>::const_iterator i = atom_ids.begin(); i != atom_ids.end(); i++ )
-                            std::cout << *i <<" ";
-                        cout << endl;
-                      
+                   
 
-                         
+                                            
                         
                         //std::cout<<" No duplicates: ";
                         for (std::vector<size_t>::iterator it = atom_ids.begin(); it != atom_ids.end(); ++it) {                                              
@@ -500,22 +491,45 @@ namespace FMCS {
                                 
                                 if (!ringIds.empty()){
                                     string atomId;
+                                    string ringIdStr;
                                     vector<string> ringInfoTagsRow;
                                     
-                                    cout << "    ring Id:   " ; 
+                                     
                                     for (std::vector<size_t>::const_iterator ringit = ringIds.begin(); ringit != ringIds.end(); ++ringit){
-                                        cout << *ringit<< "    ";
-                                        atomId = to_string(*it);
-                                        ringInfoTagsRow.push_back(atomId); 
-                                        cout << "atom_id: " << *it << " ;  ";
-                                        if (ringAromMap.find(*ringit) != ringAromMap.end()){
-                                            ringInfoTagsRow.push_back(to_string(ringAromMap.at(*ringit)));
-                                            cout << "aromaticity: " << ringAromMap.at(*ringit) << " ;  ";}
-                                        if (ringSmartMap.find(*ringit) != ringSmartMap.end()){
-                                            ringInfoTagsRow.push_back(ringSmartMap.at(*ringit));
-                                            cout << "atom symbols: " << ringSmartMap.at(*ringit) << " ." << endl;}
-                                        ringInfoTags.push_back(ringInfoTagsRow);                                          
-                                        ringInfoTagsRow.clear();                                       
+                                                                               
+                                        if (ringAtomsMap.find(*ringit) != ringAtomsMap.end()){
+                                            
+                                            std::vector<size_t> mcsAtoms = mcs;
+                                            std::vector<size_t> ringAtoms = ringAtomsMap.at(*ringit);
+                                            std::sort(mcsAtoms.begin(), mcsAtoms.end());
+                                            std::sort(ringAtoms.begin(), ringAtoms.end());                                        
+                                            
+                                            
+                                            std::vector<size_t> tempVec;
+                                            for (std::vector<size_t>::const_iterator i = ringAtoms.begin(), end = ringAtoms.end(); i!= end; ++i )                                                
+                                                tempVec.push_back(atoms[*i].originalId);                                               
+                                            ringAtoms = tempVec;
+                                            bool mcsIncludeRingAtoms = std::includes(mcsAtoms.begin(), mcsAtoms.end(), ringAtoms.begin(), ringAtoms.end());                                                                                    
+                                            
+                                            if (mcsIncludeRingAtoms){
+                                                atomId = to_string(*it);
+
+                                                ringIdStr = "Ring" + to_string(*ringit);
+                                                ringInfoTagsRow.push_back(atomId); 
+                                                ringInfoTagsRow.push_back(ringIdStr);
+                                                //cout << "atom_id: " << *it << " ;  ";
+                                                //cout << "ring_id: " << *ringit << " ;  ";
+                                                if (ringAromMap.find(*ringit) != ringAromMap.end())
+                                                    ringInfoTagsRow.push_back(to_string(ringAromMap.at(*ringit)));
+                                                    //cout << "aromaticity: " << ringAromMap.at(*ringit) << " ;  ";}
+                                                if (ringSmartMap.find(*ringit) != ringSmartMap.end())
+                                                    ringInfoTagsRow.push_back(ringSmartMap.at(*ringit));
+                                                    //cout << "atom symbols: " << ringSmartMap.at(*ringit) << " ." << endl;}
+
+                                                ringInfoTags.push_back(ringInfoTagsRow);                                          
+                                                ringInfoTagsRow.clear();                                       
+                                            }
+                                        }    
                                     } 
                                 }
                                 found++;                                
@@ -566,8 +580,8 @@ namespace FMCS {
 
                     if (!molB.chgISO.empty()) {
                         propertyList = evaluateCHGs(listOfAtoms);
-					    propertyString = generatePropertyString(propertyList);
-					}
+                        propertyString = generatePropertyString(propertyList);
+                    }
                     string bondString = generateBondString(subgraph);
                     string atomString = generateAtomString(listOfAtoms);
                     stringstream infoLiness;
@@ -581,24 +595,18 @@ namespace FMCS {
                         for (list<vector<string> >::iterator taggedAtom = ringInfoTags.begin(); taggedAtom != ringInfoTags.end(); ++taggedAtom){
                             pos_counter = 1;
                             for (std:: vector<size_t>::iterator dissAtom = listOfAtoms.begin(); dissAtom != listOfAtoms.end(); ++ dissAtom){
-                                if (std::stoi(*(taggedAtom->begin())) == (int) *dissAtom ){
-                                    cout << "taggedAtom: " << *(taggedAtom->begin()) << " dissAtom" << *dissAtom<< endl ;
-                                    (*taggedAtom->begin()) = to_string(pos_counter);
-                                    cout << " changed into:" << pos_counter << endl ;
+                                if (std::stoi(*(taggedAtom->begin())) == (int) *dissAtom ){                                    
+                                    (*taggedAtom->begin()) = to_string(pos_counter);                                    
                                     if (atomRingInfo.str() == "" )
-                                        atomRingInfo << ">  <RING ATTACHMENTS IN THE MCS>\n" << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n" ;
+                                        atomRingInfo << ">  <RING ATTACHMENTS IN THE MCS>\n" << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << ";" << *(taggedAtom->begin()+3) << "\n" ;
                                     else
-                                        atomRingInfo << atomRingInfo.str() << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << "\n" ;
-                                    cout << atomRingInfo.str() << endl;
+                                        atomRingInfo << atomRingInfo.str() << *(taggedAtom->begin()) << ";" << *(taggedAtom->begin()+1)<< ";" << *(taggedAtom->begin()+2) << ";" << *(taggedAtom->begin()+3) << "\n" ;                                    
                                 }    
                             ++pos_counter;
-                            //cout << "taggedAtom: " << *(taggedAtom->begin()) << " ringId: " << *(taggedAtom->begin()+1)<< " smart: " << *(taggedAtom->begin()+2)<< endl ;
+                            //cout << "taggedAtom: " << *(taggedAtom->begin()) << " ringId: " << *(taggedAtom->begin()+1)<< " Arom: " << *(taggedAtom->begin()+2)<< " smart: " << *(taggedAtom->begin()+3)<< endl ;
                             }
                         }
-                    } 
-                    
-
-                    
+                    }
                     finalSDF += molB.infoBlock + "\n";
                     finalSDF += infoLiness.str();
                     finalSDF += atomString;
@@ -666,9 +674,9 @@ namespace FMCS {
             atomLinesCounter = 1;
             for (vector<size_t>::iterator k = mcs.begin(); k != mcs.end(); ++k) {
                 for (int z = 0; z < (*resultI)[0]; z++) {
-					cout << *k << " - Riga: " << (*resultI)[z * 2 + 1] << "; " << (*resultI)[z * 2 + 2] << endl;
+                    //cout << *k << " - Riga: " << (*resultI)[z * 2 + 1] << "; " << (*resultI)[z * 2 + 2] << endl;
                     if ((*resultI)[z * 2 + 1] == *k) {
-                        cout << "P_Change: " << *k << "-->" << atomLinesCounter << endl;
+                        //cout << "P_Change: " << *k << "-->" << atomLinesCounter << endl;
                         tmpPropRow.push_back(atomLinesCounter);
                         tmpPropRow.push_back((*resultI)[z * 2 + 2]);
                     }
