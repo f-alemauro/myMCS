@@ -413,14 +413,16 @@ extern "C" {
 		MCS mcs(compoundOne, compoundTwo, userDefinedLowerBound, substructureNumLimit, atomMismatchLowerBound, atomMismatchUpperBound, bondMismatchLowerBound, bondMismatchUpperBound, matchType, runningMode, timeout);
 		mcs.calculate();
 
-		static int cmpOneSize, cmpTwoSize, mSize;
-		cmpOneSize = mcs.getCompoundOne().size();
-		cmpTwoSize = mcs.getCompoundTwo().size();
-		mSize = mcs.size();
+		//static int cmpOneSize, cmpTwoSize, mSize;
+		//cmpOneSize = mcs.getCompoundOne().size();
+		//cmpTwoSize = mcs.getCompoundTwo().size();
+		//mSize = mcs.size();
 		if (runningMode == MCS::DETAIL) {
                     	cout << "Saving output..." << endl;
 			string sdfOut;
 		        list<vector<size_t> > originalIndex1 = mcs.getFirstOriginalIndice();
+		        originalMcs1.clear();
+		        originaDelta1.clear();
 			for(list<vector<size_t> >::iterator it = originalIndex1.begin();it!=originalIndex1.end();it++){
                                 sdfOut = compoundOne.createDissimilarSDFs(*it);
 				originaDelta1.push_back(sdfOut);
@@ -429,6 +431,8 @@ extern "C" {
 			}
 
 			list<vector<size_t> > originalIndex2 = mcs.getSecondOriginalIndice();
+			originalMcs2.clear();
+			originalDelta2.clear();
 			for(list<vector<size_t> >::iterator it = originalIndex2.begin();it!=originalIndex2.end();it++){				
                                 sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				originalDelta2.push_back(sdfOut);
@@ -437,6 +441,8 @@ extern "C" {
 			}
 
 			list<vector<size_t> > closedIndex1 = mcs.getFirstClosedIndice();
+			closedDelta1.clear();
+			closedMcs1.clear();
 			for(list<vector<size_t> >::iterator it = closedIndex1.begin();it!=closedIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
 				closedDelta1.push_back(sdfOut);
@@ -445,6 +451,8 @@ extern "C" {
 			}
 
 			list<vector<size_t> > closedIndex2 = mcs.getSecondClosedIndice();
+			closedDelta2.clear();
+			closedMcs2.clear();
 			for(list<vector<size_t> >::iterator it = closedIndex2.begin();it!=closedIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				closedDelta2.push_back(sdfOut);
@@ -454,6 +462,8 @@ extern "C" {
 			}
                         
                         list<vector<size_t> > prunedIndex1 = mcs.getFirstPrunedIndice();
+                        prunedDelta1.clear();
+                        prunedMcs1.clear();
 			for(list<vector<size_t> >::iterator it = prunedIndex1.begin();it!=prunedIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
 				prunedDelta1.push_back(sdfOut);
@@ -462,6 +472,8 @@ extern "C" {
 			}
 
 			list<vector<size_t> > prunedIndex2 = mcs.getSecondPrunedIndice();
+			prunedDelta2.clear();
+			                        prunedMcs2.clear();
 			for(list<vector<size_t> >::iterator it = closedIndex2.begin();it!=closedIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				prunedDelta2.push_back(sdfOut);
@@ -494,7 +506,7 @@ extern "C" {
 		case 1: matchType = MCS::AROMATICITY_SENSETIVE; break;
 		case 2: matchType = MCS::RING_SENSETIVE; break;
 		default:
-			;
+			matchType = MCS::RING_SENSETIVE;
 		}
 
 		MCS::RunningMode runningMode;
@@ -502,7 +514,7 @@ extern "C" {
 		case 0: runningMode = MCS::FAST; break;
 		case 1: runningMode = MCS::DETAIL; break;
 		default:
-			;
+			runningMode = MCS::DETAIL;
 		}
 
 		MCSCompound compoundOne, compoundTwo;
@@ -514,10 +526,10 @@ extern "C" {
 			*bondMismatchLowerBound, *bondMismatchUpperBound,
 			matchType, runningMode, *timeout);
 		mcs.calculate();
-		static int cmpOneSize, cmpTwoSize, mSize;
-		cmpOneSize = mcs.getCompoundOne().size();
-		cmpTwoSize = mcs.getCompoundTwo().size();
-		mSize = mcs.size();
+		//static int cmpOneSize, cmpTwoSize, mSize;
+		//cmpOneSize = mcs.getCompoundOne().size();
+		//cmpTwoSize = mcs.getCompoundTwo().size();
+		//mSize = mcs.size();
 		if (runningMode == MCS::DETAIL) {
 			ofstream myfile;
 			string nameDiss, nameMCS, sdfOut;
@@ -529,14 +541,14 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = originalIndex1.begin();it!=originalIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
 				nameDiss = "first_mol_original_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Dissimilar SDFs for molecule 1 written" << endl;
 
 				sdfOut = compoundOne.createMCSSDFs(*it);
 				nameMCS = "first_mol_original_MCS_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				
@@ -548,13 +560,13 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = originalIndex2.begin();it!=originalIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				nameDiss = "second_mol_original_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
 				nameMCS = "second_mol_original_MCS_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				i++;
@@ -567,13 +579,13 @@ extern "C" {
 			
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
                                 nameDiss = "first_mol_closed_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Closed dissimilar SDFs for molecule 1 written" << endl;
 				sdfOut = compoundOne.createMCSSDFs(*it);
                                 nameMCS = "first_mol_closed_mcs_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
                                 i++;
@@ -586,13 +598,13 @@ extern "C" {
 			
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				nameDiss = "second_mol_closed_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Closed dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
 				nameMCS = "second_mol_closed_mcs_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				i++;
@@ -604,13 +616,13 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = prunedIndex1.begin();it!=prunedIndex1.end();it++){
 				sdfOut = compoundOne.createDissimilarSDFs(*it);
 				nameDiss = "first_mol_pruned_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Pruned dissimilar SDFs for molecule 1 written" << endl;
 				sdfOut = compoundOne.createMCSSDFs(*it);
 				nameMCS = "first_mol_pruned_mcs_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				i++;
@@ -622,13 +634,13 @@ extern "C" {
                         for(list<vector<size_t> >::iterator it = prunedIndex2.begin();it!=prunedIndex2.end();it++){
 				sdfOut = compoundTwo.createDissimilarSDFs(*it);
 				nameDiss = "second_mol_pruned_delta_" +to_string(i) + ".sdf";
-				myfile.open(nameDiss);
+				myfile.open(nameDiss, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				cout << "Pruned dissimilar SDFs for molecule 2 written" << endl;
 				sdfOut = compoundTwo.createMCSSDFs(*it);
 				nameMCS = "second_mol_pruned_mcs_" +to_string(i) + ".sdf";
-				myfile.open(nameMCS);
+				myfile.open(nameMCS, ios_base::out);
 				myfile << sdfOut;
 				myfile.close();
 				i++;
